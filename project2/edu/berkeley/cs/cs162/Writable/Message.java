@@ -5,13 +5,13 @@ public abstract class Message implements Writable {
     /**
      * Specifies the opCode of the Message
      */
-    int opCode;
+    byte opCode;
     
-    Message(int msgType) {
-        this.opCode = msgType;
+    public Message() {
+        // TODO Auto-generated constructor stub    
     }
     
-    int getMsgType() {
+    public byte getMsgType() {
         return opCode;
     }
 }

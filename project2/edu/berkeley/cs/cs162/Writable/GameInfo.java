@@ -5,6 +5,10 @@ import java.io.OutputStream;
 
 public class GameInfo implements Writable {
 
+    public GameInfo() {
+        // TODO Auto-generated constructor stub    
+    }
+    
     @Override
     public void readFrom(InputStream in) {
         // TODO Auto-generated method stub

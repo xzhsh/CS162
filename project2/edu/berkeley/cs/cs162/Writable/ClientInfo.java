@@ -7,6 +7,10 @@ import edu.berkeley.cs.cs162.Client.Player;
 
 public class ClientInfo implements Writable {
     
+    public ClientInfo() {
+        // TODO Auto-generated constructor stub    
+    }
+    
     @Override
     public void readFrom(InputStream in) {
         // TODO Auto-generated method stub  

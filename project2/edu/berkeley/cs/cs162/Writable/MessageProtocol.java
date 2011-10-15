@@ -12,6 +12,10 @@ public class MessageProtocol {
     public static final byte TYPE_MACHINE = (byte) 1;
     public static final byte TYPE_OBSERVER = (byte) 2;
     
+    // MoveType definitions
+    public static final byte MOVE_STONE = (byte) 0;
+    public static final byte MOVE_PASS = (byte) 1;
+    
     // Client to server message opcodes
     public static final byte OP_TYPE_CONNECT     = (byte) 10;
     public static final byte OP_TYPE_DISCONNECT  = (byte) 11;
@@ -44,6 +48,5 @@ public class MessageProtocol {
     public static final byte PLAYER_INVALID_MOVE  = (byte) 20;
     public static final byte PLAYER_TIMEOUT       = (byte) 21;
     public static final byte PLAYER_KO_RULE       = (byte) 22;
-    public static final byte PLAYER_DISCONNECT    = (byte) 23;
-    
+    public static final byte PLAYER_DISCONNECT    = (byte) 23;    
 }
