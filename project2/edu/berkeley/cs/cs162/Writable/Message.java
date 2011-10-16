@@ -11,7 +11,7 @@ public abstract class Message implements Writable {
         // TODO Auto-generated constructor stub    
     }
     
-    public byte getMsgType() {
+    public int getMsgType() {
         return opCode;
     }
 }

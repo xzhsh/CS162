@@ -35,22 +35,5 @@ public interface Client {
      * Gets a ClientInfo representing the client
      * @return
      */
-    public abstract ClientInfo getPlayerInfo();
-
-    /* Handler methods for all game events */
-    /*
-    public abstract void handleGameStart(String gameName, String whitePlayerName, String blackPlayerName, Board board, int moveTimeoutInMs);
-    public abstract void handleGameOver(String gameName, double whitePlayerScore, double blackPlayerScore);
-    public abstract void handleMakeMove(String gameName, String playerName);    
-    public abstract void handleStonePlaced(String gameName, String playerName, Location loc, StoneColor color);
-    public abstract void handleStoneCaptured(String gameName, String playerName, Location loc, StoneColor color);
-    public abstract void handlePlayerPass(String gameName, String playerName);
-    public abstract void handlePlayerError(String gameName, String playerName, String errorDescription);
-    */
-    
-    /* exit() is called to inform a running observer that it should terminate */
-    /*
-    public abstract void beginExit();
-    public abstract void run();
-    */
+    public abstract ClientInfo getClientInfo();
 }
