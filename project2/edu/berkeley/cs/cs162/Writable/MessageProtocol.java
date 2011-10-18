@@ -1,5 +1,8 @@
 package edu.berkeley.cs.cs162.Writable;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class MessageProtocol {
     
     // StoneColor definitions
@@ -48,5 +51,15 @@ public class MessageProtocol {
     public static final byte PLAYER_INVALID_MOVE  = (byte) 20;
     public static final byte PLAYER_TIMEOUT       = (byte) 21;
     public static final byte PLAYER_KO_RULE       = (byte) 22;
-    public static final byte PLAYER_DISCONNECT    = (byte) 23;    
+    public static final byte PLAYER_DISCONNECT    = (byte) 23;
+    
+	public static byte readOpCodeFrom(InputStream input) throws IOException {
+		int results = input.read();
+		if (results > 0)
+		{
+			return (byte)results;
+		}
+		assert false : "Programmer error, inputstream should never be EOF";
+		throw new IOException("Invalid read from inputstream");
+	}    
 }
