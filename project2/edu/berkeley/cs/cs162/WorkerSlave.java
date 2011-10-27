@@ -17,7 +17,17 @@ class WorkerSlave implements Runnable {
 	private OutputStream output;
 	private ThreadSafeQueue<Runnable> messageQueue;
 	
-	public WorkerSlave() {
+	public WorkerSlave(Socket S2Csocket) {
+		forwardConnection = S2Csocket;
+		try {
+			input = forwardConnection.getInputStream();
+			output = forwardConnection.getOutputStream();
+		} catch (IOException e)
+		{
+			//TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		messageQueue = new ThreadSafeQueue<Runnable>(WORKER_MESSAGE_QUEUE_SIZE);
 		done = false;
 	}
@@ -26,24 +36,6 @@ class WorkerSlave implements Runnable {
 		while(!done) {
 			messageQueue.get().run();
 		}
-	}
-	
-	public void handleAcceptS2CConnection(final Socket S2Csocket) {
-		messageQueue.add(
-			new Runnable(){
-				public void run() {
-					forwardConnection = S2Csocket;
-					try {
-						input = forwardConnection.getInputStream();
-						output = forwardConnection.getOutputStream();
-					} catch (IOException e)
-					{
-						//TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		);
 	}
 	
 	public void handleCloseS2CConnection() {
