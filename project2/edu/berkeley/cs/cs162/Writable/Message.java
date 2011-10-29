@@ -14,4 +14,6 @@ public abstract class Message implements Writable {
     public byte getMsgType() {
         return opCode;
     }
+    
+    public abstract boolean isSynchronous();
 }

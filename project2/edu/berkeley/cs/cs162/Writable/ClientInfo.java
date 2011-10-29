@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import edu.berkeley.cs.cs162.Client.Player;
-
 public class ClientInfo implements Writable {
     
     public ClientInfo() {
@@ -23,4 +21,13 @@ public class ClientInfo implements Writable {
         
     }
 
+    public String getName() {
+    	// TODO Auto-generated method stub
+        return null;
+    }
+    
+    public byte getPlayerType() {
+    	// TODO Auto-generated method stub
+        return 0;
+    }
 }
