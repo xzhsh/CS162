@@ -1,6 +1,5 @@
 package edu.berkeley.cs.cs162.Client;
 
-import edu.berkeley.cs.cs162.Writable.ClientInfo;
 
 abstract public class Observer extends BaseClient {
     String name;

@@ -1,8 +1,10 @@
 package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -48,7 +50,7 @@ public class GameServer {
 	/**
 	 * Constructor for gameServer
 	 * @param clientLimit how many max clients can be connected
-	 * @param handshakeThreadPoolSize How many {@link HandshakeWorker} threads there will be.
+	 * @param handshakeThreadPoolSize How many {@link ConnectionWorker} threads there will be.
 	 */
 	
 	public GameServer(int clientLimit, int handshakeThreadPoolSize) 
@@ -70,7 +72,7 @@ public class GameServer {
 			//NOTE These worker threads will never be cleaned up.
 			//However, since this is supposed to either run forever or is terminated by the process
 			//it shouldn't really matter.
-			HandshakeWorker hsWorker = new HandshakeWorker(this);
+			ConnectionWorker hsWorker = new ConnectionWorker(this);
 			Thread hsThread = new Thread(hsWorker);
 			hsThread.start();
 		}
@@ -86,10 +88,10 @@ public class GameServer {
 	 * 
 	 * @param portNumber
 	 */
-	public void waitForConnectionsOnPort(int portNumber) {
+	public void waitForConnectionsOnPort(int portNumber, InetAddress localIP) {
 		try {
-			ServerSocket server = new ServerSocket(portNumber);
-		
+			ServerSocket server = new ServerSocket(portNumber, 50, localIP);
+			
 			while (true) {
 				Socket incomingConnection = server.accept();
 				incomingConnection.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
@@ -151,7 +153,7 @@ public class GameServer {
 	 */
 	public void handleSYN(int SYN_ID, Socket connection) {
 		SocketWithTimeStamp otherConnection = null;
-		
+		System.out.println("Connection initiated with SYN_ID: " + SYN_ID);
 		//Read whether the syn id exists already
 		waitingSocketMapLock.readLock();
 		if(waitingSocketMap.containsKey(SYN_ID))
@@ -163,7 +165,7 @@ public class GameServer {
 		
 		if(otherConnection != null)
 		{
-
+			System.out.println("Pair found!");
 			waitingSocketMapLock.writeLock();
 			waitingSocketMap.remove(SYN_ID);
 			waitingSocketMapLock.writeUnlock();
@@ -219,5 +221,19 @@ public class GameServer {
 		nameToWorkerMapLock.writeLock();
 		nameToWorkerMap.put(name, worker);
 		nameToWorkerMapLock.writeUnlock();
+	}
+	
+	public static void main(String args[])
+	{
+		GameServer server = new GameServer(100, 5);
+		try {
+			server.waitForConnectionsOnPort(Integer.valueOf(args[1]), InetAddress.getByName(args[0]));
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

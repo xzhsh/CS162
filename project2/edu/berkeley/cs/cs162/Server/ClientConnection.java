@@ -1,5 +1,7 @@
 package edu.berkeley.cs.cs162.Server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +26,6 @@ public class ClientConnection {
 		return C2S;
 	}
 	
-	
 	/**
 	 * Tries to receive a 3-way handshake.
 	 * 
@@ -44,18 +45,18 @@ public class ClientConnection {
 		int C2SackID = Math.min(ackID1, ackID2);
 		int S2CackID = Math.max(ackID1, ackID2);
 		
-		OutputStream C2Sout = C2S.getOutputStream();
-		OutputStream S2Cout = S2C.getOutputStream();
-		InputStream C2Sin = C2S.getInputStream();
-		InputStream S2Cin = S2C.getInputStream();
+		DataOutputStream C2Sout = new DataOutputStream(C2S.getOutputStream());
+		DataOutputStream S2Cout = new DataOutputStream(S2C.getOutputStream());
+		DataInputStream C2Sin = new DataInputStream(C2S.getInputStream());
+		DataInputStream S2Cin = new DataInputStream(S2C.getInputStream());
 		
 		try 
 		{
-			S2Cout.write(S2CackID);
-			S2Cout.write(SYN_ID+1);
+			S2Cout.writeInt(S2CackID);
+			S2Cout.writeInt(SYN_ID+1);
 			
-			C2Sout.write(C2SackID);
-			C2Sout.write(SYN_ID+1);
+			C2Sout.writeInt(C2SackID);
+			C2Sout.writeInt(SYN_ID+1);
 			
 			
 			int ackC2S = C2Sin.read();
@@ -73,7 +74,7 @@ public class ClientConnection {
 		} 
 		catch (SocketTimeoutException e)
 		{
-			//socket timed out. try again, perhaps the data was lost?
+			//socket timed out.
 			return false;
 		}
 	}

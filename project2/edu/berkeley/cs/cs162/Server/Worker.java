@@ -42,6 +42,7 @@ public class Worker extends Thread {
 			{
 				server.decrementConnectionCount();
 				connection.close();
+				return;
 			}
 			name = cInfo.getName();
 			server.addWorker(name, this);
