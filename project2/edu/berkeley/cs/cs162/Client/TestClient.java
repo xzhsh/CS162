@@ -1,11 +1,13 @@
 package edu.berkeley.cs.cs162.Client;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Random;
 
+import edu.berkeley.cs.cs162.Writable.ClientInfo;
+import edu.berkeley.cs.cs162.Writable.Message;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
 public class TestClient extends BaseClient {
@@ -31,7 +33,8 @@ public class TestClient extends BaseClient {
 			Socket c2 = new Socket(address, portNumber);
 			ServerConnection connection = new ServerConnection(c1, c2);
 			System.out.println(connection.initiate3WayHandshake(new Random()));
-			
+			Message connectMessage = MessageFactory.createConnectMessage(MessageFactory.createMachinePlayerClientInfo(getName()));
+			//connection.sendToServer(cInfo);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

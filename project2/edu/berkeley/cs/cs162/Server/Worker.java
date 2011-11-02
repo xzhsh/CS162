@@ -40,6 +40,7 @@ public class Worker extends Thread {
 			ClientInfo cInfo = initializeWorker();
 			if (cInfo == null)
 			{
+				System.out.println("Could not get info for client connection.");
 				server.decrementConnectionCount();
 				connection.close();
 				return;

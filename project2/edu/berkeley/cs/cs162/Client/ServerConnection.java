@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Random;
 
+import edu.berkeley.cs.cs162.Writable.Message;
+
 public class ServerConnection {
 	private Socket S2C;
 	private Socket C2S;
@@ -86,5 +88,9 @@ public class ServerConnection {
 	public void close() throws IOException {
 		S2C.close();
 		C2S.close();
+	}
+
+	public void sendToServer(Message cInfo) throws IOException {
+		cInfo.writeTo(oC2S);
 	}
 }

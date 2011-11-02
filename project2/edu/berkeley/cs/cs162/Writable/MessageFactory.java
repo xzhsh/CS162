@@ -3,6 +3,7 @@ package edu.berkeley.cs.cs162.Writable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 
 /**
  * Factory class for Message.
@@ -64,5 +65,25 @@ public class MessageFactory {
 	public static Message createStatusOkMessage()
 	{
 		return new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK);
+	}
+	
+	public static ClientInfo createHumanPlayerClientInfo(String name)
+	{
+		return new ClientInfo(name, MessageProtocol.TYPE_HUMAN);
+	}
+	
+	public static ClientInfo createMachinePlayerClientInfo(String name)
+	{
+		return new ClientInfo(name, MessageProtocol.TYPE_MACHINE);
+	}
+	
+	public static ClientInfo createObserverClientInfo(String name)
+	{
+		return new ClientInfo(name, MessageProtocol.TYPE_OBSERVER);
+	}
+
+	public static Message createConnectMessage(
+			ClientInfo cInfo) {
+		return new CompositeMessage(MessageProtocol.OP_TYPE_CONNECT, cInfo);
 	}
 }
