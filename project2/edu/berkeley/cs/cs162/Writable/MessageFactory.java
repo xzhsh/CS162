@@ -1,5 +1,7 @@
 package edu.berkeley.cs.cs162.Writable;
 
+import edu.berkeley.cs.cs162.Server.StoneColor;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,12 +16,15 @@ import java.util.Collections;
  */
 public class MessageFactory {
 	//TODO add simple message classes as static classes.
-	public static class OpCodeOnlyMessage extends Message{
-		byte opCode;
-		public OpCodeOnlyMessage(byte opCode) {
+	public static class OpCodeOnlyMessage extends Message {
+
+        byte opCode;
+
+        public OpCodeOnlyMessage(byte opCode) {
 			this.opCode = opCode;
 		}
-		public void readFrom(InputStream in) throws IOException {
+
+        public void readFrom(InputStream in) throws IOException {
 			//There shouldn't be any more information other than the opcode
 			//so this method should be a no-op
 		}
@@ -28,11 +33,11 @@ public class MessageFactory {
 			out.write(opCode);
 		}
 		
-		public int hashCode(){
+		public int hashCode() {
 			return opCode;
 		}
 		
-		public boolean equals(Object other){
+		public boolean equals(Object other) {
 			return other.hashCode() == this.hashCode();
 		}
 		
@@ -56,34 +61,33 @@ public class MessageFactory {
      * @param input the InputStream to read from.
      * @throws IOException 
      */
-	public static Message readMessageFromInput(InputStream input) throws IOException{
+	public static Message readMessageFromInput(InputStream input) throws IOException {
 		//TODO fill this in
 		return null;
 	}
 	
 	//TODO add create________Messsage(args) methods for all messages.
-	public static Message createStatusOkMessage()
-	{
+	public static Message createStatusOkMessage() {
 		return new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK);
 	}
 	
-	public static ClientInfo createHumanPlayerClientInfo(String name)
-	{
+	public static ClientInfo createHumanPlayerClientInfo(String name) {
 		return new ClientInfo(name, MessageProtocol.TYPE_HUMAN);
 	}
 	
-	public static ClientInfo createMachinePlayerClientInfo(String name)
-	{
+	public static ClientInfo createMachinePlayerClientInfo(String name) {
 		return new ClientInfo(name, MessageProtocol.TYPE_MACHINE);
 	}
 	
-	public static ClientInfo createObserverClientInfo(String name)
-	{
+	public static ClientInfo createObserverClientInfo(String name) {
 		return new ClientInfo(name, MessageProtocol.TYPE_OBSERVER);
 	}
 
-	public static Message createConnectMessage(
-			ClientInfo cInfo) {
+	public static Message createConnectMessage(ClientInfo cInfo) {
 		return new CompositeMessage(MessageProtocol.OP_TYPE_CONNECT, cInfo);
 	}
+
+    public static StoneColorInfo createStoneColorInfo(byte color) {
+        return new StoneColorInfo(color);
+    }
 }

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class ClientInfo implements Writable {
+
     String name;
     byte type;
     
@@ -18,27 +19,27 @@ public class ClientInfo implements Writable {
     	this.type = type;
     }
     
-    protected ClientInfo() {}
+    protected ClientInfo() {
+        this("", (byte) -1);
+    }
     
-    @Override
+    //@Override
     public void readFrom(InputStream in) throws IOException {
         name = DataTypeIO.readString(in);
         type = DataTypeIO.readByte(in);
     }
 
-    @Override
+    //@Override
     public void writeTo(OutputStream out) throws IOException {
     	DataTypeIO.writeString(out, name);
     	DataTypeIO.writeByte(out, type);
     }
 
     public String getName() {
-    	// TODO Auto-generated method stub
-        return null;
+    	return name;
     }
     
     public byte getPlayerType() {
-    	// TODO Auto-generated method stub
-        return 0;
+    	return type;
     }
 }
