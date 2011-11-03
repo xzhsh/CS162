@@ -1,23 +1,35 @@
 package edu.berkeley.cs.cs162.Writable;
 
+import edu.berkeley.cs.cs162.Server.StoneColor;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class StoneColorInfo implements Writable {
 
-    public StoneColorInfo() {
-        // TODO Auto-generated constructor stub
+    byte color;
+
+    protected StoneColorInfo(byte c) {
+        this.color = c;
     }
 
-    @Override
+    protected StoneColorInfo() {
+        this((byte) -1);
+    }
+
+    //@Override
     public void readFrom(InputStream in) throws IOException {
-        // TODO Auto-generated method stub
+        this.color = DataTypeIO.readByte(in);
     }
 
-    @Override
+    //@Override
     public void writeTo(OutputStream out) throws IOException {
-        // TODO Auto-generated method stub
+        DataTypeIO.writeByte(out, color);
     }
 
+    public byte getColor() {
+        // TODO should this return the object or just the byte code?
+        return color;
+    }
 }

@@ -5,18 +5,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class BoardInfo implements Writable {
-    
-    public BoardInfo() {
+
+
+
+    protected BoardInfo() {
         // TODO Auto-generated constructor stub    
     }
 
-    @Override
+    //@Override
     public void readFrom(InputStream in) throws IOException {
         // TODO Auto-generated method stub
 
     }
 
-    @Override
+    //@Override
     public void writeTo(OutputStream out) throws IOException {
         // TODO Auto-generated method stub
 
