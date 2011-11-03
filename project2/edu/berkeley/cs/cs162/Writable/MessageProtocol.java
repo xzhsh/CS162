@@ -47,5 +47,6 @@ public class MessageProtocol {
     public static final byte PLAYER_TIMEOUT       = (byte) 21;
     public static final byte PLAYER_KO_RULE       = (byte) 22;
     public static final byte PLAYER_DISCONNECT    = (byte) 23;
+	public static final byte UNUSED = (byte) -128;
     
 }

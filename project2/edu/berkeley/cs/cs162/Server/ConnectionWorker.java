@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162.Server;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -35,9 +36,9 @@ public class ConnectionWorker implements Runnable {
 	
 	private void handleConnection(Socket connection) {
 		try {
-			InputStream isStream = connection.getInputStream();
+			DataInputStream isStream = new DataInputStream(connection.getInputStream());
 			//the first integer should be the syn id.
-			int SYN_ID = isStream.read();
+			int SYN_ID = isStream.readInt();
 			server.handleSYN(SYN_ID, connection);
 		} catch (IOException e) {
 			//something is wrong the connection, close the socket and terminate.

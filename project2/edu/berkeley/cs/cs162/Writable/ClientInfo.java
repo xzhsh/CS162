@@ -33,12 +33,30 @@ public class ClientInfo implements Writable {
     }
 
     public String getName() {
-    	// TODO Auto-generated method stub
-        return null;
+    	return name;
     }
     
     public byte getPlayerType() {
-    	// TODO Auto-generated method stub
-        return 0;
+    	return type;
+    }
+    
+    public String toString()
+    {
+    	String typeName = "ERROR";
+    	switch (type)
+    	{
+    	case MessageProtocol.TYPE_HUMAN:
+    		typeName = "HumanPlayer";
+    		break;
+    	case MessageProtocol.TYPE_MACHINE:
+    		typeName = "MachinePlayer";
+    		break;
+    	case MessageProtocol.TYPE_OBSERVER:
+    		typeName = "Observer";
+    		break;
+		default:
+			assert false : "ClientInfo error type";
+    	}
+    	return "<" + typeName + ": " + name + ">";
     }
 }

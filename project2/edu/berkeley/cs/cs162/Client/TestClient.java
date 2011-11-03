@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Random;
 
-import edu.berkeley.cs.cs162.Writable.ClientInfo;
+import edu.berkeley.cs.cs162.Writable.ClientMessages;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
@@ -33,8 +33,14 @@ public class TestClient extends BaseClient {
 			Socket c2 = new Socket(address, portNumber);
 			ServerConnection connection = new ServerConnection(c1, c2);
 			System.out.println(connection.initiate3WayHandshake(new Random()));
-			Message connectMessage = MessageFactory.createConnectMessage(MessageFactory.createMachinePlayerClientInfo(getName()));
-			//connection.sendToServer(cInfo);
+			Message connectMessage = new ClientMessages.ConnectMessage(MessageFactory.createMachinePlayerClientInfo(getName()));
+			connection.sendToServer(connectMessage);
+			Message ok = MessageFactory.createGenericOpCodeOnlyMessage();
+			connection.readFromServer(ok);
+			if (ok.getMsgType() == MessageProtocol.OP_STATUS_OK)
+			{
+				System.out.println("Status ok, connected");
+			}
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

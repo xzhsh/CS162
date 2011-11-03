@@ -32,11 +32,15 @@ public class CompositeMessage extends Message {
 			writables.get(i).writeTo(out);
 		}
 	}
-
+	
 	@Override
 	public boolean isSynchronous() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	public Writable getWritable(int i) {
+		// TODO Auto-generated method stub
+		return writables.get(i);
 	}
 
 }

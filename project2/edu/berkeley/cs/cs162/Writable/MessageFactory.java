@@ -3,7 +3,6 @@ package edu.berkeley.cs.cs162.Writable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collections;
 
 /**
  * Factory class for Message.
@@ -19,6 +18,7 @@ public class MessageFactory {
 		public OpCodeOnlyMessage(byte opCode) {
 			this.opCode = opCode;
 		}
+		
 		public void readFrom(InputStream in) throws IOException {
 			//There shouldn't be any more information other than the opcode
 			//so this method should be a no-op
@@ -57,14 +57,19 @@ public class MessageFactory {
      * @throws IOException 
      */
 	public static Message readMessageFromInput(InputStream input) throws IOException{
-		//TODO fill this in
-		return null;
+		byte opCode = DataTypeIO.readByte(input);
+		return new OpCodeOnlyMessage(opCode);
 	}
 	
 	//TODO add create________Messsage(args) methods for all messages.
 	public static Message createStatusOkMessage()
 	{
 		return new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK);
+	}
+	
+	public static Message createGenericOpCodeOnlyMessage()
+	{
+		return new OpCodeOnlyMessage(MessageProtocol.UNUSED);
 	}
 	
 	public static ClientInfo createHumanPlayerClientInfo(String name)
@@ -80,10 +85,5 @@ public class MessageFactory {
 	public static ClientInfo createObserverClientInfo(String name)
 	{
 		return new ClientInfo(name, MessageProtocol.TYPE_OBSERVER);
-	}
-
-	public static Message createConnectMessage(
-			ClientInfo cInfo) {
-		return new CompositeMessage(MessageProtocol.OP_TYPE_CONNECT, cInfo);
 	}
 }

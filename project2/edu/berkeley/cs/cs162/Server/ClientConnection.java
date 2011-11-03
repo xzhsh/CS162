@@ -3,19 +3,25 @@ package edu.berkeley.cs.cs162.Server;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Random;
+
+import edu.berkeley.cs.cs162.Writable.Message;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
 public class ClientConnection {
 	private Socket S2C;
 	private Socket C2S;
 	private int SYN_ID;
+	private DataOutputStream C2Sout;
+	private DataInputStream S2Cin;
+	private DataInputStream C2Sin;
+	private DataOutputStream S2Cout;
 	public ClientConnection(Socket connection1, Socket connection2, int SYN_ID) {
 		S2C = connection1;
 		C2S = connection2;
+		this.SYN_ID = SYN_ID;
 	}
 	
 	public Socket getS2C(){
@@ -45,10 +51,10 @@ public class ClientConnection {
 		int C2SackID = Math.min(ackID1, ackID2);
 		int S2CackID = Math.max(ackID1, ackID2);
 		
-		DataOutputStream C2Sout = new DataOutputStream(C2S.getOutputStream());
-		DataOutputStream S2Cout = new DataOutputStream(S2C.getOutputStream());
-		DataInputStream C2Sin = new DataInputStream(C2S.getInputStream());
-		DataInputStream S2Cin = new DataInputStream(S2C.getInputStream());
+		C2Sout = new DataOutputStream(C2S.getOutputStream());
+		S2Cout = new DataOutputStream(S2C.getOutputStream());
+		C2Sin = new DataInputStream(C2S.getInputStream());
+		S2Cin = new DataInputStream(S2C.getInputStream());
 		
 		try 
 		{
@@ -59,8 +65,8 @@ public class ClientConnection {
 			C2Sout.writeInt(SYN_ID+1);
 			
 			
-			int ackC2S = C2Sin.read();
-			int ackS2C = S2Cin.read();
+			int ackC2S = C2Sin.readInt();
+			int ackS2C = S2Cin.readInt();
 			if (ackC2S == C2SackID + 1 && ackS2C == S2CackID + 1)
 			{
 				//correct. break and finish
@@ -69,18 +75,35 @@ public class ClientConnection {
 			else
 			{
 				//wrong ack... something went wrong.
+				System.out.printf("Wrong ack received from client. Expecting %d and %d, but received %d and %d\n", C2SackID + 1, S2CackID + 1, ackC2S, ackS2C);
 				return false;
 			}
 		} 
 		catch (SocketTimeoutException e)
 		{
 			//socket timed out.
+			System.out.printf("Connection from client timed out\n");
+			
 			return false;
 		}
+	}
+	
+	public void readFromClient(Message messageContainer) throws IOException
+	{
+		messageContainer.readFrom(C2Sin);
+	}
+	
+	public void sendToClient(Message message) throws IOException
+	{
+		message.writeTo(S2Cout);
 	}
 
 	public void close() throws IOException {
 		S2C.close();
 		C2S.close();
+	}
+
+	public Message readFromClient() throws IOException {
+		return MessageFactory.readMessageFromInput(C2Sin);
 	}
 }

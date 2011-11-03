@@ -73,8 +73,7 @@ public class DataTypeIO {
 			return (byte) val;
 		}
 		else{
-			assert false : "End of stream should never be reached...";
-			return 0;
+			throw new IOException("End of stream reached");
 		}
 	}
 	public static void writeByte(OutputStream output, byte val) throws IOException {

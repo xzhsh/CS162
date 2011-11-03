@@ -9,9 +9,12 @@ public class PlayerLogic extends ClientLogic {
 	}
 
 	@Override
-	public Message handleMessage(Message readMessageFromInput) {
+	public Message handleMessage(Message message) {
 		// TODO Auto-generated method stub
-		throw new AssertionError("Unimplemented Method");
+		if (message != null)
+			System.out.println("Message Received with opcode: " + message.getMsgType());
+		return null;
+		//throw new AssertionError("Unimplemented Method");
 	}
 
 }

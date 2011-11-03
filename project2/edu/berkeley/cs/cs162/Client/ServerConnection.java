@@ -60,8 +60,9 @@ public class ServerConnection {
 		int SYN2 = iS2C.readInt();
 		int ACK2 = iS2C.readInt();
 		
-		if (!(ACK1 == ACK2 && ACK1 == SYN_ID))
+		if (!(ACK1 == ACK2 && ACK1 == (SYN_ID + 1)))
 		{
+			System.out.printf("ACKs do not match! Recieved %d and %d when expecting %d\n", ACK1, ACK2, SYN_ID+1);
 			return false;
 		}
 		if (SYN1 > SYN2) {
@@ -90,7 +91,11 @@ public class ServerConnection {
 		C2S.close();
 	}
 
-	public void sendToServer(Message cInfo) throws IOException {
-		cInfo.writeTo(oC2S);
+	public void sendToServer(Message message) throws IOException {
+		message.writeTo(oC2S);
+	}
+
+	public void readFromServer(Message messageContainer) throws IOException {
+		messageContainer.readFrom(iS2C);
 	}
 }

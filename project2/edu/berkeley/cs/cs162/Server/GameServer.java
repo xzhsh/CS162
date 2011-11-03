@@ -183,6 +183,7 @@ public class GameServer {
 	private void initializeWorkerForConnection(Socket connection1,
 			Socket connection2, int SYN_ID) {
 		incrementConnectionCount();
+		System.out.println("Initialized a worker with syn id = " + SYN_ID);
 		Worker worker = new Worker(this, new ClientConnection(connection1, connection2, SYN_ID));
 		worker.start();
 	}
