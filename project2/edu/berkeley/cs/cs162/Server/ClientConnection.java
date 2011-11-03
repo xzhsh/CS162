@@ -7,8 +7,8 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Random;
 
+import edu.berkeley.cs.cs162.Writable.ClientMessages;
 import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
 public class ClientConnection {
 	private Socket S2C;
@@ -88,11 +88,6 @@ public class ClientConnection {
 		}
 	}
 	
-	public void readFromClient(Message messageContainer) throws IOException
-	{
-		messageContainer.readFrom(C2Sin);
-	}
-	
 	public void sendToClient(Message message) throws IOException
 	{
 		message.writeTo(S2Cout);
@@ -104,6 +99,10 @@ public class ClientConnection {
 	}
 
 	public Message readFromClient() throws IOException {
-		return MessageFactory.readMessageFromInput(C2Sin);
+		return ClientMessages.readFromInput(C2Sin);
+	}
+
+	public void sendReplyToClient(Message message) throws IOException {
+		message.writeTo(C2Sout);
 	}
 }

@@ -7,8 +7,8 @@ import java.net.Socket;
 
 import edu.berkeley.cs.cs162.Synchronization.Lock;
 import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
+import edu.berkeley.cs.cs162.Writable.ClientMessages;
 import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
 class WorkerSlave extends Thread {
 	private static final int WORKER_MESSAGE_QUEUE_SIZE = 10;
@@ -97,7 +97,7 @@ class WorkerSlave extends Thread {
 			message.writeTo(output);
 			outputLock.release();
 			inputLock.acquire();
-			Message returnMessage = MessageFactory.readMessageFromInput(input);
+			Message returnMessage = ClientMessages.readFromInput(input);
 			inputLock.release();
 			return returnMessage;
 		} catch (IOException e) {

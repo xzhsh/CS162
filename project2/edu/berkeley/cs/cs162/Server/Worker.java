@@ -35,8 +35,9 @@ public class Worker extends Thread {
 	 * Run loop for the worker
 	 */
 	public void run()
-	{	
-		try {
+	{
+		try 
+		{
 			ClientInfo cInfo = initializeWorker();
 			if (cInfo == null)
 			{
@@ -46,6 +47,7 @@ public class Worker extends Thread {
 				return;
 			} else 
 			{
+				server.addWorker(name, this);
 				System.out.println("Client connected! " + cInfo);
 			}
 			name = cInfo.getName();
@@ -65,17 +67,12 @@ public class Worker extends Thread {
 			
 			assert returnConnection != null;
 			returnConnection.close();
-		} catch (IOException e) {
+		} 
+		catch (IOException e) 
+		{
 			// TODO Auto-generated catch block
-
 			System.out.println("Connection closed unexpectedly.");
-			server.decrementConnectionCount();
-			try {
-				connection.close();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			cleanup();
 		}
 	}
 
@@ -90,21 +87,32 @@ public class Worker extends Thread {
 		slave = new WorkerSlave(connection.getS2C());
 		slave.start();
 		
-		ClientMessages.ConnectMessage returnMessage = new ClientMessages.ConnectMessage();
-		connection.readFromClient(returnMessage);
+		Message returnMessage = connection.readFromClient();
 		
 		if(returnMessage.getMsgType() != MessageProtocol.OP_TYPE_CONNECT)
 		{
 			//unexpected message, close and terminate.
 			return null;
 		}
-		
-		
-		connection.sendToClient(MessageFactory.createStatusOkMessage());
+		connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
 		//TODO Extract clientinfo from connectMessage
-		return returnMessage.getClientInfo();
+		return ((ClientMessages.ConnectMessage)returnMessage).getClientInfo();
 	}
-
+	
+	/**
+	 * Cleaning up this worker's resources. This will remove 
+	 */
+	public void cleanup()
+	{
+		server.decrementConnectionCount();
+		server.removeWorker(name);
+		try {
+			connection.close();
+		} catch (IOException e1) {
+			// Connection is already closed, just continue execution
+		}
+	}
+	
 	public Message handleSendMessageToClient(Message message) {
 		if (message.isSynchronous()) {
 			return slave.handleSendMessageSync(message);

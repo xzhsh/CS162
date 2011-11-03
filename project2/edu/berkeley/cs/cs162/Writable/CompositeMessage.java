@@ -15,12 +15,12 @@ public class CompositeMessage extends Message {
 	}
 	@Override
 	public void readFrom(InputStream in) throws IOException {
-		opCode = DataTypeIO.readByte(in);
-		//writables = new ArrayList<Writable>(length);
-		for (int i = 0; i < writables.size(); i ++)
+		byte opcheck = DataTypeIO.readByte(in);
+		if (opcheck != getMsgType())
 		{
-			writables.get(i).readFrom(in);
+			throw new AssertionError("Unexpected message");
 		}
+		readDataFrom(in);
 	}
 
 	@Override
@@ -35,12 +35,20 @@ public class CompositeMessage extends Message {
 	
 	@Override
 	public boolean isSynchronous() {
-		// TODO Auto-generated method stub
+		assert false : "should not be used";
 		return false;
 	}
+	
 	public Writable getWritable(int i) {
-		// TODO Auto-generated method stub
 		return writables.get(i);
+	}
+	
+	@Override
+	public void readDataFrom(InputStream in) throws IOException {
+		for (int i = 0; i < writables.size(); i ++)
+		{
+			writables.get(i).readFrom(in);
+		}
 	}
 
 }

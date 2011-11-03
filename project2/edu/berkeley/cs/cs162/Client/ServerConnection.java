@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.util.Random;
 
 import edu.berkeley.cs.cs162.Writable.Message;
+import edu.berkeley.cs.cs162.Writable.ReturnMessages;
+import edu.berkeley.cs.cs162.Writable.ServerMessages;
 
 public class ServerConnection {
 	private Socket S2C;
@@ -91,11 +93,20 @@ public class ServerConnection {
 		C2S.close();
 	}
 
-	public void sendToServer(Message message) throws IOException {
+	public void sendAsyncToServer(Message message) throws IOException {
 		message.writeTo(oC2S);
 	}
 
+	public Message sendSyncToServer(Message message) throws IOException {
+		message.writeTo(oC2S);
+		return ReturnMessages.readReplyFromInput(message,iC2S);
+	}
+	
 	public void readFromServer(Message messageContainer) throws IOException {
 		messageContainer.readFrom(iS2C);
+	}
+	
+	public Message readFromServer() throws IOException {
+		return ServerMessages.readFromInput(iS2C);
 	}
 }

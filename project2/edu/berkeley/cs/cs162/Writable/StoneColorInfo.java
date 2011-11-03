@@ -1,7 +1,5 @@
 package edu.berkeley.cs.cs162.Writable;
 
-import edu.berkeley.cs.cs162.Server.StoneColor;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
