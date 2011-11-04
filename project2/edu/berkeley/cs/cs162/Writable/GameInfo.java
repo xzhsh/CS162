@@ -6,20 +6,24 @@ import java.io.OutputStream;
 
 public class GameInfo implements Writable {
 
+    private String name;
+
+    protected GameInfo(String name){
+        this.name = name;
+    }
+
     public GameInfo() {
-        // TODO Auto-generated constructor stub    
+        this("");
     }
     
     @Override
     public void readFrom(InputStream in) throws IOException {
-        // TODO Auto-generated method stub
-
+        name = DataTypeIO.readString(in);
     }
 
     @Override
     public void writeTo(OutputStream out) throws IOException {
-        // TODO Auto-generated method stub
-
+        DataTypeIO.writeString(out, name);
     }
 
 }
