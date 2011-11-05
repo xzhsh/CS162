@@ -24,4 +24,17 @@ public class ReturnMessages {
 		msgContainer.readDataFrom(in);
 		return msgContainer;
 	}
+
+	public static Message createErrorInvalidGameMessage() {
+		return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_INVALID_GAME);
+	}
+	public static Message createErrorInvalidUserMessage() {
+		return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_INVALID_USER);
+	}
+	public static Message createErrorRejectedMessage() {
+		return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_REJECTED);
+	}
+	public static Message createErrorUnconnectedMessage() {
+		return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_UNCONNECTED);
+	}
 }

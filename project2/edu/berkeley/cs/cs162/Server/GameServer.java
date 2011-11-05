@@ -1,11 +1,14 @@
 package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -31,6 +34,10 @@ public class GameServer {
 	 */
 	private ThreadSafeQueue<Socket> connectionQueue;
 	/**
+	 * Queue for players waiting for games.
+	 */
+	private ThreadSafeQueue<Worker> waitingPlayerQueue;
+	/**
 	 * Mapping between the name of a client and the worker handling the client's connection
 	 */
 	private Map<String, Worker> nameToWorkerMap;
@@ -48,24 +55,33 @@ public class GameServer {
 	private ReaderWriterLock clientsConnectedLock;
 	
 	/**
+	 * Set of active games.
+	 */
+	private Map<String, Game> activeGames;
+	private ReaderWriterLock activeGamesLock;
+	
+	private PrintStream logStream;
+	/**
 	 * Constructor for gameServer
 	 * @param clientLimit how many max clients can be connected
 	 * @param handshakeThreadPoolSize How many {@link ConnectionWorker} threads there will be.
 	 */
-	
-	public GameServer(int clientLimit, int handshakeThreadPoolSize) 
+	public GameServer(int clientLimit, int handshakeThreadPoolSize, PrintStream logStream) 
 	{
 		this.clientLimit = clientLimit;
+		this.logStream = logStream;
 		rng = new Random();
 		waitingSocketMap = new HashMap<Integer, SocketWithTimeStamp>();
 
 		connectionQueue = new ThreadSafeQueue<Socket>(WAITING_CONNECTION_BUFFER_SIZE);
+		waitingPlayerQueue = new ThreadSafeQueue<Worker>(clientLimit);
+		activeGames = new HashMap<String, Game>();
 		nameToWorkerMap = new HashMap<String, Worker>();
 		//TODO change these to ReaderWriterLock when it's implemented.
 		waitingSocketMapLock = new ReaderWriterLockStub();
 		nameToWorkerMapLock = new ReaderWriterLockStub();
 		clientsConnectedLock = new ReaderWriterLockStub();
-		
+		activeGamesLock = new ReaderWriterLock();
 		clientsConnected = 0;
 		
 		for (int i = 0; i < handshakeThreadPoolSize; i++) {
@@ -153,7 +169,7 @@ public class GameServer {
 	 */
 	public void handleSYN(int SYN_ID, Socket connection) {
 		SocketWithTimeStamp otherConnection = null;
-		System.out.println("Connection initiated with SYN_ID: " + SYN_ID);
+		logStream.println("Connection initiated with SYN_ID: " + SYN_ID);
 		//Read whether the syn id exists already
 		waitingSocketMapLock.readLock();
 		if(waitingSocketMap.containsKey(SYN_ID))
@@ -165,7 +181,7 @@ public class GameServer {
 		
 		if(otherConnection != null)
 		{
-			System.out.println("Pair found!");
+			logStream.println("Pair found!");
 			waitingSocketMapLock.writeLock();
 			waitingSocketMap.remove(SYN_ID);
 			waitingSocketMapLock.writeUnlock();
@@ -183,7 +199,7 @@ public class GameServer {
 	private void initializeWorkerForConnection(Socket connection1,
 			Socket connection2, int SYN_ID) {
 		incrementConnectionCount();
-		System.out.println("Initialized a worker with syn id = " + SYN_ID);
+		logStream.println("Initialized a worker with syn id = " + SYN_ID);
 		Worker worker = new Worker(this, new ClientConnection(connection1, connection2, SYN_ID));
 		worker.start();
 	}
@@ -196,21 +212,28 @@ public class GameServer {
 		//TODO implement stuff for game.
 		nameToWorkerMapLock.writeLock();
 		nameToWorkerMap.remove(name);
+		logStream.println("Client<" + name + "> disconnected");
 		nameToWorkerMapLock.writeUnlock();
 	}
 
 	protected void decrementConnectionCount() {
 		clientsConnectedLock.writeLock();
 		clientsConnected--;
+		logStream.println("Client count: " + clientsConnected);
 		clientsConnectedLock.writeUnlock();
 	}
 
 	protected void incrementConnectionCount() {
 		clientsConnectedLock.writeLock();
 		clientsConnected++;
+		logStream.println("Client count: " + clientsConnected);
 		clientsConnectedLock.writeUnlock();
 	}
 
+	public PrintStream getLog()
+	{
+		return logStream;
+	}
 	/**
 	 * Adds a worker to the current map. This will fail if there the maximum number of connections 
 	 * has been reached.
@@ -221,12 +244,13 @@ public class GameServer {
 	public void addWorker(String name, Worker worker) {
 		nameToWorkerMapLock.writeLock();
 		nameToWorkerMap.put(name, worker);
+		logStream.println("Client<" + name + "> connected");
 		nameToWorkerMapLock.writeUnlock();
 	}
 	
 	public static void main(String args[])
 	{
-		GameServer server = new GameServer(100, 5);
+		GameServer server = new GameServer(100, 5, System.out);
 		try {
 			server.waitForConnectionsOnPort(Integer.valueOf(args[1]), InetAddress.getByName(args[0]));
 		} catch (NumberFormatException e) {
@@ -236,5 +260,32 @@ public class GameServer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void addPlayerWorkerToWaitQueue(Worker worker) {
+		waitingPlayerQueue.add(worker);
+	}
+
+	public Worker getNextWaitingPlayer() {
+		return waitingPlayerQueue.get();
+	}
+
+	/**
+	 * Gets a copy of the currently active games. This is mainly for observers.
+	 * 
+	 * @return a copy of the list of active games
+	 */
+	public List<Game> getGameList() {
+		activeGamesLock.readLock();
+		List<Game> temp = new ArrayList<Game>(activeGames.values());
+		activeGamesLock.readUnlock();
+		return temp;
+	}
+
+	public Game getGame(String name) {
+		activeGamesLock.readLock();
+		Game g = activeGames.get(name);
+		activeGamesLock.readUnlock();
+		return g;
 	}
 }

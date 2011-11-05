@@ -10,6 +10,9 @@ import java.util.Vector;
 public class GoBoard {
 	Board board;
 	Board prevBoard;
+	public Board getCurrentBoard() {
+		return board;
+	}
 	
 	/**
 	 * Exception thrown if a move is illegal.
@@ -114,5 +117,9 @@ public class GoBoard {
 	
 	public String toString() {
 		return board.toString();
+	}
+
+	public int getSize() {
+		return board.getSize();
 	}
 }

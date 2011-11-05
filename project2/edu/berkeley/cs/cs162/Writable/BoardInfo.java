@@ -6,10 +6,16 @@ import java.io.OutputStream;
 
 public class BoardInfo implements Writable {
 
-    private StoneColorInfo[][] board;
-
-    protected BoardInfo() {
-        // TODO Auto-generated constructor stub    
+    private StoneColorInfo[][] board; 
+    
+    protected BoardInfo()
+    {
+    	
+    }
+    
+    protected StoneColorInfo[][] getStoneColorState()
+    {
+    	return board;
     }
 
     //@Override
