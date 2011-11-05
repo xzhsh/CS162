@@ -2,6 +2,7 @@ package edu.berkeley.cs.cs162.Writable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Messages from the server to client.
@@ -25,6 +26,12 @@ public class ServerMessages {
 		protected GameStartMessage() {
 			super(MessageProtocol.OP_TYPE_GAMESTART, new GameInfo(), new BoardInfo(), new ClientInfo(), new ClientInfo());
 		}
+
+        protected GameStartMessage(GameInfo game, BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer)
+        {
+            super(MessageProtocol.OP_TYPE_GAMESTART, game, board, blackPlayer, whitePlayer);
+        }
+
 		public GameInfo getGameInfo() {
 			return (GameInfo) getWritable(0);
 		}
@@ -39,29 +46,36 @@ public class ServerMessages {
 		}
 	}
 	public static class GameOverMessage extends ServerCompositeMessage
-	{//TODO fill this out!
-		protected GameOverMessage() {
-			super(MessageProtocol.OP_TYPE_GAMEOVER);
-			// TODO Auto-generated constructor stub
+	{
+		//TODO use some logic to determine additional parameters
+        protected GameOverMessage()
+        {
+			super(MessageProtocol.OP_TYPE_GAMEOVER, new GameInfo(), new WritableDouble(), new WritableDouble(), new ClientInfo(), new WritableByte());
 		}
 	}
 	public static class MakeMoveMessage extends ServerCompositeMessage
-	{//TODO fill this out!
-		protected MakeMoveMessage() {
-			super(MessageProtocol.OP_TYPE_MAKEMOVE);
-			// TODO Auto-generated constructor stub
+	{
+		protected MakeMoveMessage()
+        {
+			super(MessageProtocol.OP_TYPE_MAKEMOVE, new GameInfo(), new ClientInfo(), new WritableByte(), new Location(), new WritableLocationList());
 		}
+
+        protected MakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, List<Location> locationlist)
+        {
+            super(MessageProtocol.OP_TYPE_MAKEMOVE, game, player, new WritableByte(moveType), loc, new WritableLocationList(locationlist));
+        }
+
 		public boolean isSynchronous()
 		{
 			return false;
 		}
 	}
 	public static class GetMoveMessage extends ServerCompositeMessage
-	{//TODO fill this out!
+	{
 		protected GetMoveMessage() {
 			super(MessageProtocol.OP_TYPE_GETMOVE);
-			// TODO Auto-generated constructor stub
 		}
+
 		public boolean isSynchronous()
 		{
 			return false;

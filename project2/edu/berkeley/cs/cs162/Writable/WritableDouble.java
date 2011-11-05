@@ -8,6 +8,11 @@ public class WritableDouble implements Writable{
 
     private double value;
 
+    protected WritableDouble()
+    {
+        value = 0;
+    }
+
     protected WritableDouble(double value)
     {
         this.value = value;

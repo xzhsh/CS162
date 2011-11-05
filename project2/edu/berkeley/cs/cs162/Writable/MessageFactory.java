@@ -2,6 +2,7 @@ package edu.berkeley.cs.cs162.Writable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Factory class for Message.
@@ -61,5 +62,19 @@ public class MessageFactory {
 	
     public static StoneColorInfo createStoneColorInfo(byte color) {
         return new StoneColorInfo(color);
+    }
+
+    // SERVER MESSAGES
+
+    public static Message createGameStartMessage(GameInfo game, BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer){
+        return new ServerMessages.GameStartMessage(game, board, blackPlayer, whitePlayer);
+    }
+
+    public static Message createMakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, List<Location> locationlist){
+        return new ServerMessages.MakeMoveMessage(game, player, moveType, loc, locationlist);
+    }
+
+    public static Message createGetMoveMessage(){
+        return new ServerMessages.GetMoveMessage();
     }
 }

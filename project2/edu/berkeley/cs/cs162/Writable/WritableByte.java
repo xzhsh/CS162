@@ -8,6 +8,11 @@ public class WritableByte implements Writable{
 
     private byte value;
 
+    protected WritableByte()
+    {
+        value = (byte) 0;
+    }
+
     protected WritableByte(byte value)
     {
         this.value = value;

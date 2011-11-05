@@ -97,6 +97,7 @@ public class ServerConnection {
 		message.writeTo(oC2S);
 	}
 
+    // TODO Add specialized logic for STATUS_OK replies that need to have extra args, probably through a special ReturnMessages method.
 	public Message sendSyncToServer(Message message) throws IOException {
 		message.writeTo(oC2S);
 		return ReturnMessages.readReplyFromInput(message,iC2S);

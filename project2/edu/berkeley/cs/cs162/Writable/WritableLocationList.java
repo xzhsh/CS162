@@ -9,6 +9,11 @@ public class WritableLocationList implements Writable{
 
     private Location[] locations;
 
+    protected WritableLocationList()
+    {
+        locations = null;
+    }
+
     protected WritableLocationList(List<Location> list)
     {
         locations = list.toArray(locations);
