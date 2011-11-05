@@ -5,42 +5,44 @@ import edu.berkeley.cs.cs162.Writable.GameInfo;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
 public class Game {
-	private GoBoard board;
-	private String name;
-	private Worker blackPlayer;
-	private Worker whitePlayer;
-	public Game(String name, Worker blackPlayer, Worker whitePlayer, int size) {
-		board = new GoBoard(size);
-	}
-	
-	public GameInfo makeGameInfo() {
-		return new GameInfo(name);
-	}
+    private GoBoard board;
+    private String name;
+    private Worker blackPlayer;
+    private Worker whitePlayer;
 
-	/**
-	 * Adds an observer to this game. can be done asynchronously by multiple threads.
-	 * @param worker
-	 */
-	public void addObserver(Worker worker) {
-		// TODO Auto-generated method stub
-		
-	}
+    public Game(String name, Worker blackPlayer, Worker whitePlayer, int size) {
+        board = new GoBoard(size);
+    }
 
-	public void removeObserver(Worker worker) {
-		// TODO Auto-generated method stub
-		
-	}
+    public GameInfo makeGameInfo() {
+        return new GameInfo(name);
+    }
 
-	public BoardInfo makeBoardInfo() {
-		// TODO Auto-generated method stub
-		return MessageFactory.createBoardInfo(board.getCurrentBoard());
-	}
+    /**
+     * Adds an observer to this game. can be done asynchronously by multiple threads.
+     *
+     * @param worker
+     */
+    public void addObserver(Worker worker) {
+        // TODO Auto-generated method stub
 
-	public Worker getBlackPlayer() {
-		return blackPlayer;
-	}
-	
-	public Worker getWhitePlayer() {
-		return whitePlayer;
-	}
+    }
+
+    public void removeObserver(Worker worker) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public BoardInfo makeBoardInfo() {
+        // TODO Auto-generated method stub
+        return MessageFactory.createBoardInfo(board.getCurrentBoard());
+    }
+
+    public Worker getBlackPlayer() {
+        return blackPlayer;
+    }
+
+    public Worker getWhitePlayer() {
+        return whitePlayer;
+    }
 }

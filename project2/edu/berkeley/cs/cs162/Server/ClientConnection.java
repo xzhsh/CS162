@@ -1,5 +1,9 @@
 package edu.berkeley.cs.cs162.Server;
 
+import edu.berkeley.cs.cs162.Writable.ClientMessages;
+import edu.berkeley.cs.cs162.Writable.Message;
+import edu.berkeley.cs.cs162.Writable.ReturnMessages;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,128 +13,124 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import edu.berkeley.cs.cs162.Writable.ClientMessages;
-import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.ReturnMessages;
-
 public class ClientConnection {
-	private Socket S2C;
-	private Socket C2S;
-	private int SYN_ID;
-	private DataOutputStream C2Sout;
-	private DataInputStream S2Cin;
-	private DataInputStream C2Sin;
-	private DataOutputStream S2Cout;
-	private boolean valid;
-	List<Exception> errors;
-	
-	public ClientConnection(Socket connection1, Socket connection2, int SYN_ID) {
-		S2C = connection1;
-		C2S = connection2;
-		this.SYN_ID = SYN_ID;
-		errors = new ArrayList<Exception>();
-		valid = false;
-	}
-	
-	/**
-	 * Tries to receive a 3-way handshake.
-	 * 
-	 * @param rng The random number generator that will be used.
-	 * @throws IOException 
-	 */
-	public boolean receive3WayHandshake(Random rng) {
-		int ackID1 = 0;
-		int ackID2 = 0;
-		
-		//generate two unique acknowledgment identifiers
-		while (ackID1 == ackID2)
-		{
-			ackID1 = rng.nextInt();
-			ackID2 = rng.nextInt();
-		}
-		int C2SackID = Math.min(ackID1, ackID2);
-		int S2CackID = Math.max(ackID1, ackID2);
-		
-		
-		try 
-		{
+    private Socket S2C;
+    private Socket C2S;
+    private int SYN_ID;
+    private DataOutputStream C2Sout;
+    private DataInputStream S2Cin;
+    private DataInputStream C2Sin;
+    private DataOutputStream S2Cout;
+    private boolean valid;
+    List<Exception> errors;
 
-			C2Sout = new DataOutputStream(C2S.getOutputStream());
-			S2Cout = new DataOutputStream(S2C.getOutputStream());
-			C2Sin = new DataInputStream(C2S.getInputStream());
-			S2Cin = new DataInputStream(S2C.getInputStream());
-			S2Cout.writeInt(S2CackID);
-			S2Cout.writeInt(SYN_ID+1);
-			
-			C2Sout.writeInt(C2SackID);
-			C2Sout.writeInt(SYN_ID+1);
-			
-			
-			int ackC2S = C2Sin.readInt();
-			int ackS2C = S2Cin.readInt();
-			if (ackC2S == C2SackID + 1 && ackS2C == S2CackID + 1)
-			{
-				//correct. break and finish
-				valid = true;
-			}
-			else
-			{
-				//wrong ack... something went wrong.
-				System.out.printf("Wrong ack received from client. Expecting %d and %d, but received %d and %d\n", C2SackID + 1, S2CackID + 1, ackC2S, ackS2C);
-				valid = false;
-			}
-		} 
-		catch (SocketTimeoutException e)
-		{
-			//socket timed out.
-			System.out.printf("Connection from client timed out\n");
-			valid = false;
-		} catch (IOException e) {
-			System.out.printf("Connection error:\n");
-			e.printStackTrace();
-			valid = false;
-		}
-		return valid;
-	}
-	
-	public void sendToClient(Message message) throws IOException
-	{
-		if (!valid) {throw new IOException("Invalid connection used");}
-		message.writeTo(S2Cout);
-	}
+    public ClientConnection(Socket connection1, Socket connection2, int SYN_ID) {
+        S2C = connection1;
+        C2S = connection2;
+        this.SYN_ID = SYN_ID;
+        errors = new ArrayList<Exception>();
+        valid = false;
+    }
 
-	public void close() throws IOException {
-		valid = false;
-		S2C.close();
-		C2S.close();
-	}
+    /**
+     * Tries to receive a 3-way handshake.
+     *
+     * @param rng The random number generator that will be used.
+     * @throws IOException
+     */
+    public boolean receive3WayHandshake(Random rng) {
+        int ackID1 = 0;
+        int ackID2 = 0;
 
-	public Message readFromClient() throws IOException {
-		if (!valid) {throw new IOException("Invalid connection used");}
-		return ClientMessages.readFromInput(C2Sin);
-	}
+        //generate two unique acknowledgment identifiers
+        while (ackID1 == ackID2) {
+            ackID1 = rng.nextInt();
+            ackID2 = rng.nextInt();
+        }
+        int C2SackID = Math.min(ackID1, ackID2);
+        int S2CackID = Math.max(ackID1, ackID2);
 
-	public void sendReplyToClient(Message message) throws IOException {
-		if (!valid) {throw new IOException("Invalid connection used");}
-		message.writeTo(C2Sout);
-	}
 
-	public Message readReplyFromClient(Message message) throws IOException {
-		if (!valid) {throw new IOException("Invalid connection used");}
-		return ReturnMessages.readReplyFromInput(message, S2Cin);
-	}
+        try {
 
-	/**
-	 * Invalidates the connection.
-	 * 
-	 * @param e the exception that caused this.
-	 */
-	public void invalidate(IOException e) {
-		valid = false;
-		errors.add(e);
-	}
+            C2Sout = new DataOutputStream(C2S.getOutputStream());
+            S2Cout = new DataOutputStream(S2C.getOutputStream());
+            C2Sin = new DataInputStream(C2S.getInputStream());
+            S2Cin = new DataInputStream(S2C.getInputStream());
+            S2Cout.writeInt(S2CackID);
+            S2Cout.writeInt(SYN_ID + 1);
 
-	public boolean isValid() {
-		return valid;
-	}
+            C2Sout.writeInt(C2SackID);
+            C2Sout.writeInt(SYN_ID + 1);
+
+
+            int ackC2S = C2Sin.readInt();
+            int ackS2C = S2Cin.readInt();
+            if (ackC2S == C2SackID + 1 && ackS2C == S2CackID + 1) {
+                //correct. break and finish
+                valid = true;
+            } else {
+                //wrong ack... something went wrong.
+                System.out.printf("Wrong ack received from client. Expecting %d and %d, but received %d and %d\n", C2SackID + 1, S2CackID + 1, ackC2S, ackS2C);
+                valid = false;
+            }
+        } catch (SocketTimeoutException e) {
+            //socket timed out.
+            System.out.printf("Connection from client timed out\n");
+            valid = false;
+        } catch (IOException e) {
+            System.out.printf("Connection error:\n");
+            e.printStackTrace();
+            valid = false;
+        }
+        return valid;
+    }
+
+    public void sendToClient(Message message) throws IOException {
+        if (!valid) {
+            throw new IOException("Invalid connection used");
+        }
+        message.writeTo(S2Cout);
+    }
+
+    public void close() throws IOException {
+        valid = false;
+        S2C.close();
+        C2S.close();
+    }
+
+    public Message readFromClient() throws IOException {
+        if (!valid) {
+            throw new IOException("Invalid connection used");
+        }
+        return ClientMessages.readFromInput(C2Sin);
+    }
+
+    public void sendReplyToClient(Message message) throws IOException {
+        if (!valid) {
+            throw new IOException("Invalid connection used");
+        }
+        message.writeTo(C2Sout);
+    }
+
+    public Message readReplyFromClient(Message message) throws IOException {
+        if (!valid) {
+            throw new IOException("Invalid connection used");
+        }
+        return ReturnMessages.readReplyFromInput(message, S2Cin);
+    }
+
+    /**
+     * Invalidates the connection.
+     *
+     * @param e the exception that caused this.
+     */
+    public void invalidate(IOException e) {
+        valid = false;
+        errors.add(e);
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
 }

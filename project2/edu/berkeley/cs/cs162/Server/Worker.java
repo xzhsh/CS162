@@ -1,162 +1,142 @@
 package edu.berkeley.cs.cs162.Server;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.util.Random;
+import edu.berkeley.cs.cs162.Writable.*;
 
-import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
-import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
-import edu.berkeley.cs.cs162.Writable.ClientInfo;
-import edu.berkeley.cs.cs162.Writable.ClientMessages;
-import edu.berkeley.cs.cs162.Writable.CompositeMessage;
-import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
-import edu.berkeley.cs.cs162.Writable.MessageProtocol;
-import edu.berkeley.cs.cs162.Writable.Writable;
+import java.io.IOException;
+
 @SuppressWarnings("unused")
 public class Worker extends Thread {
-	private WorkerSlave slave;
-	private boolean done;
-	private GameServer server;
-	private String name;
-	private ClientConnection connection;
-	private ClientLogic clientLogic;
-	
-	public Worker(GameServer server, ClientConnection connection) {
-		this.server = server;
-		done = false;
-		name = null;
-		this.connection = connection;
-	}
-	
-	/**
-	 * Run loop for the worker
-	 */
-	public void run()
-	{
-		try 
-		{
-			ClientInfo cInfo = initializeWorker();
-			if (cInfo == null)
-			{
-				server.getLog().println("Could not get info for client connection.");
-				server.decrementConnectionCount();
-				connection.close();
-				return;
-			} else 
-			{
-				server.addWorker(name, this);
-				server.getLog().println("Client connected! " + cInfo);
-			}
-			name = cInfo.getName();
-			server.addWorker(name, this);
-			
-			//grab the client logic fo this type of worker.
-			clientLogic = ClientLogic.getClientLogicForClientType(this, cInfo.getPlayerType());
-			
-			while (!done)
-			{
-				//just read messages from input and let the client logic handle stuff.
-				Message returnMessage = clientLogic.handleMessage(connection.readFromClient());
-				if (returnMessage != null)
-				{
-					//if it is a synchronous message, write the return message to output.
-					connection.sendToClient(returnMessage);
-				}
-			}
-			connection.close();
-		} 
-		catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			server.getLog().println("Connection closed unexpectedly.");
-			cleanup();
-		}
-	}
+    private WorkerSlave slave;
+    private boolean done;
+    private GameServer server;
+    private String name;
+    private ClientConnection connection;
+    private ClientLogic clientLogic;
 
-	private ClientInfo initializeWorker() throws IOException {
-		if (!connection.receive3WayHandshake(server.getRNG()))
-		{
-			//if the 3way handshake fails, just decrement the connection count, close the connections and terminate
-			//there should be no resources that the worker has otherwise allocated at this point.
-			return null;
-		}
-		slave = new WorkerSlave(connection);
-		slave.start();
-		
-		Message returnMessage = connection.readFromClient();
-		
-		if(returnMessage.getMsgType() != MessageProtocol.OP_TYPE_CONNECT)
-		{
-			//unexpected message, close and terminate.
-			return null;
-		}
-		connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
-		//TODO Extract clientinfo from connectMessage
-		return ((ClientMessages.ConnectMessage)returnMessage).getClientInfo();
-	}
-	
-	/**
-	 * Cleaning up this worker's server resources.
-	 * 
-	 * This will remove the worker from the game server and close the connection. 
-	 * 
-	 * However, this will not clean up the game it is playing or the other player's state.
-	 * Call closeAndCleanup() for that.
-	 */
-	private void cleanup()
-	{
-		server.decrementConnectionCount();
-		server.removeWorker(name);
-		try {
-			connection.close();
-		} catch (IOException e1) {
-			// Connection is already closed, just continue execution
-		}
-	}
-	
-	public Message handleSendMessageToClient(Message message) {
-		if (message.isSynchronous()) {
-			return slave.handleSendMessageSync(message);
-		}
-		else  
-		{
-			slave.handleSendMessageAsync(message);
-			return null;
-		}
-	}
+    public Worker(GameServer server, ClientConnection connection) {
+        this.server = server;
+        done = false;
+        name = null;
+        this.connection = connection;
+    }
 
-	public GameServer getServer() {
-		return server;
-	}
+    /**
+     * Run loop for the worker
+     */
+    public void run() {
+        try {
+            ClientInfo cInfo = initializeWorker();
+            if (cInfo == null) {
+                server.getLog().println("Could not get info for client connection.");
+                server.decrementConnectionCount();
+                connection.close();
+                return;
+            } else {
+                server.addWorker(name, this);
+                server.getLog().println("Client connected! " + cInfo);
 
-	public boolean handleRegisterAsWaiting() {
-		server.addPlayerWorkerToWaitQueue(this);
-		return connection.isValid();
-	}
+                //TODO ...is this in the right place? i get the feeling i'm going to break something...
+                if (cInfo.getPlayerType() == MessageProtocol.TYPE_HUMAN || cInfo.getPlayerType() == MessageProtocol.TYPE_MACHINE) {
+                    server.addPlayerWorkerToWaitQueue(this);
+                }
+            }
+            name = cInfo.getName();
+            server.addWorker(name, this);
 
-	/**
-	 * Cleans up all open resources of this worker.
-	 */
-	public void closeAndCleanup() {
-		// TODO remove game and wait list.
-		cleanup();
-	}
+            //grab the client logic fo this type of worker.
+            clientLogic = ClientLogic.getClientLogicForClientType(this, cInfo.getPlayerType());
 
-	public ClientLogic getLogic() {
-		// TODO Auto-generated method stub
-		return clientLogic;
-	}
+            while (!done) {
+                //just read messages from input and let the client logic handle stuff.
+                Message returnMessage = clientLogic.handleMessage(connection.readFromClient());
+                if (returnMessage != null) {
+                    //if it is a synchronous message, write the return message to output.
+                    connection.sendToClient(returnMessage);
+                }
+            }
+            connection.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            server.getLog().println("Connection closed unexpectedly.");
+            cleanup();
+        }
+    }
 
-	public void startGame(Game game) {
-		getLogic().startGame(game);
-	}
+    private ClientInfo initializeWorker() throws IOException {
+        if (!connection.receive3WayHandshake(server.getRNG())) {
+            //if the 3way handshake fails, just decrement the connection count, close the connections and terminate
+            //there should be no resources that the worker has otherwise allocated at this point.
+            return null;
+        }
+        slave = new WorkerSlave(connection);
+        slave.start();
 
-	public ClientInfo makeClientInfo() {
-		// TODO Auto-generated method stub
-		return clientLogic.makeClientInfo();
-	}
+        Message returnMessage = connection.readFromClient();
+
+        if (returnMessage.getMsgType() != MessageProtocol.OP_TYPE_CONNECT) {
+            //unexpected message, close and terminate.
+            return null;
+        }
+        connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
+        //TODO Extract clientinfo from connectMessage
+        return ((ClientMessages.ConnectMessage) returnMessage).getClientInfo();
+    }
+
+    /**
+     * Cleaning up this worker's server resources.
+     * <p/>
+     * This will remove the worker from the game server and close the connection.
+     * <p/>
+     * However, this will not clean up the game it is playing or the other player's state.
+     * Call closeAndCleanup() for that.
+     */
+    private void cleanup() {
+        server.decrementConnectionCount();
+        server.removeWorker(name);
+        try {
+            connection.close();
+        } catch (IOException e1) {
+            // Connection is already closed, just continue execution
+        }
+    }
+
+    public Message handleSendMessageToClient(Message message) {
+        if (message.isSynchronous()) {
+            return slave.handleSendMessageSync(message);
+        } else {
+            slave.handleSendMessageAsync(message);
+            return null;
+        }
+    }
+
+    public GameServer getServer() {
+        return server;
+    }
+
+    public boolean handleRegisterAsWaiting() {
+        server.addPlayerWorkerToWaitQueue(this);
+        return connection.isValid();
+    }
+
+    /**
+     * Cleans up all open resources of this worker.
+     */
+    public void closeAndCleanup() {
+        // TODO remove game and wait list.
+        cleanup();
+    }
+
+    public ClientLogic getLogic() {
+        // TODO Auto-generated method stub
+        return clientLogic;
+    }
+
+    public void startGame(Game game) {
+        getLogic().startGame(game);
+    }
+
+    public ClientInfo makeClientInfo() {
+        // TODO Auto-generated method stub
+        return clientLogic.makeClientInfo();
+    }
 }
