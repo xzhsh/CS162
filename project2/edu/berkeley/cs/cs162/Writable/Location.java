@@ -9,15 +9,15 @@ public class Location implements Writable {
     private int x;
     private int y;
 
-    protected Location(int x, int y){
+    protected Location(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
     public Location() {
-        this(0,0);
+        this(0, 0);
     }
-    
+
     @Override
     public void readFrom(InputStream in) throws IOException {
         x = DataTypeIO.readInt(in);

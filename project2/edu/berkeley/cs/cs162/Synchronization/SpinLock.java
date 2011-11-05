@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Implementation of a simple spin lock in java using an {@link AtomicBoolean}
  * @author xshi
  */
-public class SpinLock implements ILock {
+public class SpinLock implements LockInterface {
 	
     private AtomicBoolean lock;
     

@@ -12,7 +12,6 @@ public class HumanPlayer extends Player {
     }
 
 
-
     public ClientInfo getClientInfo() {
         return MessageFactory.createHumanPlayerClientInfo(name);
     }

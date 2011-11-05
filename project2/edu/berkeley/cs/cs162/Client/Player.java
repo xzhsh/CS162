@@ -11,9 +11,9 @@ abstract public class Player extends BaseClient {
     }
 
     public Player(String name) {
-        this(name, (byte)-1);
+        this(name, (byte) -1);
     }
-    
+
     public Player() {
         this("");
     }
@@ -25,11 +25,11 @@ abstract public class Player extends BaseClient {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public byte getType() {
         return this.type;
     }
-    
+
     public void setType(byte type) {
         this.type = type;
     }

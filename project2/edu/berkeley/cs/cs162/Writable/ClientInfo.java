@@ -8,21 +8,22 @@ public class ClientInfo implements Writable {
 
     String name;
     byte type;
-    
+
     /**
      * Don't use these constructors, we should be using factory methods in {@link MessageFactory}.
+     *
      * @param name
      * @param type
      */
     protected ClientInfo(String name, byte type) {
-    	this.name = name;
-    	this.type = type;
+        this.name = name;
+        this.type = type;
     }
-    
+
     protected ClientInfo() {
         this("", (byte) -1);
     }
-    
+
     //@Override
     public void readFrom(InputStream in) throws IOException {
         name = DataTypeIO.readString(in);
@@ -31,35 +32,33 @@ public class ClientInfo implements Writable {
 
     //@Override
     public void writeTo(OutputStream out) throws IOException {
-    	DataTypeIO.writeString(out, name);
-    	DataTypeIO.writeByte(out, type);
+        DataTypeIO.writeString(out, name);
+        DataTypeIO.writeByte(out, type);
     }
 
     public String getName() {
-    	return name;
+        return name;
     }
-    
+
     public byte getPlayerType() {
-    	return type;
+        return type;
     }
-    
-    public String toString()
-    {
-    	String typeName = "ERROR";
-    	switch (type)
-    	{
-    	case MessageProtocol.TYPE_HUMAN:
-    		typeName = "HumanPlayer";
-    		break;
-    	case MessageProtocol.TYPE_MACHINE:
-    		typeName = "MachinePlayer";
-    		break;
-    	case MessageProtocol.TYPE_OBSERVER:
-    		typeName = "Observer";
-    		break;
-		default:
-			assert false : "ClientInfo error type";
-    	}
-    	return "<" + typeName + ": " + name + ">";
+
+    public String toString() {
+        String typeName = "ERROR";
+        switch (type) {
+            case MessageProtocol.TYPE_HUMAN:
+                typeName = "HumanPlayer";
+                break;
+            case MessageProtocol.TYPE_MACHINE:
+                typeName = "MachinePlayer";
+                break;
+            case MessageProtocol.TYPE_OBSERVER:
+                typeName = "Observer";
+                break;
+            default:
+                assert false : "ClientInfo error type";
+        }
+        return "<" + typeName + ": " + name + ">";
     }
 }
