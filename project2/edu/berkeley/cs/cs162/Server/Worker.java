@@ -40,6 +40,7 @@ public class Worker extends Thread {
                     server.addPlayerWorkerToWaitQueue(this);
                 }
             }
+
             name = cInfo.getName();
             server.addWorker(name, this);
 

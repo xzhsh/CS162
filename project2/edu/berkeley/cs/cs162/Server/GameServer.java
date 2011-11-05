@@ -160,7 +160,7 @@ public class GameServer {
     /**
      * handles the connection when the specified SYN_ID is received.
      *
-     * @param sYN_ID
+     * @param SYN_ID
      * @param connection
      */
     public void handleSYN(int SYN_ID, Socket connection) {
@@ -199,7 +199,7 @@ public class GameServer {
     /**
      * Cleans up the resources held by this worker.
      *
-     * @param worker
+     * @param name
      */
     protected void removeWorker(String name) {
         //TODO implement stuff for game.

@@ -31,6 +31,7 @@ public class ObserverLogic extends ClientLogic {
                 WritableList gameInfoList = MessageFactory.createWritableListFromCollection(GameInfo.class, gInfos);
                 return MessageFactory.createStatusOkMessage(gameInfoList);
             }
+
             case MessageProtocol.OP_TYPE_JOIN: {
                 GameInfo gameInfo = ((ClientMessages.JoinMessage) message).getGameInfo();
                 Game game = getWorker().getServer().getGame(gameInfo.getName());
@@ -40,6 +41,7 @@ public class ObserverLogic extends ClientLogic {
                 startGame(game);
                 return MessageFactory.createStatusOkMessage(game.makeBoardInfo(), game.getBlackPlayer().makeClientInfo(), game.getWhitePlayer().makeClientInfo());
             }
+
             case MessageProtocol.OP_TYPE_LEAVE: {
                 GameInfo gameInfo = ((ClientMessages.JoinMessage) message).getGameInfo();
                 Game desiredGame = getWorker().getServer().getGame(gameInfo.getName());
@@ -47,6 +49,27 @@ public class ObserverLogic extends ClientLogic {
                     return ReturnMessages.createErrorInvalidGameMessage();
                 }
                 startGame(desiredGame);
+            }
+
+            case MessageProtocol.OP_TYPE_DISCONNECT: {
+                //TODO disconnect directives
+            }
+
+            case MessageProtocol.OP_TYPE_GAMEOVER: {
+                //TODO gameover directives
+                //extract "reason" byte from this message (it has extra info attached)
+            }
+
+            case MessageProtocol.OP_TYPE_GAMESTART: {
+                //TODO gamestart directives
+            }
+
+            case MessageProtocol.OP_TYPE_MAKEMOVE: {
+                //TODO makemove directives
+            }
+
+            case MessageProtocol.OP_TYPE_GETMOVE: {
+                //TODO getmove directives
             }
         }
         throw new AssertionError("Unimplemented Method");

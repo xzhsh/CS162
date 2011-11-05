@@ -46,10 +46,12 @@ public abstract class PlayerLogic extends ClientLogic {
     @Override
     public Message handleMessage(Message message) {
         switch (message.getMsgType()) {
-            case MessageProtocol.OP_TYPE_DISCONNECT:
+            case MessageProtocol.OP_TYPE_DISCONNECT: {
                 getWorker().closeAndCleanup();
                 return null;
-            case MessageProtocol.OP_TYPE_WAITFORGAME:
+            }
+
+            case MessageProtocol.OP_TYPE_WAITFORGAME: {
                 waiting = true;
                 if (getWorker().handleRegisterAsWaiting()) {
                     return MessageFactory.createStatusOkMessage();
@@ -57,6 +59,10 @@ public abstract class PlayerLogic extends ClientLogic {
                     waiting = false;
                     return MessageFactory.createErrorUnconnectedMessage();
                 }
+            }
+
+            //TODO player messages
+
             default:
                 throw new AssertionError("Unimplemented message type");
         }
