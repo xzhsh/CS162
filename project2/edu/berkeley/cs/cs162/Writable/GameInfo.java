@@ -28,5 +28,4 @@ public class GameInfo implements Writable {
     {
     	return name;
     }
-
 }

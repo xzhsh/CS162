@@ -12,13 +12,13 @@ import java.util.ArrayList;
  *
  * @param <E>
  */
-public class WritableList<E extends Writable> extends ArrayList<E> implements Writable {
+public class WritableList extends ArrayList<Writable> implements Writable {
 	private static final long serialVersionUID = -125579462824808520L;
 	
-	Class<E> storedClass;
-	protected WritableList(Class<E> storedClass)
+	Class<? extends Writable> storedClass;
+	protected WritableList(Class<? extends Writable> storedClass)
 	{
-		this.storedClass = this.getClass().getTypeParameters();
+		this.storedClass = storedClass;
 	}
 
 	@Override
@@ -27,9 +27,8 @@ public class WritableList<E extends Writable> extends ArrayList<E> implements Wr
 		this.clear();
 		for (int i = 0; i < length; i++)
 		{
-			E e;
 			try {
-				e = storedClass.newInstance();
+				Writable e = storedClass.newInstance();
 				e.readFrom(in);
 				add(e);
 			} catch (InstantiationException e1) {
@@ -45,7 +44,7 @@ public class WritableList<E extends Writable> extends ArrayList<E> implements Wr
 	@Override
 	public void writeTo(OutputStream out) throws IOException {
 		DataTypeIO.writeInt(out, size());
-		for (E e : this)
+		for (Writable e : this)
 		{
 			e.writeTo(out);
 		}

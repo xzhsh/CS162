@@ -32,11 +32,12 @@ public class ObserverLogic extends ClientLogic {
 		{
 			case MessageProtocol.OP_TYPE_LISTGAMES:
 			{
-				WritableList<GameInfo> gameInfoList = new WritableList<GameInfo>();
-				for (Game e :getWorker().getServer().getGameList())
+				List<GameInfo> gInfos = new ArrayList<GameInfo>();
+				for (Game g :getWorker().getServer().getGameList())
 				{
-					gameInfoList.add(e.makeGameInfo());
+					gInfos.add(g.makeGameInfo());
 				}
+				WritableList gameInfoList = MessageFactory.createWritableListFromCollection(GameInfo.class, gInfos);
 				return MessageFactory.createStatusOkMessage(gameInfoList);
 			}
 			case MessageProtocol.OP_TYPE_JOIN:

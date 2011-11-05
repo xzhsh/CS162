@@ -2,6 +2,7 @@ package edu.berkeley.cs.cs162.Writable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 
 import edu.berkeley.cs.cs162.Server.Board;
 
@@ -26,12 +27,14 @@ public class MessageFactory {
 	public static Message createStatusOkMessage(Writable ... writables) {
 		return new CompositeMessage(MessageProtocol.OP_STATUS_OK, writables);
 	}
-	
+
 	public static Message createGenericOpCodeOnlyMessage()
 	{
 		return new OpCodeOnlyMessage(MessageProtocol.UNUSED);
 	}
-	
+
+    // CLIENT INFO
+
 	public static ClientInfo createHumanPlayerClientInfo(String name) {
 		return new ClientInfo(name, MessageProtocol.TYPE_HUMAN);
 	}
@@ -43,6 +46,8 @@ public class MessageFactory {
 	public static ClientInfo createObserverClientInfo(String name) {
 		return new ClientInfo(name, MessageProtocol.TYPE_OBSERVER);
 	}
+
+    // CLIENT MESSAGES
 
 	public static Message createConnectMessage(ClientInfo cInfo) {
 		return new ClientMessages.ConnectMessage(cInfo);
@@ -65,7 +70,31 @@ public class MessageFactory {
 	}
 
 	public static BoardInfo createBoardInfo(Board currentBoard) {
-		return new BoardInfo(currentBoard);
+		BoardInfo boardInfo = new BoardInfo();
+		for (int i = 0; i < currentBoard.getSize(); i++)
+		{
+			for (int j = 0; j < currentBoard.getSize(); j++)
+			{
+				boardInfo.getStoneColorState()[i][j] = new StoneColorInfo(currentBoard.getAtLocation(new edu.berkeley.cs.cs162.Server.Location(i,j)).getByte());
+			}
+		}
+		return boardInfo;
 	}
-	
+
+	public static WritableList createWritableList(Class<? extends Writable> storedClass, Writable ... writables) {
+		WritableList list = new WritableList(storedClass);
+		for (Writable e : writables)
+		{
+			list.add(e);
+		}
+		return list;
+	}
+	public static WritableList createWritableListFromCollection(Class<? extends Writable> storedClass, Collection<? extends Writable> writables) {
+		WritableList list = new WritableList(storedClass);
+		for (Writable e : writables)
+		{
+			list.add(e);
+		}
+		return list;
+	}
 }

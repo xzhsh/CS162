@@ -41,7 +41,7 @@ public class ServerMessages {
 	public static class GameOverMessage extends ServerCompositeMessage
 	{//TODO fill this out!
 		protected GameOverMessage() {
-			super(MessageProtocol.OP_TYPE_GAMESTART);
+			super(MessageProtocol.OP_TYPE_GAMEOVER);
 			// TODO Auto-generated constructor stub
 		}
 	}
