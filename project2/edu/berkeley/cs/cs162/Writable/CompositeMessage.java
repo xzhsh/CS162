@@ -35,8 +35,8 @@ public class CompositeMessage extends Message {
 	
 	@Override
 	public boolean isSynchronous() {
-		assert false : "should not be used";
-		return false;
+        // Almost all Messages are Synchronous
+		return true;
 	}
 	
 	public Writable getWritable(int i) {

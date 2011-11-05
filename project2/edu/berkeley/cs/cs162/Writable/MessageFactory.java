@@ -9,11 +9,8 @@ import edu.berkeley.cs.cs162.Server.Board;
 
 /**
  * Factory class for Message.
- * 
- * Kunal, please use this class file to do most of the simpler messages so that it doesn't clog up our project. Thanks :D
- * @author xshi
- *
  */
+
 public class MessageFactory {
 	/**
      * Reads an opcode from the input and returns it as an byte.
@@ -34,7 +31,9 @@ public class MessageFactory {
 		return new OpCodeOnlyMessage(MessageProtocol.UNUSED);
 	}
 
-    // CLIENT INFO
+    /**
+     * Client Info.
+     */
 
 	public static ClientInfo createHumanPlayerClientInfo(String name) {
 		return new ClientInfo(name, MessageProtocol.TYPE_HUMAN);
@@ -48,7 +47,9 @@ public class MessageFactory {
 		return new ClientInfo(name, MessageProtocol.TYPE_OBSERVER);
 	}
 
-    // CLIENT MESSAGES
+    /**
+     * Client Messages.
+     */
 
 	public static Message createConnectMessage(ClientInfo cInfo) {
 		return new ClientMessages.ConnectMessage(cInfo);
@@ -61,12 +62,10 @@ public class MessageFactory {
 	public static Message createLeaveMessage(GameInfo gInfo) {
 		return new ClientMessages.LeaveMessage(gInfo);
 	}
-	
-    public static StoneColorInfo createStoneColorInfo(byte color) {
-        return new StoneColorInfo(color);
-    }
 
-    // SERVER MESSAGES
+    /**
+     * Server Messages.
+     */
 
     public static Message createGameStartMessage(GameInfo game, BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer){
         return new ServerMessages.GameStartMessage(game, board, blackPlayer, whitePlayer);
@@ -84,7 +83,19 @@ public class MessageFactory {
 		return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_UNCONNECTED);
 	}
 
-	public static BoardInfo createBoardInfo(Board currentBoard) {
+    /**
+     * StoneColor Info.
+     */
+
+    public static StoneColorInfo createStoneColorInfo(byte color) {
+        return new StoneColorInfo(color);
+    }
+
+    /**
+     * Board Info.
+     */
+
+    public static BoardInfo createBoardInfo(Board currentBoard) {
 		BoardInfo boardInfo = new BoardInfo();
 		for (int i = 0; i < currentBoard.getSize(); i++)
 		{

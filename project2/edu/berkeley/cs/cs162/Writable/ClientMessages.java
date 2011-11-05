@@ -9,24 +9,11 @@ import java.io.InputStream;
  *
  */
 public class ClientMessages {
-	/**
-	 * Composite message classes for clients. This is used for client messages because 
-	 * some of the opcodes are same for different messages when send by servers or clients.
-	 * @author xshi
-	 */
-	public static abstract class ClientCompositeMessage extends CompositeMessage
-	{
-		protected ClientCompositeMessage(byte opCode, Writable ... writables) {
-			super(opCode, writables);
-		}
-		
-		@Override
-		public boolean isSynchronous()
-		{
-			return true;
-		}
-	}
-	public static class ConnectMessage extends ClientCompositeMessage {	
+
+    /**
+     * Connect
+     */
+	public static class ConnectMessage extends CompositeMessage {
 		protected ConnectMessage(ClientInfo cInfo)
 		{
 			super(MessageProtocol.OP_TYPE_CONNECT, cInfo);
@@ -42,7 +29,11 @@ public class ClientMessages {
 			return (ClientInfo)super.getWritable(0);
 		}
 	}
-	public static class JoinMessage extends ClientCompositeMessage {
+
+    /**
+     * Join
+     */
+	public static class JoinMessage extends CompositeMessage {
 		protected JoinMessage(GameInfo gInfo)
 		{
 			super(MessageProtocol.OP_TYPE_JOIN, gInfo);
@@ -56,7 +47,11 @@ public class ClientMessages {
 			return (GameInfo)super.getWritable(0);
 		}
 	}
-	public static class LeaveMessage extends ClientCompositeMessage{
+
+    /**
+     * Leave
+     */
+	public static class LeaveMessage extends CompositeMessage{
 		protected LeaveMessage(GameInfo gInfo)
 		{
 			super(MessageProtocol.OP_TYPE_LEAVE, gInfo);

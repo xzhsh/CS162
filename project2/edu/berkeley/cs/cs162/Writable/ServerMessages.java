@@ -10,18 +10,11 @@ import java.util.List;
  * @author xshi
  */
 public class ServerMessages {
-	public static class ServerCompositeMessage extends CompositeMessage
-	{
-		protected ServerCompositeMessage(byte opCode, Writable ... writables) {
-			super(opCode, writables);
-		}
-		public boolean isSynchronous()
-		{
-			return true;
-		}
-	}
 
-	public static class GameStartMessage extends ServerCompositeMessage
+    /**
+     * GameStart
+     */
+	public static class GameStartMessage extends CompositeMessage
 	{
 		protected GameStartMessage() {
 			super(MessageProtocol.OP_TYPE_GAMESTART, new GameInfo(), new BoardInfo(), new ClientInfo(), new ClientInfo());
@@ -44,8 +37,17 @@ public class ServerMessages {
 		public ClientInfo getWhiteClientInfo() {
 			return (ClientInfo) getWritable(3);
 		}
+
+        public boolean isSynchronous()
+        {
+            return true;
+        }
 	}
-	public static class GameOverMessage extends ServerCompositeMessage
+
+    /**
+     * GameOver
+     */
+	public static class GameOverMessage extends CompositeMessage
 	{
 		//TODO use some logic to determine additional parameters
         protected GameOverMessage()
@@ -53,7 +55,11 @@ public class ServerMessages {
 			super(MessageProtocol.OP_TYPE_GAMEOVER, new GameInfo(), new WritableDouble(), new WritableDouble(), new ClientInfo(), new WritableByte());
 		}
 	}
-	public static class MakeMoveMessage extends ServerCompositeMessage
+
+    /**
+     * MakeMove
+     */
+	public static class MakeMoveMessage extends CompositeMessage
 	{
 		protected MakeMoveMessage()
         {
@@ -64,23 +70,18 @@ public class ServerMessages {
         {
             super(MessageProtocol.OP_TYPE_MAKEMOVE, game, player, new WritableByte(moveType), loc, new WritableLocationList(locationlist));
         }
-
-		public boolean isSynchronous()
-		{
-			return false;
-		}
 	}
-	public static class GetMoveMessage extends ServerCompositeMessage
+
+    /**
+     * GetMove
+     */
+	public static class GetMoveMessage extends CompositeMessage
 	{
 		protected GetMoveMessage() {
 			super(MessageProtocol.OP_TYPE_GETMOVE);
 		}
-
-		public boolean isSynchronous()
-		{
-			return false;
-		}
 	}
+
 	public static Message readFromInput(InputStream in) throws IOException
 	{
 		byte opCode = DataTypeIO.readByte(in);
