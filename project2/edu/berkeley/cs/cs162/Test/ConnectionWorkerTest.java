@@ -1,14 +1,8 @@
 package edu.berkeley.cs.cs162.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.Socket;
 
 import org.junit.Test;
-
-import edu.berkeley.cs.cs162.Server.ConnectionWorker;
-import edu.berkeley.cs.cs162.Server.GameServer;
-import static org.mockito.Mockito.*;
 
 public class ConnectionWorkerTest {	
 	

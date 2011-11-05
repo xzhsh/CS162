@@ -5,21 +5,28 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class GameInfo implements Writable {
-
-    public GameInfo() {
-        // TODO Auto-generated constructor stub    
+	private String name;
+	public GameInfo() {
+		name = null;
     }
+	public GameInfo(String name) {
+		this.name = name;
+    }
+    
     
     @Override
     public void readFrom(InputStream in) throws IOException {
-        // TODO Auto-generated method stub
-
+    	name = DataTypeIO.readString(in);
     }
 
     @Override
     public void writeTo(OutputStream out) throws IOException {
-        // TODO Auto-generated method stub
-
+    	DataTypeIO.writeString(out, name);
+    }
+    
+    public String getName()
+    {
+    	return name;
     }
 
 }

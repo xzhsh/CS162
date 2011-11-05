@@ -1,25 +1,38 @@
 package edu.berkeley.cs.cs162.Server;
 
+import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
 public abstract class ClientLogic {
 
-	private static final long HUMAN_PLAYER_TIMEOUT_IN_MS = 30000L;
-	private static final long MACHINE_PLAYER_TIMEOUT_IN_MS = 2000;
+
+	private Worker worker;
+	public ClientLogic(Worker worker) {
+		this.worker = worker;
+	}
 
 	public static ClientLogic getClientLogicForClientType(Worker worker, byte playerType) {
 		switch(playerType)
 		{
 		case MessageProtocol.TYPE_HUMAN:
-			return new PlayerLogic(HUMAN_PLAYER_TIMEOUT_IN_MS);
+			return new PlayerLogic.HumanPlayerLogic(worker);
 		case MessageProtocol.TYPE_MACHINE:
-			return new PlayerLogic(MACHINE_PLAYER_TIMEOUT_IN_MS);
+			return new PlayerLogic.MachinePlayerLogic(worker);
 		case MessageProtocol.TYPE_OBSERVER:
-			return new ObserverLogic();
+			return new ObserverLogic(worker);
 		}
 		throw new AssertionError("Unknown Client Type");
 	}
-
+	
+	public Worker getWorker() 
+	{
+		return worker;
+	}
+	
 	public abstract Message handleMessage(Message readMessageFromInput);
+
+	public abstract void startGame(Game game);
+
+	public abstract ClientInfo makeClientInfo();
 }

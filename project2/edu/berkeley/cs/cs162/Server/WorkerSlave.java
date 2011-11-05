@@ -1,38 +1,23 @@
 package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 
 import edu.berkeley.cs.cs162.Synchronization.Lock;
 import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
-import edu.berkeley.cs.cs162.Writable.ClientMessages;
 import edu.berkeley.cs.cs162.Writable.Message;
 
 class WorkerSlave extends Thread {
 	private static final int WORKER_MESSAGE_QUEUE_SIZE = 10;
 	private boolean done;
-	private Socket forwardConnection;
-	private InputStream input;
-	private OutputStream output;
+	private ClientConnection connection;
 	private Lock inputLock;
 	private Lock outputLock;
 	private ThreadSafeQueue<Runnable> messageQueue;
 	
-	public WorkerSlave(Socket S2Csocket) {
-		forwardConnection = S2Csocket;
+	public WorkerSlave(ClientConnection connection) {
+		this.connection = connection;
 		inputLock = new Lock();
 		outputLock = new Lock();
-		try {
-			input = forwardConnection.getInputStream();
-			output = forwardConnection.getOutputStream();
-		} catch (IOException e)
-		{
-			//TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		messageQueue = new ThreadSafeQueue<Runnable>(WORKER_MESSAGE_QUEUE_SIZE);
 		done = false;
 	}
@@ -47,13 +32,7 @@ class WorkerSlave extends Thread {
 		messageQueue.add(
 			new Runnable(){
 				public void run() {
-					try {
-						forwardConnection.close();
-						done = true;
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					done = true;
 				}
 			}
 		);
@@ -72,7 +51,7 @@ class WorkerSlave extends Thread {
 					public void run() {
 						try {
 							outputLock.acquire();
-							message.writeTo(output);
+							connection.sendToClient(message);
 							outputLock.release();
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
@@ -94,15 +73,14 @@ class WorkerSlave extends Thread {
 	{
 		try {
 			outputLock.acquire();
-			message.writeTo(output);
+			connection.sendToClient(message);
 			outputLock.release();
 			inputLock.acquire();
-			Message returnMessage = ClientMessages.readFromInput(input);
+			Message returnMessage = connection.readReplyFromClient(message);
 			inputLock.release();
 			return returnMessage;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			connection.invalidate(e);
 		}
 		return null;
 	}

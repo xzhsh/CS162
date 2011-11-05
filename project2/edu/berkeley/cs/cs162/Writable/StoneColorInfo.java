@@ -16,7 +16,7 @@ public class StoneColorInfo implements Writable {
         this((byte) -1);
     }
 
-    //@Override
+	//@Override
     public void readFrom(InputStream in) throws IOException {
         this.color = DataTypeIO.readByte(in);
     }
