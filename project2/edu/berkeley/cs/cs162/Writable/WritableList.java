@@ -8,6 +8,7 @@ import java.util.ArrayList;
 /**
  * A writable list. This thing uses a bit of messy reflection to preserve generic arguments...
  * 
+ * BTW. ALL WRITABLES USED IN HERE SHOULD HAVE A DEFAULT CONSTRUCTOR. YUP.
  * @author xshi
  *
  * @param <E>
