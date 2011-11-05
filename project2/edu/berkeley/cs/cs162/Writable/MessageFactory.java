@@ -24,12 +24,14 @@ public class MessageFactory {
 	public static Message createStatusOkMessage() {
 		return new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK);
 	}
-	
+
 	public static Message createGenericOpCodeOnlyMessage()
 	{
 		return new OpCodeOnlyMessage(MessageProtocol.UNUSED);
 	}
-	
+
+    // CLIENT INFO
+
 	public static ClientInfo createHumanPlayerClientInfo(String name) {
 		return new ClientInfo(name, MessageProtocol.TYPE_HUMAN);
 	}
@@ -41,6 +43,9 @@ public class MessageFactory {
 	public static ClientInfo createObserverClientInfo(String name) {
 		return new ClientInfo(name, MessageProtocol.TYPE_OBSERVER);
 	}
+
+
+    // CLIENT MESSAGES
 
 	public static Message createConnectMessage(ClientInfo cInfo) {
 		return new ClientMessages.ConnectMessage(cInfo);

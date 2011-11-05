@@ -6,28 +6,38 @@ import java.io.InputStream;
 import java.io.DataInputStream;
 import java.io.OutputStream;
 public class DataTypeIO {
-	public static int readInt(InputStream input) throws IOException
+
+    private static DataInputStream getDataInputStream(InputStream input){
+        return (input instanceof DataInputStream) ? (DataInputStream) input : new DataInputStream(input);
+    }
+
+    private static DataOutputStream getDataOutputStream(OutputStream output){
+        return (output instanceof DataOutputStream) ? (DataOutputStream) output : new DataOutputStream(output);
+    }
+
+    /**
+     * Read and write ints.
+     */
+
+    public static int readInt(InputStream input) throws IOException
 	{
-		if (input instanceof DataInputStream)
-		{
-			return ((DataInputStream) input).readInt();
-		}
-		else {
-			return (new DataInputStream(input)).readInt();
-		}
+		return getDataInputStream(input).readInt();
 	}
-	
+
+    public static void writeInt(OutputStream output, int val) throws IOException
+	{
+		getDataOutputStream(output).writeInt(val);
+	}
+
+
+    /**
+     * Read and write Strings.
+     */
+
 	public static String readString(InputStream input) throws IOException
 	{
-		DataInputStream dataIn;
-		if (input instanceof DataInputStream)
-		{
-			
-			dataIn = ((DataInputStream) input);
-		}
-		else {
-			dataIn = new DataInputStream(input);
-		}
+		DataInputStream dataIn = getDataInputStream(input);
+
 		int length = dataIn.readInt();
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < length; i++)
@@ -37,34 +47,21 @@ public class DataTypeIO {
 		return sb.toString();
 	}
 	
-	public static void writeInt(OutputStream output, int val) throws IOException
-	{
-		if (output instanceof DataOutputStream)
-		{
-			((DataOutputStream) output).writeInt(val);
-		}
-		else {
-			(new DataOutputStream(output)).writeInt(val);
-		}
-	}
-	
 	public static void writeString(OutputStream output, String strVal) throws IOException
 	{
-		DataOutputStream dataOut;
-		if (output instanceof DataOutputStream)
-		{
-			
-			dataOut = ((DataOutputStream) output);
-		}
-		else {
-			dataOut = new DataOutputStream(output);
-		}
+		DataOutputStream dataOut = getDataOutputStream(output);
+
 		dataOut.writeInt(strVal.length());
 		for (int i = 0; i < strVal.length(); i++)
 		{
 			dataOut.writeChar(strVal.charAt(i));
 		}
 	}
+
+
+    /**
+     * Read and write bytes.
+     */
 
 	public static byte readByte(InputStream input) throws IOException {
 		int val = input.read();
@@ -76,7 +73,22 @@ public class DataTypeIO {
 			throw new IOException("End of stream reached");
 		}
 	}
+
 	public static void writeByte(OutputStream output, byte val) throws IOException {
 		output.write(val);
 	}
+
+    /**
+     * Read and write doubles.
+     */
+
+    public static double readDouble(InputStream input) throws IOException
+    {
+        return getDataInputStream(input).readDouble();
+    }
+
+    public static void writeDouble(OutputStream output, double val)  throws IOException
+    {
+        getDataOutputStream(output).writeDouble(val);
+    }
 }
