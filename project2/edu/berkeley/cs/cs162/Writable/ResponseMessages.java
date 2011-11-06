@@ -3,7 +3,6 @@ package edu.berkeley.cs.cs162.Writable;
 
 public class ResponseMessages {
 
-    // TODO [LIST] Assert that the list contains GameInfo
     public static class ListGamesStatusOkMessage extends GenericMessage {
 
         // Used for receiving

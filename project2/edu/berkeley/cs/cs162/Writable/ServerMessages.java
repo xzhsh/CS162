@@ -64,7 +64,6 @@ public class ServerMessages {
             super(MessageProtocol.OP_TYPE_GAMEOVER, game, blackScore, whiteScore, winner, reason, player, errormsg);
         }
 
-        // TODO This won't work, as the messages are always of type Message. Find a way around this. Possibly add in GenericMessage? Bad practice...
         @Override
         public void readDataFrom(InputStream in) throws IOException {
             // First, read the standard message in
@@ -124,7 +123,6 @@ public class ServerMessages {
             super(MessageProtocol.OP_TYPE_MAKEMOVE, new GameInfo(), new ClientInfo(), new WritableByte(), new Location(), new WritableList(Location.class));
         }
 
-        // TODO [LIST] Assert that the WritableList contains Locations
         // Used for sending
         protected MakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, WritableList locationlist) {
             super(MessageProtocol.OP_TYPE_MAKEMOVE, game, player, new WritableByte(moveType), loc, locationlist);
@@ -148,17 +146,6 @@ public class ServerMessages {
 
         public WritableList getLocationList(){
             return (WritableList) getWritable(4);
-        }
-    }
-
-    /**
-     * GetMove
-     *
-     * This class is required to check for a special STATUS_OK message.
-     */
-    public static class GetMoveMessage extends OpCodeOnlyMessage {
-        protected GetMoveMessage() {
-            super(MessageProtocol.OP_TYPE_GETMOVE);
         }
     }
 }

@@ -69,28 +69,4 @@ public class ClientMessages {
             return (GameInfo) super.getWritable(0);
         }
     }
-
-    /**
-     * List Games
-     *
-     * This class is required to check for special STATUS_OK messages
-     */
-    public static class ListGamesMessage extends OpCodeOnlyMessage {
-
-        protected ListGamesMessage(){
-            super(MessageProtocol.OP_TYPE_LISTGAMES);
-        }
-    }
-
-    /**
-     * Get Move
-     *
-     * This class is required to check for special STATUS_OK messages
-     */
-    public static class GetMoveMessage extends OpCodeOnlyMessage {
-
-        protected GetMoveMessage(){
-            super(MessageProtocol.OP_TYPE_GETMOVE);
-        }
-    }
 }
