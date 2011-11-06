@@ -84,7 +84,7 @@ public class MessageFactory {
                 container = new ServerMessages.MakeMoveMessage();
                 break;
             case MessageProtocol.OP_TYPE_GETMOVE:
-                container = new ServerMessages.GetMoveMessage();
+                container = new OpCodeOnlyMessage(opCode);
                 break;
             default:
                 assert false : "Unimplemented method";
@@ -195,7 +195,7 @@ public class MessageFactory {
 
     // Get Move
     public static Message createGetMoveMessage() {
-        return new ServerMessages.GetMoveMessage();
+        return new OpCodeOnlyMessage(MessageProtocol.OP_TYPE_GETMOVE);
     }
 
 

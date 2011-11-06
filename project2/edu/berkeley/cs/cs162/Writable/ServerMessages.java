@@ -64,7 +64,7 @@ public class ServerMessages {
             super(MessageProtocol.OP_TYPE_GAMEOVER, game, blackScore, whiteScore, winner, reason, player, errormsg);
         }
 
-        // TODO This won't work, as the messages are always of type Message. Find a way around this. Possibly add in GenericMessage? Bad practice...
+        // TODO Because the Object will be of type Message, will this method get invoked, or the parent method?
         @Override
         public void readDataFrom(InputStream in) throws IOException {
             // First, read the standard message in
@@ -148,17 +148,6 @@ public class ServerMessages {
 
         public WritableList getLocationList(){
             return (WritableList) getWritable(4);
-        }
-    }
-
-    /**
-     * GetMove
-     *
-     * This class is required to check for a special STATUS_OK message.
-     */
-    public static class GetMoveMessage extends OpCodeOnlyMessage {
-        protected GetMoveMessage() {
-            super(MessageProtocol.OP_TYPE_GETMOVE);
         }
     }
 }
