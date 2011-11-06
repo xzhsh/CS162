@@ -30,15 +30,69 @@ public class MessageFactory {
     }
 
 
+    /**
+     * The following methods are used to read
+     * Messages in via InputStreams and fill
+     * them out.
+     */
+
     // Read an incoming message from a Client.
-    public static Message readClientMessage(InputStream in){
-        return null;
+    public static Message readClientMessage(InputStream in) throws IOException {
+        byte opCode = DataTypeIO.readByte(in);
+        Message msgContainer = null;
+
+        // Create the correct message container based on the opcode
+        switch (opCode) {
+            case MessageProtocol.OP_TYPE_CONNECT:
+                msgContainer = new ClientMessages.ConnectMessage();
+                break;
+            case MessageProtocol.OP_TYPE_DISCONNECT:
+            case MessageProtocol.OP_TYPE_WAITFORGAME:
+            case MessageProtocol.OP_TYPE_LISTGAMES:
+                msgContainer = new OpCodeOnlyMessage(opCode);
+                break;
+            case MessageProtocol.OP_TYPE_JOIN:
+                msgContainer = new ClientMessages.JoinMessage();
+                break;
+            case MessageProtocol.OP_TYPE_LEAVE:
+                msgContainer = new ClientMessages.LeaveMessage();
+                break;
+            default:
+                assert false : "Unimplemented method";
+        }
+
+        // Fill out the container via the InputStream
+        msgContainer.readDataFrom(in);
+        return msgContainer;
     }
 
 
     // Read an incoming message from the Server.
-    public static Message readServerMessage(InputStream in){
-        return null;
+    public static Message readServerMessage(InputStream in) throws IOException {
+        byte opCode = DataTypeIO.readByte(in);
+        Message container = null;
+
+        // Create the correct message container based on the opcode
+        switch (opCode) {
+            case MessageProtocol.OP_TYPE_GAMESTART:
+                container = new ServerMessages.GameStartMessage();
+                break;
+            case MessageProtocol.OP_TYPE_GAMEOVER:
+                container = new ServerMessages.GameOverMessage();
+                break;
+            case MessageProtocol.OP_TYPE_MAKEMOVE:
+                container = new ServerMessages.MakeMoveMessage();
+                break;
+            case MessageProtocol.OP_TYPE_GETMOVE:
+                container = new ServerMessages.GetMoveMessage();
+                break;
+            default:
+                assert false : "Unimplemented method";
+        }
+
+        // Fill out the container via the InputStream
+        container.readDataFrom(in);
+        return container;
     }
 
     // Read a response message.
@@ -57,7 +111,7 @@ public class MessageFactory {
                 switch (sentMessage.getMsgType())
                 {
                     case MessageProtocol.OP_TYPE_LISTGAMES:
-                        container = new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK); // TODO Handle the list and change this appropriately.
+                        container = new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK); // TODO [LIST] Handle the list and change this appropriately.
                         break;
                     case MessageProtocol.OP_TYPE_JOIN:
                         container = new ResponseMessages.JoinStatusOkMessage();
@@ -72,14 +126,18 @@ public class MessageFactory {
                 assert false : "Unimplemented method";
         }
 
-        // Fill out the container from the InputStream.
+        // Fill out the container via the InputStream.
         container.readDataFrom(in);
         return container;
     }
 
     /**
-     * Client Messages.
+     * The following methods are used to
+     * construct the various method types
+     * to send over an OutputStream.
      */
+
+    // Client Messages
 
     public static Message createConnectMessage(ClientInfo cInfo) {
         return new ClientMessages.ConnectMessage(cInfo);
@@ -106,9 +164,7 @@ public class MessageFactory {
     }
 
 
-    /**
-     * Server Messages.
-     */
+    // Server Messages
 
     public static Message createGameStartMessage(GameInfo game, BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer) {
         return new ServerMessages.GameStartMessage(game, board, blackPlayer, whitePlayer);
@@ -131,16 +187,13 @@ public class MessageFactory {
     }
 
 
-    /**
-     * Response Messages.
-     */
-
+    // Response Messages
 
     public static Message createStatusOkMessage() {
         return new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK);
     }
 
-    // TODO Handle the list in the ListGamesStatusOkMessage and add a method here.
+    // TODO [LIST] Handle the list in the ListGamesStatusOkMessage and add a method here.
 
     public static Message createJoinStatusOkMessage(BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer) {
         return new ResponseMessages.JoinStatusOkMessage(board, blackPlayer, whitePlayer);

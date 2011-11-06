@@ -93,32 +93,4 @@ public class ClientMessages {
             super(MessageProtocol.OP_TYPE_GETMOVE);
         }
     }
-
-
-
-    public static Message readFromInput(InputStream in) throws IOException {
-        byte opCode = DataTypeIO.readByte(in);
-        Message msgContainer = null;
-        switch (opCode) {
-            case MessageProtocol.OP_TYPE_CONNECT:
-                msgContainer = new ConnectMessage();
-                break;
-            case MessageProtocol.OP_TYPE_DISCONNECT:
-            case MessageProtocol.OP_TYPE_WAITFORGAME:
-            case MessageProtocol.OP_TYPE_LISTGAMES:
-                msgContainer = new OpCodeOnlyMessage(opCode);
-                break;
-            case MessageProtocol.OP_TYPE_JOIN:
-                msgContainer = new JoinMessage();
-                break;
-            case MessageProtocol.OP_TYPE_LEAVE:
-                msgContainer = new LeaveMessage();
-                break;
-            default:
-                assert false : "Unimplemented method";
-        }
-        msgContainer.readDataFrom(in);
-        return msgContainer;
-    }
-
 }

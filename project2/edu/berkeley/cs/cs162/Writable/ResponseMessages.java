@@ -3,7 +3,7 @@ package edu.berkeley.cs.cs162.Writable;
 
 public class ResponseMessages {
 
-    // TODO Figure out this whole list thing.
+    // TODO [LIST] Figure out this whole list thing.
     public static class ListGamesStatusOkMessage extends GenericMessage {
 
         // Used for receiving

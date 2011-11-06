@@ -109,6 +109,7 @@ public class ServerConnection {
     }
 
     public Message readFromServer() throws IOException {
-        return ServerMessages.readFromInput(iS2C);
+        //return ServerMessages.readFromInput(iS2C);
+        return MessageFactory.readServerMessage(iS2C);
     }
 }

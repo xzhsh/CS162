@@ -64,7 +64,7 @@ public class ServerMessages {
             super(MessageProtocol.OP_TYPE_GAMEOVER, game, blackScore, whiteScore, winner, reason, player, errormsg);
         }
 
-        // TODO This won't work, as the messages are always of type Message. Find a way around this.
+        // TODO This won't work, as the messages are always of type Message. Find a way around this. Possibly add in GenericMessage? Bad practice...
         @Override
         public void readDataFrom(InputStream in) throws IOException {
             // First, read the standard message in
@@ -145,7 +145,7 @@ public class ServerMessages {
             return (Location) getWritable(3);
         }
 
-        //TODO return the list of locations.
+        //TODO [LIST] return the list of locations.
     }
 
     /**
@@ -157,28 +157,5 @@ public class ServerMessages {
         protected GetMoveMessage() {
             super(MessageProtocol.OP_TYPE_GETMOVE);
         }
-    }
-
-    public static Message readFromInput(InputStream in) throws IOException {
-        byte opCode = DataTypeIO.readByte(in);
-        Message msgContainer = null;
-        switch (opCode) {
-            case MessageProtocol.OP_TYPE_GAMESTART:
-                msgContainer = new GameStartMessage();
-                break;
-            case MessageProtocol.OP_TYPE_GAMEOVER:
-                msgContainer = new GameOverMessage();
-                break;
-            case MessageProtocol.OP_TYPE_MAKEMOVE:
-                msgContainer = new MakeMoveMessage();
-                break;
-            case MessageProtocol.OP_TYPE_GETMOVE:
-                msgContainer = new GetMoveMessage();
-                break;
-            default:
-                assert false : "Unimplemented method";
-        }
-        msgContainer.readDataFrom(in);
-        return msgContainer;
     }
 }

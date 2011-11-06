@@ -104,7 +104,8 @@ public class ClientConnection {
         if (!valid) {
             throw new IOException("Invalid connection used");
         }
-        return ClientMessages.readFromInput(C2Sin);
+        //return ClientMessages.readFromInput(C2Sin);
+        return MessageFactory.readClientMessage(C2Sin);
     }
 
     public void sendReplyToClient(Message message) throws IOException {
