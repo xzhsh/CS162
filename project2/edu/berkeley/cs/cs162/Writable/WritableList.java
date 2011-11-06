@@ -32,10 +32,8 @@ public class WritableList extends ArrayList<Writable> implements Writable {
                 e.readFrom(in);
                 add(e);
             } catch (InstantiationException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             } catch (IllegalAccessException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
         }

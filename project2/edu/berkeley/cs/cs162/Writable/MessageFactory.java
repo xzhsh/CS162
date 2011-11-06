@@ -36,7 +36,7 @@ public class MessageFactory {
      * them out.
      */
 
-    // Read an incoming message from a Client.
+    // Client Messages
     public static Message readClientMessage(InputStream in) throws IOException {
         byte opCode = DataTypeIO.readByte(in);
         Message msgContainer = null;
@@ -67,7 +67,7 @@ public class MessageFactory {
     }
 
 
-    // Read an incoming message from the Server.
+    // Server Messages
     public static Message readServerMessage(InputStream in) throws IOException {
         byte opCode = DataTypeIO.readByte(in);
         Message container = null;
@@ -95,7 +95,7 @@ public class MessageFactory {
         return container;
     }
 
-    // Read a response message.
+    // Response Messages
     public static Message readResponseMessage(InputStream in, Message sentMessage) throws IOException {
         byte opCode = DataTypeIO.readByte(in);
         Message container = null;
@@ -131,90 +131,113 @@ public class MessageFactory {
         return container;
     }
 
+
     /**
      * The following methods are used to
      * construct the various method types
      * to send over an OutputStream.
      */
 
-    // Client Messages
+    /* Client Messages */
 
+    // Connect
     public static Message createConnectMessage(ClientInfo cInfo) {
         return new ClientMessages.ConnectMessage(cInfo);
     }
 
+    // Disconnect
     public static Message createDisconnectMessage() {
         return new OpCodeOnlyMessage(MessageProtocol.OP_TYPE_DISCONNECT);
     }
 
+    // Wait for Game
     public static Message createWaitForGameMessage() {
         return new OpCodeOnlyMessage(MessageProtocol.OP_TYPE_WAITFORGAME);
     }
 
+    // List Games
     public static Message createListGamesMessage() {
         return new OpCodeOnlyMessage(MessageProtocol.OP_TYPE_LISTGAMES);
     }
 
+    // Join
     public static Message createJoinMessage(GameInfo gInfo) {
         return new ClientMessages.JoinMessage(gInfo);
     }
 
+    // Leave
     public static Message createLeaveMessage(GameInfo gInfo) {
         return new ClientMessages.LeaveMessage(gInfo);
     }
 
 
-    // Server Messages
+    /* Server Messages */
 
+    // Game Start
     public static Message createGameStartMessage(GameInfo game, BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer) {
         return new ServerMessages.GameStartMessage(game, board, blackPlayer, whitePlayer);
     }
 
+    // Game Over
     public static Message createGameOverMessage(GameInfo game, double blackScore, double whiteScore, ClientInfo winner, byte reason) {
         return new ServerMessages.GameOverMessage(game, new WritableDouble(blackScore), new WritableDouble(whiteScore), winner, new WritableByte(reason));
     }
 
+    // Game Over (Error)
     public static Message createGameOverErrorMessage(GameInfo game, double blackScore, double whiteScore, ClientInfo winner, byte reason, ClientInfo player, String errormsg) {
         return new ServerMessages.GameOverMessage(game, new WritableDouble(blackScore), new WritableDouble(whiteScore), winner, new WritableByte(reason), player, new WritableString(errormsg));
     }
 
+    // Make Move
     public static Message createMakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, List<Location> locationlist) {
         return new ServerMessages.MakeMoveMessage(game, player, moveType, loc, locationlist);
     }
 
+    // Get Move
     public static Message createGetMoveMessage() {
         return new ServerMessages.GetMoveMessage();
     }
 
 
-    // Response Messages
+    /* Response Messages */
 
+    // Status OK
     public static Message createStatusOkMessage() {
         return new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK);
     }
 
+    // Status OK, response to List Games
     // TODO [LIST] Handle the list in the ListGamesStatusOkMessage and add a method here.
+    public static Message createListGamesStatusOkMessage(WritableList gameList) {
+        return null;
+    }
 
+    // Status OK, response to Join
     public static Message createJoinStatusOkMessage(BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer) {
         return new ResponseMessages.JoinStatusOkMessage(board, blackPlayer, whitePlayer);
     }
 
+    // Status OK, response to Get Move
     public static Message createGetMoveStatusOkMessage(byte moveType, Location loc) {
         return new ResponseMessages.GetMoveStatusOkMessage(moveType, loc);
     }
 
+    // Error (Rejected)
     public static Message createErrorRejectedMessage() {
         return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_REJECTED);
     }
 
+    // Error (Unconnected)
     public static Message createErrorUnconnectedMessage() {
         return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_UNCONNECTED);
     }
 
+    // Error (Invalid Game)
     public static Message createErrorInvalidGameMessage(){
         return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_INVALID_GAME);
     }
 
+    // Error (Invalid User)
     public static Message createErrorInvalidUserMessage(){
         return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_INVALID_USER);
     }

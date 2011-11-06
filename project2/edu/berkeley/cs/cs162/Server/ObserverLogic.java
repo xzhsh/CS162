@@ -29,7 +29,7 @@ public class ObserverLogic extends ClientLogic {
                     gInfos.add(g.makeGameInfo());
                 }
                 WritableList gameInfoList = MessageFactory.createWritableListFromCollection(GameInfo.class, gInfos);
-                return MessageFactory.createStatusOkMessage(gameInfoList);
+                return MessageFactory.createListGamesStatusOkMessage(gameInfoList);
             }
 
             case MessageProtocol.OP_TYPE_JOIN: {
@@ -39,7 +39,7 @@ public class ObserverLogic extends ClientLogic {
                     return MessageFactory.createErrorInvalidGameMessage();
                 }
                 startGame(game);
-                return MessageFactory.createStatusOkMessage(game.makeBoardInfo(), game.getBlackPlayer().makeClientInfo(), game.getWhitePlayer().makeClientInfo());
+                return MessageFactory.createJoinStatusOkMessage(game.makeBoardInfo(), game.getBlackPlayer().makeClientInfo(), game.getWhitePlayer().makeClientInfo());
             }
 
             case MessageProtocol.OP_TYPE_LEAVE: {

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-//TODO add simple message classes as static classes.
 public class OpCodeOnlyMessage extends Message {
 
     public OpCodeOnlyMessage(byte opCode) {

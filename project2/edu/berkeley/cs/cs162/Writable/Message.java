@@ -10,9 +10,7 @@ public abstract class Message implements Writable {
      */
     byte opCode;
 
-    public Message() {
-        // TODO Auto-generated constructor stub    
-    }
+    public Message() {}
 
     public byte getMsgType() {
         return opCode;

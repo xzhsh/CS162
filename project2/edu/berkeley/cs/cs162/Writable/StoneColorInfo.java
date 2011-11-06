@@ -27,7 +27,6 @@ public class StoneColorInfo implements Writable {
     }
 
     public byte getColor() {
-        // TODO should this return the object or just the byte code?
         return color;
     }
 }
