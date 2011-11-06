@@ -2,8 +2,6 @@ package edu.berkeley.cs.cs162.Writable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InvalidObjectException;
-import java.util.List;
 
 /**
  * Messages from the server to client.

@@ -1,10 +1,5 @@
 package edu.berkeley.cs.cs162.Server;
 
-import edu.berkeley.cs.cs162.Writable.ClientMessages;
-import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
-import edu.berkeley.cs.cs162.Writable.ResponseMessages;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,6 +8,9 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import edu.berkeley.cs.cs162.Writable.Message;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
 public class ClientConnection {
     private Socket S2C;
@@ -104,7 +102,6 @@ public class ClientConnection {
         if (!valid) {
             throw new IOException("Invalid connection used");
         }
-        //return ClientMessages.readFromInput(C2Sin);
         return MessageFactory.readClientMessage(C2Sin);
     }
 

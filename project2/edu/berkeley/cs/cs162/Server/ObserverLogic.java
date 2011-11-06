@@ -48,28 +48,7 @@ public class ObserverLogic extends ClientLogic {
                 if (desiredGame == null) {
                     return MessageFactory.createErrorInvalidGameMessage();
                 }
-                startGame(desiredGame);
-            }
-
-            case MessageProtocol.OP_TYPE_DISCONNECT: {
-                //TODO disconnect directives
-            }
-
-            case MessageProtocol.OP_TYPE_GAMEOVER: {
-                //TODO gameover directives
-                //extract "reason" byte from this message (it has extra info attached)
-            }
-
-            case MessageProtocol.OP_TYPE_GAMESTART: {
-                //TODO gamestart directives
-            }
-
-            case MessageProtocol.OP_TYPE_MAKEMOVE: {
-                //TODO makemove directives
-            }
-
-            case MessageProtocol.OP_TYPE_GETMOVE: {
-                //TODO getmove directives
+                leaveGame(desiredGame);
             }
         }
         throw new AssertionError("Unimplemented Method");
@@ -91,7 +70,7 @@ public class ObserverLogic extends ClientLogic {
     public void leaveGame(Game game) {
         gameListLock.acquire();
         game.removeObserver(getWorker());
-        currentlyObserving.add(game);
+        currentlyObserving.remove(game);
         gameListLock.release();
     }
 

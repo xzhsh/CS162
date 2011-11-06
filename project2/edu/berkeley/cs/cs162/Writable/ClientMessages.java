@@ -1,7 +1,5 @@
 package edu.berkeley.cs.cs162.Writable;
 
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Message classes for client to server messages.

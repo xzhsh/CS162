@@ -1,12 +1,11 @@
 package edu.berkeley.cs.cs162.Writable;
 
-import edu.berkeley.cs.cs162.Client.Client;
-import edu.berkeley.cs.cs162.Server.Board;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.List;
+
+import edu.berkeley.cs.cs162.Server.Board;
+import edu.berkeley.cs.cs162.Server.Game;
 
 /**
  * Factory class for Message. This class will be used for all Message construction.
@@ -175,17 +174,20 @@ public class MessageFactory {
     public static Message createGameStartMessage(GameInfo game, BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer) {
         return new ServerMessages.GameStartMessage(game, board, blackPlayer, whitePlayer);
     }
-
+	public static Message createGameStartMessage(Game game) {
+		return createGameStartMessage(game.makeGameInfo(), game.makeBoardInfo(),game.getBlackPlayer().makeClientInfo(), game.getWhitePlayer().makeClientInfo());
+	}
+    
     // Game Over
-    public static Message createGameOverMessage(GameInfo game, double blackScore, double whiteScore, ClientInfo winner, byte reason) {
-        return new ServerMessages.GameOverMessage(game, new WritableDouble(blackScore), new WritableDouble(whiteScore), winner, new WritableByte(reason));
+    public static Message createGameOverMessage(GameInfo game, double blackScore, double whiteScore, ClientInfo winner) {
+        return new ServerMessages.GameOverMessage(game, new WritableDouble(blackScore), new WritableDouble(whiteScore), winner, new WritableByte(MessageProtocol.GAME_OK));
     }
 
     // Game Over (Error)
     public static Message createGameOverErrorMessage(GameInfo game, double blackScore, double whiteScore, ClientInfo winner, byte reason, ClientInfo player, String errormsg) {
         return new ServerMessages.GameOverMessage(game, new WritableDouble(blackScore), new WritableDouble(whiteScore), winner, new WritableByte(reason), player, new WritableString(errormsg));
     }
-
+    
     // Make Move
     public static Message createMakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, WritableList locationlist) {
         assert locationlist.getObjectType() == Location.class : "WritableList should contain Location objects.";
@@ -296,5 +298,8 @@ public class MessageFactory {
         }
         return list;
     }
+
+
+
 
 }

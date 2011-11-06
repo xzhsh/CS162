@@ -45,4 +45,9 @@ public class Game {
     public Worker getWhitePlayer() {
         return whitePlayer;
     }
+
+	public byte getGameOverReason() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

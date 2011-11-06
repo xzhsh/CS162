@@ -4,7 +4,6 @@ import edu.berkeley.cs.cs162.Writable.*;
 
 import java.io.IOException;
 
-@SuppressWarnings("unused")
 public class Worker extends Thread {
     private WorkerSlave slave;
     private boolean done;
@@ -28,17 +27,13 @@ public class Worker extends Thread {
             ClientInfo cInfo = initializeWorker();
             if (cInfo == null) {
                 server.getLog().println("Could not get info for client connection.");
+                
                 server.decrementConnectionCount();
                 connection.close();
                 return;
             } else {
                 server.addWorker(name, this);
                 server.getLog().println("Client connected! " + cInfo);
-
-                //TODO ...is this in the right place? i get the feeling i'm going to break something...
-                if (cInfo.getPlayerType() == MessageProtocol.TYPE_HUMAN || cInfo.getPlayerType() == MessageProtocol.TYPE_MACHINE) {
-                    server.addPlayerWorkerToWaitQueue(this);
-                }
             }
 
             name = cInfo.getName();
@@ -76,6 +71,7 @@ public class Worker extends Thread {
 
         if (returnMessage.getMsgType() != MessageProtocol.OP_TYPE_CONNECT) {
             //unexpected message, close and terminate.
+        	connection.sendReplyToClient(MessageFactory.createErrorUnconnectedMessage());
             return null;
         }
         connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
@@ -102,12 +98,7 @@ public class Worker extends Thread {
     }
 
     public Message handleSendMessageToClient(Message message) {
-        if (message.isSynchronous()) {
-            return slave.handleSendMessageSync(message);
-        } else {
-            slave.handleSendMessageAsync(message);
-            return null;
-        }
+        return slave.handleSendMessageSync(message);
     }
 
     public GameServer getServer() {
@@ -124,6 +115,7 @@ public class Worker extends Thread {
      */
     public void closeAndCleanup() {
         // TODO remove game and wait list.
+    	slave.closeAndCleanup();
         cleanup();
     }
 
