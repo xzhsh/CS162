@@ -1,9 +1,7 @@
 package edu.berkeley.cs.cs162.Writable;
 
-import com.sun.tools.internal.ws.processor.model.Response;
 import edu.berkeley.cs.cs162.Client.Client;
 import edu.berkeley.cs.cs162.Server.Board;
-import sun.plugin2.main.client.MessagePassingOneWayJSObject;
 
 import java.io.IOException;
 import java.io.InputStream;
