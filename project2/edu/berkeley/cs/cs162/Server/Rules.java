@@ -14,7 +14,7 @@ public class Rules {
      * Get the set of stones which would be captured if a stone of the specified
      * color was placed at the specified location
      */
-    public static Vector<Location> getCapturedStones(Board board, StoneColor color, Location location) {
+    public static Vector<BoardLocation> getCapturedStones(Board board, StoneColor color, BoardLocation location) {
         Helper helper = new Helper(board);
         helper.connectedComponents();
 
@@ -64,9 +64,9 @@ public class Rules {
                 bordersSelf = true;
             }
             boolean foundLiberty = false;
-            Vector<Location> locations = helper.neighbourMap.get(i);
+            Vector<BoardLocation> locations = helper.neighbourMap.get(i);
             for (int j = 0; j < locations.size() && !foundLiberty; j++) {
-                Location l = (Location) locations.get(j);
+                BoardLocation l = (BoardLocation) locations.get(j);
                 if (!l.equals(location) &&
                         board.getAtLocation(l) == StoneColor.NONE) {
                     foundLiberty = true;
@@ -81,7 +81,7 @@ public class Rules {
                 }
             }
         }
-        Vector<Location> result = new Vector<Location>();
+        Vector<BoardLocation> result = new Vector<BoardLocation>();
         if (!capturedOpponents.isEmpty()) {
             for (int i = 0; i < capturedOpponents.size(); i++) {
                 helper.addGroupLocations(capturedOpponents.get(i), result);
@@ -113,7 +113,7 @@ public class Rules {
                     helper.countMap.keySet().contains(i)) {
                 // may count.
                 boolean touchesPlayer = false, touchesOpponent = false;
-                Vector<Location> locations = helper.neighbourMap.get(i);
+                Vector<BoardLocation> locations = helper.neighbourMap.get(i);
                 for (int j = 0; j < locations.size(); j++) {
                     if (board.getAtLocation(locations.get(j)) == color) {
                         touchesPlayer = true;
@@ -134,17 +134,17 @@ public class Rules {
         public int[][] labels;
         public HashMap<Integer, StoneColor> colorMap;
         public HashMap<Integer, Integer> countMap;
-        public HashMap<Integer, Vector<Location>> neighbourMap;
+        public HashMap<Integer, Vector<BoardLocation>> neighbourMap;
 
         public Helper(Board board) {
             this.board = board;
         }
 
-        public void addGroupLocations(int label, Vector<Location> result) {
+        public void addGroupLocations(int label, Vector<BoardLocation> result) {
             for (int y = 0; y < board.getSize(); y++) {
                 for (int x = 0; x < board.getSize(); x++) {
                     if (labels[y][x] == label) {
-                        result.add(new Location(x, y));
+                        result.add(new BoardLocation(x, y));
                     }
                 }
             }
@@ -156,16 +156,16 @@ public class Rules {
             int nextLabel = 1;
             labels = new int[board.getSize()][board.getSize()];
             colorMap = new HashMap<Integer, StoneColor>();
-            HashMap<Integer, HashSet<Location>> neighbours =
-                    new HashMap<Integer, HashSet<Location>>();
+            HashMap<Integer, HashSet<BoardLocation>> neighbours =
+                    new HashMap<Integer, HashSet<BoardLocation>>();
             // first pass
             for (int y = 0; y < board.getSize(); y++) {
                 for (int x = 0; x < board.getSize(); x++) {
-                    StoneColor c = board.getAtLocation(new Location(x, y));
+                    StoneColor c = board.getAtLocation(new BoardLocation(x, y));
                     boolean isWestEqual =
-                            (x > 0 && c == board.getAtLocation(new Location(x - 1, y)));
+                            (x > 0 && c == board.getAtLocation(new BoardLocation(x - 1, y)));
                     boolean isNorthEqual =
-                            (y > 0 && c == board.getAtLocation(new Location(x, y - 1)));
+                            (y > 0 && c == board.getAtLocation(new BoardLocation(x, y - 1)));
 
                     if (isWestEqual && isNorthEqual) {
                         labels[y][x] = Math.min(labels[y - 1][x], labels[y][x - 1]);
@@ -185,16 +185,16 @@ public class Rules {
                         equiv.put(labels[y][x], new HashSet<Integer>());
                         equiv.get(labels[y][x]).add(labels[y][x]);
                         colorMap.put(labels[y][x], c);
-                        neighbours.put(labels[y][x], new HashSet<Location>());
+                        neighbours.put(labels[y][x], new HashSet<BoardLocation>());
                     }
 
                     if (x > 0 && !isWestEqual) {
-                        neighbours.get(labels[y][x]).add(new Location(x - 1, y));
-                        neighbours.get(labels[y][x - 1]).add(new Location(x, y));
+                        neighbours.get(labels[y][x]).add(new BoardLocation(x - 1, y));
+                        neighbours.get(labels[y][x - 1]).add(new BoardLocation(x, y));
                     }
                     if (y > 0 && !isNorthEqual) {
-                        neighbours.get(labels[y][x]).add(new Location(x, y - 1));
-                        neighbours.get(labels[y - 1][x]).add(new Location(x, y));
+                        neighbours.get(labels[y][x]).add(new BoardLocation(x, y - 1));
+                        neighbours.get(labels[y - 1][x]).add(new BoardLocation(x, y));
                     }
                 }
             }
@@ -221,17 +221,17 @@ public class Rules {
                 }
             }
             countMap = new HashMap<Integer, Integer>();
-            neighbourMap = new HashMap<Integer, Vector<Location>>();
+            neighbourMap = new HashMap<Integer, Vector<BoardLocation>>();
             for (int i = 0; i < nextLabel; i++) {
                 if (counts[i] > 0) {
                     countMap.put(i, counts[i]);
-                    HashSet<Location> locations = new HashSet<Location>();
+                    HashSet<BoardLocation> locations = new HashSet<BoardLocation>();
                     HashSet<Integer> e = equiv.get(i);
                     iter = e.iterator();
                     while (iter.hasNext()) {
                         locations.addAll(neighbours.get(iter.next()));
                     }
-                    Vector<Location> vl = new Vector<Location>();
+                    Vector<BoardLocation> vl = new Vector<BoardLocation>();
                     vl.addAll(locations);
                     neighbourMap.put(i, vl);
                 }

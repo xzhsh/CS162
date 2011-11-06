@@ -8,23 +8,23 @@ import java.util.Map;
  * and can have a width of any integer value in the range [3,19].
  */
 public class Board {
-    private Map<Location, StoneColor> locations;
+    private Map<BoardLocation, StoneColor> locations;
     private int size;
 
     //for debugging purposes only//
-    private Location lastAdded;
+    private BoardLocation lastAdded;
     ///////////////////////////////
 
     /**
      * @param loc
      * @return true if location is valid
      */
-    public boolean locationValid(Location loc) {
+    public boolean locationValid(BoardLocation loc) {
         return locations.containsKey(loc);
     }
 
     public boolean isSameBoard(Board other) {
-        for (Location loc : locations.keySet()) {
+        for (BoardLocation loc : locations.keySet()) {
             if (other.locations.get(loc) != locations.get(loc)) {
                 return false;
             }
@@ -37,16 +37,16 @@ public class Board {
      * @param size The width of one side of the board.
      */
     public Board(int size) {
-        this.locations = new HashMap<Location, StoneColor>();
+        this.locations = new HashMap<BoardLocation, StoneColor>();
         this.size = size;
-        lastAdded = new Location(0, 0);
+        lastAdded = new BoardLocation(0, 0);
 
         if ((size < 3) || (size > 19))
             throw new IllegalArgumentException("Board size out of bounds.");
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                locations.put(new Location(i, j), StoneColor.NONE);
+                locations.put(new BoardLocation(i, j), StoneColor.NONE);
             }
         }
     }
@@ -61,7 +61,7 @@ public class Board {
     /**
      * Add a stone of the specified color to a location on the board.
      */
-    public boolean addStone(Location loc, StoneColor color) {
+    public boolean addStone(BoardLocation loc, StoneColor color) {
         if (!locations.containsKey(loc)) {
             return false;
         }
@@ -76,7 +76,7 @@ public class Board {
     /**
      * Remove a stone from a location on the board.
      */
-    public boolean removeStone(Location loc) {
+    public boolean removeStone(BoardLocation loc) {
         if (!locations.containsKey(loc)) {
             return false;
         }
@@ -91,7 +91,7 @@ public class Board {
     /**
      * @return The StoneColor of the stone at the specified location.
      */
-    public StoneColor getAtLocation(Location loc) {
+    public StoneColor getAtLocation(BoardLocation loc) {
         if (!locations.containsKey(loc)) {
             throw new IllegalArgumentException("Location out of bound");
         }
@@ -107,7 +107,7 @@ public class Board {
 
     public Board copy() {
         Board board = new Board(size);
-        board.locations = new HashMap<Location, StoneColor>(locations);
+        board.locations = new HashMap<BoardLocation, StoneColor>(locations);
         board.lastAdded = this.lastAdded;
         return board;
     }
@@ -117,7 +117,7 @@ public class Board {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 char representation = '_';
-                Location loc = new Location(j, i);
+                BoardLocation loc = new BoardLocation(j, i);
 
                 if (loc.equals(lastAdded)) {
                     switch (getAtLocation(loc)) {

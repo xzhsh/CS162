@@ -60,12 +60,12 @@ public class GoBoard {
      *
      * @param moveLoc     Where the stone is placed
      * @param activeColor The color of the stone
-     * @return A {@link Vector} of {@link Location} of stones that were captured, if any.
+     * @return A {@link Vector} of {@link BoardLocation} of stones that were captured, if any.
      * @throws IllegalMoveException if the move is illegal
      */
-    public Vector<Location> makeMove(Location moveLoc, StoneColor activeColor) throws IllegalMoveException {
+    public Vector<BoardLocation> makeMove(BoardLocation moveLoc, StoneColor activeColor) throws IllegalMoveException {
         Board tempBoard = board.copy();
-        Vector<Location> captured = testMove(moveLoc, activeColor, tempBoard);
+        Vector<BoardLocation> captured = testMove(moveLoc, activeColor, tempBoard);
 
         //propagate the changes.
         prevBoard = board.copy();
@@ -82,12 +82,12 @@ public class GoBoard {
         return goBoard;
     }
 
-    public Vector<Location> testMove(Location moveLoc, StoneColor activeColor) throws IllegalMoveException {
+    public Vector<BoardLocation> testMove(BoardLocation moveLoc, StoneColor activeColor) throws IllegalMoveException {
         Board tempBoard = board.copy();
         return testMove(moveLoc, activeColor, tempBoard);
     }
 
-    public Vector<Location> testMove(Location moveLoc, StoneColor activeColor, Board tempBoard) throws IllegalMoveException {
+    public Vector<BoardLocation> testMove(BoardLocation moveLoc, StoneColor activeColor, Board tempBoard) throws IllegalMoveException {
         //Temporary board, saved so we can restore the board if something happens.
         if (!tempBoard.locationValid(moveLoc)) {
             //if the location is not valid, or if there is already a piece there, send a illegal move error
@@ -99,12 +99,12 @@ public class GoBoard {
             throw new IllegalMoveException("Stone exists at location");
         }
 
-        Vector<Location> captured = Rules.getCapturedStones(tempBoard, activeColor, moveLoc);
+        Vector<BoardLocation> captured = Rules.getCapturedStones(tempBoard, activeColor, moveLoc);
 
         //change the board
         tempBoard.addStone(moveLoc, activeColor);
 
-        for (Location loc : captured) {
+        for (BoardLocation loc : captured) {
             tempBoard.removeStone(loc);
         }
 

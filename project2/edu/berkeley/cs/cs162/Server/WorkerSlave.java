@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import edu.berkeley.cs.cs162.Synchronization.Lock;
 import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
@@ -126,6 +127,11 @@ class WorkerSlave extends Thread {
     {
     	final Message message = MessageFactory.createGameOverErrorMessage(game.makeGameInfo(), blackScore, whiteScore, winner.makeClientInfo(), reason, errorPlayer.makeClientInfo(), errorMessage);
     	handleSendMessage(message);
+    }
+    
+    public void handleMakeMove(Game game, Worker currentPlayer, byte moveType, BoardLocation loc, Collection<BoardLocation> capturedList)
+    {
+    	final Message message = MessageFactory.createMakeMoveMessage(game.makeGameInfo(), currentPlayer.makeClientInfo(), moveType, loc, capturedList);
     }
     
 	public void closeAndCleanup() {

@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.util.Collection;
 
 import edu.berkeley.cs.cs162.Server.Board;
+import edu.berkeley.cs.cs162.Server.BoardLocation;
 import edu.berkeley.cs.cs162.Server.Game;
+
 
 /**
  * Factory class for Message. This class will be used for all Message construction.
@@ -189,9 +191,13 @@ public class MessageFactory {
     }
     
     // Make Move
-    public static Message createMakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, WritableList locationlist) {
-        assert locationlist.getObjectType() == Location.class : "WritableList should contain Location objects.";
-        return new ServerMessages.MakeMoveMessage(game, player, moveType, loc, locationlist);
+    public static Message createMakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, BoardLocation loc, Collection<BoardLocation> locationList) {
+        WritableList locInfoList = new WritableList(Location.class);
+    	for (BoardLocation l : locationList)
+    	{
+    		locInfoList.add(new Location(l.getX(), l.getY()));
+    	}
+        return new ServerMessages.MakeMoveMessage(game, player, moveType, loc.makeLocationInfo(), createWritableList(Location.class, locInfoList));
     }
 
     // Get Move
@@ -277,7 +283,7 @@ public class MessageFactory {
         BoardInfo boardInfo = new BoardInfo();
         for (int i = 0; i < currentBoard.getSize(); i++) {
             for (int j = 0; j < currentBoard.getSize(); j++) {
-                boardInfo.getStoneColorState()[i][j] = new StoneColorInfo(currentBoard.getAtLocation(new edu.berkeley.cs.cs162.Server.Location(i, j)).getByte());
+                boardInfo.getStoneColorState()[i][j] = new StoneColorInfo(currentBoard.getAtLocation(new BoardLocation(i, j)).getByte());
             }
         }
         return boardInfo;
@@ -298,6 +304,10 @@ public class MessageFactory {
         }
         return list;
     }
+
+	public static Location createLocationInfo(int x, int y) {
+		return new Location(x,y);
+	}
 
 
 
