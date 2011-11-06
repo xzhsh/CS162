@@ -3,12 +3,21 @@ package edu.berkeley.cs.cs162.Writable;
 
 public class ResponseMessages {
 
-    // TODO [LIST] Figure out this whole list thing.
+    // TODO [LIST] Assert that the list contains GameInfo
     public static class ListGamesStatusOkMessage extends GenericMessage {
 
         // Used for receiving
         protected ListGamesStatusOkMessage(){
-            super(MessageProtocol.OP_STATUS_OK);
+            super(MessageProtocol.OP_STATUS_OK, new WritableList(GameInfo.class));
+        }
+
+        // Used for sending
+        protected ListGamesStatusOkMessage(WritableList gameList) {
+            super(MessageProtocol.OP_STATUS_OK, gameList);
+        }
+
+        public WritableList getGameList() {
+            return (WritableList) getWritable(0);
         }
     }
 

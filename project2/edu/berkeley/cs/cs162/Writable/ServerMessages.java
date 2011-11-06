@@ -121,12 +121,13 @@ public class ServerMessages {
 
         // Used for receiving
         protected MakeMoveMessage() {
-            super(MessageProtocol.OP_TYPE_MAKEMOVE, new GameInfo(), new ClientInfo(), new WritableByte(), new Location(), new WritableLocationList());
+            super(MessageProtocol.OP_TYPE_MAKEMOVE, new GameInfo(), new ClientInfo(), new WritableByte(), new Location(), new WritableList(Location.class));
         }
 
+        // TODO [LIST] Assert that the WritableList contains Locations
         // Used for sending
-        protected MakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, List<Location> locationlist) {
-            super(MessageProtocol.OP_TYPE_MAKEMOVE, game, player, new WritableByte(moveType), loc, new WritableLocationList(locationlist));
+        protected MakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, WritableList locationlist) {
+            super(MessageProtocol.OP_TYPE_MAKEMOVE, game, player, new WritableByte(moveType), loc, locationlist);
         }
 
         public GameInfo getGameInfo(){
@@ -145,7 +146,9 @@ public class ServerMessages {
             return (Location) getWritable(3);
         }
 
-        //TODO [LIST] return the list of locations.
+        public WritableList getLocationList(){
+            return (WritableList) getWritable(4);
+        }
     }
 
     /**

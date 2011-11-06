@@ -111,7 +111,7 @@ public class MessageFactory {
                 switch (sentMessage.getMsgType())
                 {
                     case MessageProtocol.OP_TYPE_LISTGAMES:
-                        container = new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK); // TODO [LIST] Handle the list and change this appropriately.
+                        container = new ResponseMessages.ListGamesStatusOkMessage();
                         break;
                     case MessageProtocol.OP_TYPE_JOIN:
                         container = new ResponseMessages.JoinStatusOkMessage();
@@ -189,7 +189,7 @@ public class MessageFactory {
     }
 
     // Make Move
-    public static Message createMakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, List<Location> locationlist) {
+    public static Message createMakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, WritableList locationlist) {
         return new ServerMessages.MakeMoveMessage(game, player, moveType, loc, locationlist);
     }
 
@@ -207,9 +207,8 @@ public class MessageFactory {
     }
 
     // Status OK, response to List Games
-    // TODO [LIST] Handle the list in the ListGamesStatusOkMessage and add a method here.
     public static Message createListGamesStatusOkMessage(WritableList gameList) {
-        return null;
+        return new ResponseMessages.ListGamesStatusOkMessage(gameList);
     }
 
     // Status OK, response to Join
