@@ -1,7 +1,7 @@
 package edu.berkeley.cs.cs162.Client;
 
 import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.ReturnMessages;
+import edu.berkeley.cs.cs162.Writable.ResponseMessages;
 import edu.berkeley.cs.cs162.Writable.ServerMessages;
 
 import java.io.DataInputStream;
@@ -96,10 +96,10 @@ public class ServerConnection {
         message.writeTo(oC2S);
     }
 
-    // TODO Add specialized logic for STATUS_OK replies that need to have extra args, probably through a special ReturnMessages method.
+    // TODO Add specialized logic for STATUS_OK replies that need to have extra args, probably through a special ResponseMessages method.
     public Message sendSyncToServer(Message message) throws IOException {
         message.writeTo(oC2S);
-        return ReturnMessages.readReplyFromInput(message, iC2S);
+        return ResponseMessages.readReplyFromInput(message, iC2S);
     }
 
     public void readFromServer(Message messageContainer) throws IOException {

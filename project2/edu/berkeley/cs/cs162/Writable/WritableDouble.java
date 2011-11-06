@@ -24,4 +24,8 @@ public class WritableDouble implements Writable {
         value = DataTypeIO.readDouble(input);
     }
 
+    public double getValue(){
+        return value;
+    }
+
 }

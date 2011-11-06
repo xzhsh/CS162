@@ -24,4 +24,8 @@ public class WritableByte implements Writable {
         value = DataTypeIO.readByte(input);
     }
 
+    public byte getValue(){
+        return value;
+    }
+
 }

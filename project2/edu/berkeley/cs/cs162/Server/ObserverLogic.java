@@ -36,7 +36,7 @@ public class ObserverLogic extends ClientLogic {
                 GameInfo gameInfo = ((ClientMessages.JoinMessage) message).getGameInfo();
                 Game game = getWorker().getServer().getGame(gameInfo.getName());
                 if (game == null) {
-                    return ReturnMessages.createErrorInvalidGameMessage();
+                    return ResponseMessages.createErrorInvalidGameMessage();
                 }
                 startGame(game);
                 return MessageFactory.createStatusOkMessage(game.makeBoardInfo(), game.getBlackPlayer().makeClientInfo(), game.getWhitePlayer().makeClientInfo());
@@ -46,7 +46,7 @@ public class ObserverLogic extends ClientLogic {
                 GameInfo gameInfo = ((ClientMessages.JoinMessage) message).getGameInfo();
                 Game desiredGame = getWorker().getServer().getGame(gameInfo.getName());
                 if (desiredGame == null) {
-                    return ReturnMessages.createErrorInvalidGameMessage();
+                    return ResponseMessages.createErrorInvalidGameMessage();
                 }
                 startGame(desiredGame);
             }

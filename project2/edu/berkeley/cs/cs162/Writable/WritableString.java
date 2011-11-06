@@ -8,6 +8,10 @@ public class WritableString implements Writable {
 
     private String value;
 
+    protected WritableString(){
+        this.value = "";
+    }
+
     protected WritableString(String value) {
         this.value = value;
     }
@@ -18,6 +22,10 @@ public class WritableString implements Writable {
 
     public void readFrom(InputStream input) throws IOException {
         value = DataTypeIO.readString(input);
+    }
+
+    public String getValue(){
+        return value;
     }
 
 }

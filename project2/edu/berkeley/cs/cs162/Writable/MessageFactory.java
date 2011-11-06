@@ -24,7 +24,7 @@ public class MessageFactory {
 
     //TODO add create________Messsage(args) methods for all messages.
     public static Message createStatusOkMessage(Writable... writables) {
-        return new CompositeMessage(MessageProtocol.OP_STATUS_OK, writables);
+        return new GenericMessage(MessageProtocol.OP_STATUS_OK, writables);
     }
 
     public static Message createGenericOpCodeOnlyMessage() {

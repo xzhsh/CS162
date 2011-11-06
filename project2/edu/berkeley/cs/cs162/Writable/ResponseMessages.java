@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 
-public class ReturnMessages {
+public class ResponseMessages {
     public static Message readReplyFromInput(Message sentMessage, DataInputStream in) throws IOException {
         byte opCode = DataTypeIO.readByte(in);
         Message msgContainer = null;

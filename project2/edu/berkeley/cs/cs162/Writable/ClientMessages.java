@@ -13,7 +13,7 @@ public class ClientMessages {
     /**
      * Connect
      */
-    public static class ConnectMessage extends CompositeMessage {
+    public static class ConnectMessage extends GenericMessage {
         protected ConnectMessage(ClientInfo cInfo) {
             super(MessageProtocol.OP_TYPE_CONNECT, cInfo);
         }
@@ -30,7 +30,7 @@ public class ClientMessages {
     /**
      * Join
      */
-    public static class JoinMessage extends CompositeMessage {
+    public static class JoinMessage extends GenericMessage {
         protected JoinMessage(GameInfo gInfo) {
             super(MessageProtocol.OP_TYPE_JOIN, gInfo);
         }
@@ -47,7 +47,7 @@ public class ClientMessages {
     /**
      * Leave
      */
-    public static class LeaveMessage extends CompositeMessage {
+    public static class LeaveMessage extends GenericMessage {
         protected LeaveMessage(GameInfo gInfo) {
             super(MessageProtocol.OP_TYPE_LEAVE, gInfo);
         }

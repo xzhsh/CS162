@@ -6,10 +6,10 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 
-public class CompositeMessage extends Message {
+public class GenericMessage extends Message {
     List<Writable> writables;
 
-    protected CompositeMessage(byte opCode, Writable... writables) {
+    protected GenericMessage(byte opCode, Writable... writables) {
         this.opCode = opCode;
         this.writables = Arrays.asList(writables);
     }
@@ -41,6 +41,7 @@ public class CompositeMessage extends Message {
     public Writable getWritable(int i) {
         return writables.get(i);
     }
+
 
     @Override
     public void readDataFrom(InputStream in) throws IOException {
