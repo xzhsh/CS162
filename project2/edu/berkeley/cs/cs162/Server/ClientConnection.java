@@ -2,6 +2,7 @@ package edu.berkeley.cs.cs162.Server;
 
 import edu.berkeley.cs.cs162.Writable.ClientMessages;
 import edu.berkeley.cs.cs162.Writable.Message;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.ResponseMessages;
 
 import java.io.DataInputStream;
@@ -117,7 +118,8 @@ public class ClientConnection {
         if (!valid) {
             throw new IOException("Invalid connection used");
         }
-        return ResponseMessages.readReplyFromInput(message, S2Cin);
+        //return ResponseMessages.readReplyFromInput(message, S2Cin);
+        return MessageFactory.readResponseMessage(S2Cin, message);
     }
 
     /**

@@ -1,26 +1,60 @@
 package edu.berkeley.cs.cs162.Writable;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-
 
 public class ResponseMessages {
-    public static Message readReplyFromInput(Message sentMessage, DataInputStream in) throws IOException {
-        byte opCode = DataTypeIO.readByte(in);
-        Message msgContainer = null;
-        switch (opCode) {
-            case MessageProtocol.OP_ERROR_INVALID_GAME:
-            case MessageProtocol.OP_ERROR_INVALID_USER:
-            case MessageProtocol.OP_ERROR_REJECTED:
-            case MessageProtocol.OP_ERROR_UNCONNECTED:
-                return new OpCodeOnlyMessage(opCode);
-            case MessageProtocol.OP_STATUS_OK:
-                msgContainer = MessageFactory.createStatusOkMessage();//TODO add return values
-                //return new StatusOkMessage(sentMessage);
-            default:
-                assert false : "Unimplemented method";
+
+    // TODO Figure out this whole list thing.
+    public static class ListGamesStatusOkMessage extends GenericMessage {
+
+        // Used for receiving
+        protected ListGamesStatusOkMessage(){
+            super(MessageProtocol.OP_STATUS_OK);
         }
-        msgContainer.readDataFrom(in);
-        return msgContainer;
+    }
+
+    public static class JoinStatusOkMessage extends GenericMessage {
+
+        // Used for receiving
+        protected JoinStatusOkMessage() {
+            super(MessageProtocol.OP_STATUS_OK, new BoardInfo(), new ClientInfo(), new ClientInfo());
+        }
+
+        // Used for sending
+        protected JoinStatusOkMessage(BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer) {
+            super(MessageProtocol.OP_STATUS_OK, board, blackPlayer, whitePlayer);
+        }
+
+        public BoardInfo getBoardInfo() {
+            return (BoardInfo) getWritable(0);
+        }
+
+        public ClientInfo getBlackPlayer() {
+            return (ClientInfo) getWritable(1);
+        }
+
+        public ClientInfo getWhitePlayer() {
+            return (ClientInfo) getWritable(2);
+        }
+    }
+
+    public static class GetMoveStatusOkMessage extends GenericMessage {
+
+        // Used for receiving
+        protected GetMoveStatusOkMessage() {
+            super(MessageProtocol.OP_STATUS_OK, new WritableByte(), new Location());
+        }
+
+        // Used for sending
+        protected GetMoveStatusOkMessage(byte moveType, Location loc) {
+            super(MessageProtocol.OP_STATUS_OK, new WritableByte(moveType), loc);
+        }
+
+        public byte getMoveType() {
+            return ((WritableByte) getWritable(0)).getValue();
+        }
+
+        public Location getLocation() {
+            return (Location) getWritable(1);
+        }
     }
 }

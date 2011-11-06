@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162.Writable;
 
+import com.sun.tools.internal.ws.processor.model.Response;
 import edu.berkeley.cs.cs162.Client.Client;
 import edu.berkeley.cs.cs162.Server.Board;
 import sun.plugin2.main.client.MessagePassingOneWayJSObject;
@@ -10,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Factory class for Message.
+ * Factory class for Message. This class will be used for all Message construction.
  */
 
 public class MessageFactory {
@@ -28,6 +29,53 @@ public class MessageFactory {
         return new OpCodeOnlyMessage(MessageProtocol.UNUSED);
     }
 
+
+    // Read an incoming message from a Client.
+    public static Message readClientMessage(InputStream in){
+        return null;
+    }
+
+
+    // Read an incoming message from the Server.
+    public static Message readServerMessage(InputStream in){
+        return null;
+    }
+
+    // Read a response message.
+    public static Message readResponseMessage(InputStream in, Message sentMessage) throws IOException {
+        byte opCode = DataTypeIO.readByte(in);
+        Message container = null;
+
+        // Create the correct type of Message container, or return an OpCodeOnlyMessage.
+        switch (opCode) {
+            case MessageProtocol.OP_ERROR_INVALID_GAME:
+            case MessageProtocol.OP_ERROR_INVALID_USER:
+            case MessageProtocol.OP_ERROR_REJECTED:
+            case MessageProtocol.OP_ERROR_UNCONNECTED:
+                return new OpCodeOnlyMessage(opCode);
+            case MessageProtocol.OP_STATUS_OK:
+                switch (sentMessage.getMsgType())
+                {
+                    case MessageProtocol.OP_TYPE_LISTGAMES:
+                        container = new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK); // TODO Handle the list and change this appropriately.
+                        break;
+                    case MessageProtocol.OP_TYPE_JOIN:
+                        container = new ResponseMessages.JoinStatusOkMessage();
+                        break;
+                    case MessageProtocol.OP_TYPE_GETMOVE:
+                        container = new ResponseMessages.GetMoveStatusOkMessage();
+                        break;
+                    default:
+                        return new OpCodeOnlyMessage(opCode);
+                } break;
+            default:
+                assert false : "Unimplemented method";
+        }
+
+        // Fill out the container from the InputStream.
+        container.readDataFrom(in);
+        return container;
+    }
 
     /**
      * Client Messages.
@@ -87,9 +135,19 @@ public class MessageFactory {
      * Response Messages.
      */
 
-    // TODO Have methods to create special STATUS_OK messages
-    public static Message createStatusOkMessage(Writable... writables) {
-        return new GenericMessage(MessageProtocol.OP_STATUS_OK, writables);
+
+    public static Message createStatusOkMessage() {
+        return new OpCodeOnlyMessage(MessageProtocol.OP_STATUS_OK);
+    }
+
+    // TODO Handle the list in the ListGamesStatusOkMessage and add a method here.
+
+    public static Message createJoinStatusOkMessage(BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer) {
+        return new ResponseMessages.JoinStatusOkMessage(board, blackPlayer, whitePlayer);
+    }
+
+    public static Message createGetMoveStatusOkMessage(byte moveType, Location loc) {
+        return new ResponseMessages.GetMoveStatusOkMessage(moveType, loc);
     }
 
     public static Message createErrorRejectedMessage() {
