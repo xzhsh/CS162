@@ -64,7 +64,6 @@ public class ServerMessages {
             super(MessageProtocol.OP_TYPE_GAMEOVER, game, blackScore, whiteScore, winner, reason, player, errormsg);
         }
 
-        // TODO Because the Object will be of type Message, will this method get invoked, or the parent method?
         @Override
         public void readDataFrom(InputStream in) throws IOException {
             // First, read the standard message in
@@ -124,7 +123,6 @@ public class ServerMessages {
             super(MessageProtocol.OP_TYPE_MAKEMOVE, new GameInfo(), new ClientInfo(), new WritableByte(), new Location(), new WritableList(Location.class));
         }
 
-        // TODO [LIST] Assert that the WritableList contains Locations
         // Used for sending
         protected MakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, WritableList locationlist) {
             super(MessageProtocol.OP_TYPE_MAKEMOVE, game, player, new WritableByte(moveType), loc, locationlist);

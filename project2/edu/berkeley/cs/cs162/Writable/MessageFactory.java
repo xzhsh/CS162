@@ -190,6 +190,7 @@ public class MessageFactory {
 
     // Make Move
     public static Message createMakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, WritableList locationlist) {
+        assert locationlist.getObjectType() == Location.class : "WritableList should contain Location objects.";
         return new ServerMessages.MakeMoveMessage(game, player, moveType, loc, locationlist);
     }
 
@@ -208,6 +209,7 @@ public class MessageFactory {
 
     // Status OK, response to List Games
     public static Message createListGamesStatusOkMessage(WritableList gameList) {
+        assert gameList.getObjectType() == GameInfo.class : "WritableList should contain GameInfo objects";
         return new ResponseMessages.ListGamesStatusOkMessage(gameList);
     }
 

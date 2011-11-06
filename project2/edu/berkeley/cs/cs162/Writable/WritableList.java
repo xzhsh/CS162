@@ -22,6 +22,10 @@ public class WritableList extends ArrayList<Writable> implements Writable {
         this.storedClass = storedClass;
     }
 
+    public Class<? extends Writable> getObjectType(){
+        return storedClass;
+    }
+
     @Override
     public void readFrom(InputStream in) throws IOException {
         int length = DataTypeIO.readInt(in);
