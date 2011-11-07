@@ -13,35 +13,15 @@ public class HumanPlayer extends Player {
         super(name, MessageProtocol.TYPE_HUMAN);
     }
 
-    protected boolean connectTo(String address, Integer port) {
-        try {
-            Socket c1 = new Socket(address, port);
-            Socket c2 = new Socket(address, port);
+    public static void main(String[] args){
+        assert args.length == 3 : "Enter arguments in the following format: <host> <port> <observername>";
+        HumanPlayer player = new HumanPlayer(args[2]);
+        String address = args[0];
+        Integer port = Integer.valueOf(args[1]);
 
-            ServerConnection con = new ServerConnection(c1, c2);
-            System.out.println(con.initiate3WayHandshake(new Random()));
-            Message connectMessage = MessageFactory.createConnectMessage(clientInfo);
-
-            Message ok = con.sendSyncToServer(connectMessage);
-
-            if (ok.getMsgType() == MessageProtocol.OP_STATUS_OK) {
-                System.out.println("Status OK, connected");
-                return true;
-            }
-
-            return false;
-
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(player.connectTo(address, port)){
+            System.out.println("HumanPlayer " + player.getName() + " is connected to the server!");
         }
-
-        return false;
-    }
-
-    public ClientInfo getClientInfo() {
-        return clientInfo;
     }
 
     @Override
