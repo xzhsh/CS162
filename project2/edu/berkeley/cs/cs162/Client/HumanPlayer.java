@@ -1,5 +1,7 @@
 package edu.berkeley.cs.cs162.Client;
 
+import edu.berkeley.cs.cs162.Server.BoardLocation;
+import edu.berkeley.cs.cs162.Server.GoBoard;
 import edu.berkeley.cs.cs162.Server.StoneColor;
 import edu.berkeley.cs.cs162.Writable.*;
 
@@ -92,11 +94,34 @@ public class HumanPlayer extends Player {
 
     @Override
     protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
-        String gameName = m.getGameInfo().getName();
-        String player = m.getPlayer().getName();
+        //String gameName = m.getGameInfo().getName();
+        String playerName = m.getPlayer().getName();
         byte type = m.getMoveType();
-        Location loc = m.getLocation();
-        WritableList stonesCaptured = m.getLocationList();
+        BoardLocation loc = m.getLocation().makeBoardLocation();
+        //WritableList stonesCaptured = m.getLocationList();
+
+        if (playerName.equals(name)) {
+            if (type == MessageProtocol.MOVE_PASS) {
+                //what
+            } else {
+                try {
+                    board.makeMove(loc, currentColor);
+                } catch (GoBoard.IllegalMoveException e) {
+
+                }
+            }
+
+        } else {
+            if (type == MessageProtocol.MOVE_STONE) {
+                //what
+            } else {
+                try {
+                    board.makeMove(loc, opponentColor);
+                } catch (GoBoard.IllegalMoveException e) {
+
+                }
+            }
+        }
 
         //board.makeMove(loc.makeBoardLocation(),);
 
@@ -134,7 +159,6 @@ public class HumanPlayer extends Player {
             //send message to server about new move
         }*/
         //send a message to the server with byte moveType and Location loc
-
 
         byte moveType;
         Location loc;
