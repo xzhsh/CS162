@@ -30,7 +30,7 @@ public class Location implements Writable {
         DataTypeIO.writeInt(out, y);
     }
 
-    public String toString(){
+    public String toString() {
         return "(" + x + "," + y + ")";
     }
 

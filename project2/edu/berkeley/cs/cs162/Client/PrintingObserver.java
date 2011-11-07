@@ -1,8 +1,8 @@
 package edu.berkeley.cs.cs162.Client;
 
-import java.io.IOException;
-
 import edu.berkeley.cs.cs162.Writable.*;
+
+import java.io.IOException;
 
 public class PrintingObserver extends Observer {
 
@@ -10,30 +10,30 @@ public class PrintingObserver extends Observer {
         super(name, MessageProtocol.TYPE_OBSERVER);
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         PrintingObserver observer = new PrintingObserver(args[2]);
         String address = args[0];
         Integer port = Integer.valueOf(args[1]);
 
-        if(observer.connectTo(address, port)){
+        if (observer.connectTo(address, port)) {
             System.out.println("Printing observer connected, yo.");
-            try
-            {
+            try {
                 observer.joinGames();
                 observer.runExecutionLoop();
+            } catch (IOException e) {
+                System.out.println("An error occurred... PrintingObserver " + observer.getName() + " terminating.");
             }
-            catch(IOException e) { System.out.println("An error occurred... PrintingObserver " + observer.getName() + " terminating."); }
         }
     }
 
     private void joinGames() throws IOException {
         Message listResponse = connection.sendSyncToServer(MessageFactory.createListGamesMessage());
-        if(listResponse.isOK()){
+        if (listResponse.isOK()) {
             WritableList gameList = ((ResponseMessages.ListGamesStatusOkMessage) listResponse).getGameList();
-            for(Writable game : gameList){
+            for (Writable game : gameList) {
                 GameInfo g = (GameInfo) game;
                 Message joinResponse = connection.sendSyncToServer(MessageFactory.createJoinMessage(g));
-                if(joinResponse.isOK()){
+                if (joinResponse.isOK()) {
                     joinedGames.add(g);
                 }
             }
@@ -41,7 +41,7 @@ public class PrintingObserver extends Observer {
     }
 
     private void runExecutionLoop() throws IOException {
-        while(true){
+        while (true) {
             handleMessage(connection.readFromServer());
         }
     }
@@ -81,12 +81,11 @@ public class PrintingObserver extends Observer {
         String winner = m.getWinner().getName();
         byte reason = m.getReason();
 
-        if(reason != MessageProtocol.GAME_OK){
+        if (reason != MessageProtocol.GAME_OK) {
             String playerName = m.getErrorPlayer().getName();
             String errorMsg = m.getErrorMessage();
             System.out.println("Game " + gameName + " ended with an error by " + playerName + ": " + errorMsg + ". Black score " + blackScore + ", White score " + whiteScore + ". WINNER: " + winner + "!");
-        }
-        else{
+        } else {
             System.out.println("Game " + gameName + " ended with Black score " + blackScore + ", White score " + whiteScore + ". WINNER: " + winner + "!");
         }
 
@@ -101,10 +100,9 @@ public class PrintingObserver extends Observer {
         Location loc = m.getLocation();
         WritableList stonesCaptured = m.getLocationList();
 
-        if(type == MessageProtocol.MOVE_STONE){
+        if (type == MessageProtocol.MOVE_STONE) {
             System.out.println("In game " + game + ", " + player + " placed a stone at " + loc + ". " + stonesCaptured.size() + " stones were captured.");
-        }
-        else{
+        } else {
             System.out.println("In game " + game + ", " + player + " passed.");
         }
 
