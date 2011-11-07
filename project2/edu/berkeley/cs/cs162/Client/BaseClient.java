@@ -3,8 +3,11 @@ package edu.berkeley.cs.cs162.Client;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
+import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
+import java.io.IOException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Random;
 
 abstract public class BaseClient implements Client {
@@ -61,6 +64,9 @@ abstract public class BaseClient implements Client {
             Message connectMessage = MessageFactory.createConnectMessage(clientInfo);
             Message serverResponse = connection.sendSyncToServer(connectMessage);
 
+            return (serverResponse.getMsgType() == MessageProtocol.OP_STATUS_OK);
+
         }
+        catch(IOException e) { return false; }
     }
 }
