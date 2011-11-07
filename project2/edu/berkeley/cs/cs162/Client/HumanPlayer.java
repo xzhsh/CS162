@@ -21,8 +21,26 @@ public class HumanPlayer extends Player {
         String address = args[0];
         Integer port = Integer.valueOf(args[1]);
 
-        if(player.connectTo(address, port)){
+        if (player.connectTo(address, port)){
             System.out.println("HumanPlayer " + player.getName() + " is connected to the server!");
+
+            try {
+                player.runExecutionLoop();
+            } catch (IOException e) {
+                System.out.println("An error occurred... HumanPlayer " + player.getName() + " terminating.");
+            }
+        }
+    }
+
+    private void runExecutionLoop() throws IOException {
+        while (true) {
+            if (waitingForGames) {
+
+            } else {
+
+            }
+
+            handleMessage(connection.readFromServer());
         }
     }
 
@@ -33,8 +51,11 @@ public class HumanPlayer extends Player {
         String whitePlayerName = m.getWhiteClientInfo().getName();
 
         board = m.getBoardInfo().getBoard();
+        waitingForGames = false;
 
+        System.out.println("Game " + gameName + " starting with Black player " + blackPlayerName + " and White player " + whitePlayerName + ".");
 
+        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     @Override
@@ -47,6 +68,9 @@ public class HumanPlayer extends Player {
         String errorPlayerName = m.getErrorPlayer().getName();
         String errorMsg = m.getErrorMessage();
 
+        waitingForGames = true;
+
+        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     @Override
@@ -57,6 +81,9 @@ public class HumanPlayer extends Player {
         Location loc = m.getLocation();
         WritableList stonesCaptured = m.getLocationList();
 
+
+
+        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     @Override

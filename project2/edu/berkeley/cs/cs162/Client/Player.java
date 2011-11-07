@@ -5,10 +5,12 @@ import edu.berkeley.cs.cs162.Server.GoBoard;
 abstract public class Player extends BaseClient {
 
     GoBoard board;
+    boolean waitingForGames;
 
     public Player(String name, byte type) {
         super(name, type);
         board = new GoBoard(10);
+        waitingForGames = true;
     }
 
     public Player(String name) {
@@ -41,5 +43,13 @@ abstract public class Player extends BaseClient {
 
     public GoBoard getBoard() {
         return board;
+    }
+
+    public boolean getWaitingForGames() {
+        return waitingForGames;
+    }
+
+    public void setWaitingForGames(boolean b) {
+        waitingForGames = b;
     }
 }
