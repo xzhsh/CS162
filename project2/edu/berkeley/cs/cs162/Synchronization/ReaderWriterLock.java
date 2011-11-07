@@ -30,7 +30,7 @@ public class ReaderWriterLock {
      */
     public void readLock() {
         guard.acquire();
-        if((value > 0) && waitingWriters.isEmpty()){
+        if((value >= 0) && waitingWriters.isEmpty()){
             value++;
             guard.release();
         }

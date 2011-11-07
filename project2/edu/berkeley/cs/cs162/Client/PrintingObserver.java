@@ -1,9 +1,6 @@
 package edu.berkeley.cs.cs162.Client;
 
-import edu.berkeley.cs.cs162.Writable.ClientInfo;
-import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
-import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+import edu.berkeley.cs.cs162.Writable.*;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -12,26 +9,39 @@ import java.util.Random;
 
 public class PrintingObserver extends Observer {
 
-    ClientInfo clientInfo;
-
     public PrintingObserver(String name) {
         super(name, MessageProtocol.TYPE_OBSERVER);
-        clientInfo = MessageFactory.createObserverClientInfo(name);
     }
 
     private void connectTo(String address, Integer port) {
-        try {
+        try 
+        {
+            // Create the C2S and S2C sockets
             Socket c1 = new Socket(address, port);
             Socket c2 = new Socket(address, port);
 
-            ServerConnection con = new ServerConnection(c1, c2);
-            System.out.println(con.initiate3WayHandshake(new Random()));
+            // Attempt to connect to the GameServer via 3-way Handshake
+            connection = new ServerConnection(c1, c2);
+            System.out.println(connection.initiate3WayHandshake(new Random()));
             Message connectMessage = MessageFactory.createConnectMessage(clientInfo);
 
-            Message ok = con.sendSyncToServer(connectMessage);
+            Message serverResponse = connection.sendSyncToServer(connectMessage);
 
-            if (ok.getMsgType() == MessageProtocol.OP_STATUS_OK) {
+            // If successfully connected to the GameServer...
+            if (serverResponse.getMsgType() == MessageProtocol.OP_STATUS_OK) {
                 System.out.println("Status OK, connected");
+
+                // First, we need a list of all the games
+                Message gameListMessage = connection.sendSyncToServer(MessageFactory.createListGamesMessage());
+                if (serverResponse.getMsgType() == MessageProtocol.OP_STATUS_OK){
+                    WritableList gameList = ((ResponseMessages.ListGamesStatusOkMessage) gameListMessage).getGameList();
+
+                    // Join ALL the games!
+                    for(Writable game : gameList){
+                        Message joinResponse = connection.sendSyncToServer(MessageFactory.createJoinMessage((GameInfo) game));
+                    }
+                }
+
             }
         } catch (UnknownHostException e) {
             e.printStackTrace();
