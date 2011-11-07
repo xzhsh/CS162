@@ -43,4 +43,8 @@ public class MachinePlayer extends Player {
     public ClientInfo getClientInfo() {
         return clientInfo;
     }
+
+    public void handleMessage(Message m) {
+
+    }
 }

@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162.Client;
 
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
+import edu.berkeley.cs.cs162.Writable.Message;
 
 /**
  * The Client interface is implemented by Players and Observers.
@@ -31,14 +32,19 @@ public interface Client {
     /**
      * Gets the type of the Client (e.g. MessageProtocol.TYPE_MACHINE)
      *
-     * @return
+     * @return type
      */
     public abstract byte getType();
 
     /**
      * Gets a ClientInfo representing the client
      *
-     * @return
+     * @return clientInfo
      */
     public abstract ClientInfo getClientInfo();
+
+    /**
+     * Handles messages that the client receives
+     */
+    public abstract void handleMessage(Message m);
 }
