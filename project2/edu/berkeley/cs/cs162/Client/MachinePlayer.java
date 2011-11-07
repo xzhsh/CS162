@@ -95,15 +95,15 @@ public class MachinePlayer extends Player {
         //String gameName = m.getGameInfo().getName();
         String playerName = m.getPlayer().getName();
         byte type = m.getMoveType();
+        BoardLocation loc = m.getLocation().makeBoardLocation();
         //WritableList stonesCaptured = m.getLocationList();
 
         if (playerName.equals(name)) {
             if (type == MessageProtocol.MOVE_PASS) {
                 //uhh
             } else {
-                Location loc = m.getLocation();
                 try {
-                    board.makeMove(loc.makeBoardLocation(), currentColor);
+                    board.makeMove(loc, currentColor);
                 } catch (GoBoard.IllegalMoveException e) {
                     //uhh
                 }
@@ -113,10 +113,8 @@ public class MachinePlayer extends Player {
             if (type == MessageProtocol.MOVE_PASS) {
                 //uhh
             } else {
-                Location loc = m.getLocation();
-
                 try {
-                    board.makeMove(loc.makeBoardLocation(), opponentColor);
+                    board.makeMove(loc, opponentColor);
                 } catch (GoBoard.IllegalMoveException e) {
                     //uhh
                 }
@@ -161,7 +159,12 @@ public class MachinePlayer extends Player {
     protected void handleGetMove() throws IOException {
         long startTime = System.currentTimeMillis();
         int moveTime = 2000;
+
+        byte moveCode;
+
         while (true) {
+
+            //not entirely sure this times out correctly
             if (System.currentTimeMillis() - startTime >= moveTime) {
                 return;
             }
@@ -169,15 +172,13 @@ public class MachinePlayer extends Player {
             Location loc = decideMove();
 
             if (loc == null) {
-                byte moveCode = MessageProtocol.MOVE_PASS;
-                Location nullLoc = MessageFactory.createLocationInfo(0, 0);
-                Message getMoveResp = MessageFactory.createGetMoveStatusOkMessage(moveCode, nullLoc);
-                connection.sendReplyToServer(getMoveResp);
+                moveCode = MessageProtocol.MOVE_PASS;
+                loc = MessageFactory.createLocationInfo(0, 0);
             } else {
-                byte moveCode = MessageProtocol.MOVE_STONE;
-                Message getMoveResp = MessageFactory.createGetMoveStatusOkMessage(moveCode, loc);
-                connection.sendReplyToServer(getMoveResp);
+                moveCode = MessageProtocol.MOVE_STONE;
             }
+
+            connection.sendReplyToServer(MessageFactory.createGetMoveStatusOkMessage(moveCode, loc));
         }
     }
 }
