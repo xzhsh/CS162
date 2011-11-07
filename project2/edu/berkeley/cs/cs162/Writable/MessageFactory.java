@@ -313,6 +313,20 @@ public class MessageFactory {
 		return new GameInfo(name);
 	}
 
+    /* Writable Wrappers... should only be used for testing purposes */
+
+    public static WritableByte createWritableByte(byte b){
+        return new WritableByte(b);
+    }
+
+    public static WritableDouble createWritableDouble(double d){
+        return new WritableDouble(d);
+    }
+
+    public static WritableString createWritableString(String s){
+        return new WritableString(s);
+    }
+
 
 
 }

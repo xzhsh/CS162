@@ -20,6 +20,8 @@ public class WritablesTest {
         String address = "localhost";
         final int port = 1234;
 
+
+        // Initialize sockets and stuff...
         final Socket container[] = new Socket[1];
         Thread serverThread = new Thread()  {
             public void run(){
@@ -39,7 +41,9 @@ public class WritablesTest {
         InputStream in = sock1.getInputStream();
         OutputStream out = sock2.getOutputStream();
 
-        // BoardInfo
+
+        // TODO BoardInfo
+
 
         // ClientInfo
         ClientInfo c = MessageFactory.createMachinePlayerClientInfo("kunal");
@@ -101,9 +105,18 @@ public class WritablesTest {
 
         assertEquals(3.14159, wd2.getValue(), 0.000001);
 
-        // WritableList
+
+        // TODO WritableList
+
 
         // WritableString
+        WritableString st = MessageFactory.createWritableString("Yo dawg I heard you like writables");
+        WritableString st2 = MessageFactory.createWritableString("");
+
+        st.writeTo(out);
+        st2.readFrom(in);
+
+        assertEquals("Yo dawg I heard you like writables", st2.getValue());
 
     }
 
