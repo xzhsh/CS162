@@ -12,11 +12,8 @@ import java.util.Random;
 
 public class HumanPlayer extends Player {
 
-    ClientInfo clientInfo;
-
     public HumanPlayer(String name) {
         super(name, MessageProtocol.TYPE_HUMAN);
-        clientInfo = MessageFactory.createHumanPlayerClientInfo(name);
     }
 
     private void connectTo(String address, Integer port) {

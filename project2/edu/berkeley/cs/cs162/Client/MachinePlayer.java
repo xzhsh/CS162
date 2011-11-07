@@ -12,11 +12,8 @@ import java.util.Random;
 
 public class MachinePlayer extends Player {
 
-    ClientInfo clientInfo;
-
     public MachinePlayer(String name) {
         super(name, MessageProtocol.TYPE_MACHINE);
-        clientInfo = MessageFactory.createMachinePlayerClientInfo(name);
     }
 
     private void connectTo(String address, Integer port) {
