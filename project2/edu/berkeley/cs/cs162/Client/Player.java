@@ -2,12 +2,8 @@ package edu.berkeley.cs.cs162.Client;
 
 abstract public class Player extends BaseClient {
 
-    String name;
-    byte type;
-
     public Player(String name, byte type) {
-        this.name = name;
-        this.type = type;
+        super(name, type);
     }
 
     public Player(String name) {
