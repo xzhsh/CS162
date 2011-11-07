@@ -13,45 +13,14 @@ public class PrintingObserver extends Observer {
         super(name, MessageProtocol.TYPE_OBSERVER);
     }
 
-    private void connectTo(String address, Integer port) {
-        try 
-        {
-            // Create the C2S and S2C sockets
-            Socket c1 = new Socket(address, port);
-            Socket c2 = new Socket(address, port);
+    public static void main(String[] args){
+        PrintingObserver observer = new PrintingObserver(args[2]);
+        String address = args[0];
+        Integer port = Integer.valueOf(args[1]);
 
-            // Attempt to connect to the GameServer via 3-way Handshake
-            connection = new ServerConnection(c1, c2);
-            System.out.println(connection.initiate3WayHandshake(new Random()));
-            Message connectMessage = MessageFactory.createConnectMessage(clientInfo);
-
-            Message serverResponse = connection.sendSyncToServer(connectMessage);
-
-            // If successfully connected to the GameServer...
-            if (serverResponse.getMsgType() == MessageProtocol.OP_STATUS_OK) {
-                System.out.println("Status OK, connected");
-
-                // First, we need a list of all the games
-                Message gameListMessage = connection.sendSyncToServer(MessageFactory.createListGamesMessage());
-                if (serverResponse.getMsgType() == MessageProtocol.OP_STATUS_OK){
-                    WritableList gameList = ((ResponseMessages.ListGamesStatusOkMessage) gameListMessage).getGameList();
-
-                    // Join ALL the games!
-                    for(Writable game : gameList){
-                        Message joinResponse = connection.sendSyncToServer(MessageFactory.createJoinMessage((GameInfo) game));
-                    }
-                }
-
-            }
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(observer.connectTo(address, port)){
+            System.out.println("Printing observer connected, yo.");
         }
-    }
-
-    public ClientInfo getClientInfo() {
-        return clientInfo;
     }
 
     public void handleMessage(Message m) {

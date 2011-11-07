@@ -48,7 +48,7 @@ abstract public class BaseClient implements Client {
     }
 
     public ClientInfo getClientInfo() {
-        return null;
+        return clientInfo;
     }
 
     public boolean connectTo(String address, Integer port){
