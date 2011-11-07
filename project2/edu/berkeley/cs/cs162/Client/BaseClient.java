@@ -48,10 +48,10 @@ abstract public class BaseClient implements Client {
     }
 
     public ClientInfo getClientInfo() {
-        return null;
+        return clientInfo;
     }
 
-    private void connectTo(String address, Integer port){
+    protected boolean connectTo(String address, Integer port){
         try
         {
             // Create the C2S and S2C sockets
@@ -63,8 +63,9 @@ abstract public class BaseClient implements Client {
             System.out.println(connection.initiate3WayHandshake(new Random()));
             Message connectMessage = MessageFactory.createConnectMessage(clientInfo);
             Message serverResponse = connection.sendSyncToServer(connectMessage);
-        } catch(IOException e) {
-            return;
+
+            return (serverResponse.getMsgType() == MessageProtocol.OP_STATUS_OK);
         }
+        catch(IOException e) { return false; }
     }
 }
