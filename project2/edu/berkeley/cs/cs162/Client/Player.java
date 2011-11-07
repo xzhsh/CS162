@@ -8,10 +8,14 @@ abstract public class Player extends BaseClient {
     GoBoard board;
     boolean waitingForGames;
     StoneColor currentColor;
+    StoneColor opponentColor;
+    String gameName;
+
     public Player(String name, byte type) {
         super(name, type);
         board = new GoBoard(10);
         waitingForGames = true;
+        gameName = "";
     }
 
     public Player(String name) {
@@ -52,5 +56,13 @@ abstract public class Player extends BaseClient {
 
     public void setWaitingForGames(boolean b) {
         waitingForGames = b;
+    }
+
+    public void setGameName(String s) {
+        gameName = s;
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 }

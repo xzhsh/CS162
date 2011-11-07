@@ -74,7 +74,6 @@ public class PrintingObserver extends Observer {
         }
 
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
-
     }
 
     @Override
