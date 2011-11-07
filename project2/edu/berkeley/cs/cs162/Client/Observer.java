@@ -21,7 +21,7 @@ abstract public class Observer extends BaseClient {
         joinedGames = new ArrayList<GameInfo>();
     }
 
-    public void setName(String name) {
+   /*public void setName(String name) {
         this.name = name;
     }
 
@@ -35,6 +35,6 @@ abstract public class Observer extends BaseClient {
 
     public byte getType() {
         return this.type;
-    }
+    }*/
 
 }
