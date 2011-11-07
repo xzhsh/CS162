@@ -14,6 +14,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
 	
 	private Game game;
 	private int moveTimeout;
+
 	public PlayerWorkerSlave(ClientConnection connection, Worker master, int moveTimeout) {
 		super(connection, master);
 		game = null;
