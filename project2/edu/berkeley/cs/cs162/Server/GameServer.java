@@ -32,7 +32,7 @@ public class GameServer {
     /**
      * Queue for players waiting for games.
      */
-    private ThreadSafeQueue<Worker> waitingPlayerQueue;
+    private ThreadSafeQueue<PlayerLogic> waitingPlayerQueue;
     /**
      * Mapping between the name of a client and the worker handling the client's connection
      */
@@ -71,7 +71,7 @@ public class GameServer {
         waitingSocketMap = new HashMap<Integer, SocketWithTimeStamp>();
 
         connectionQueue = new ThreadSafeQueue<Socket>(WAITING_CONNECTION_BUFFER_SIZE);
-        waitingPlayerQueue = new ThreadSafeQueue<Worker>(clientLimit);
+        waitingPlayerQueue = new ThreadSafeQueue<PlayerLogic>(clientLimit);
         activeGames = new HashMap<String, Game>();
         nameToWorkerMap = new HashMap<String, Worker>();
         //TODO change these to ReaderWriterLock when it's implemented.
@@ -133,14 +133,13 @@ public class GameServer {
      *
      * @param name
      * @param message
-     * @return a return message if the message is synchronous.
      */
-    public Message sendMessageToClient(String name, Message message) {
+    public void sendMessageToClient(String name, Message message) {
         Worker worker;
         nameToWorkerMapLock.readLock();
         worker = nameToWorkerMap.get(name);
         nameToWorkerMapLock.readUnlock();
-        return worker.handleSendMessageToClient(message);
+        worker.handleSendMessageToClient(message);
     }
 
     /**
@@ -255,11 +254,11 @@ public class GameServer {
         }
     }
 
-    public void addPlayerWorkerToWaitQueue(Worker worker) {
-        waitingPlayerQueue.add(worker);
+    public void addPlayerToWaitQueue(PlayerLogic player) {
+        waitingPlayerQueue.add(player);
     }
 
-    public Worker getNextWaitingPlayer() {
+    public PlayerLogic getNextWaitingPlayer() {
         return waitingPlayerQueue.get();
     }
 

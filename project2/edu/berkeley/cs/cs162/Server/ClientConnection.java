@@ -58,10 +58,10 @@ public class ClientConnection {
             S2Cin = new DataInputStream(S2C.getInputStream());
             S2Cout.writeInt(S2CackID);
             S2Cout.writeInt(SYN_ID + 1);
-
+            S2Cout.flush();
             C2Sout.writeInt(C2SackID);
             C2Sout.writeInt(SYN_ID + 1);
-
+            C2Sout.flush();
 
             int ackC2S = C2Sin.readInt();
             int ackS2C = S2Cin.readInt();
@@ -90,6 +90,7 @@ public class ClientConnection {
             throw new IOException("Invalid connection used");
         }
         message.writeTo(S2Cout);
+        S2Cout.flush();
     }
 
     public void close() throws IOException {
@@ -110,6 +111,7 @@ public class ClientConnection {
             throw new IOException("Invalid connection used");
         }
         message.writeTo(C2Sout);
+        C2Sout.flush();
     }
 
     public Message readReplyFromClient(Message message) throws IOException {
