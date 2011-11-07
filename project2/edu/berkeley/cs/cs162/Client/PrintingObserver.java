@@ -102,6 +102,8 @@ public class PrintingObserver extends Observer {
         String player = m.getPlayer().getName();
 
 
+
+
         connection.sendAsyncToServer(MessageFactory.createStatusOkMessage());
     }
 }
