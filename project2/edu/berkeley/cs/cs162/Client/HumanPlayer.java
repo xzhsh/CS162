@@ -14,7 +14,7 @@ public class HumanPlayer extends Player {
         super(name, MessageProtocol.TYPE_HUMAN);
     }
 
-    private void connectTo(String address, Integer port) {
+    protected boolean connectTo(String address, Integer port) {
         try {
             Socket c1 = new Socket(address, port);
             Socket c2 = new Socket(address, port);
@@ -27,12 +27,18 @@ public class HumanPlayer extends Player {
 
             if (ok.getMsgType() == MessageProtocol.OP_STATUS_OK) {
                 System.out.println("Status OK, connected");
+                return true;
             }
+
+            return false;
+
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 
     public ClientInfo getClientInfo() {
@@ -91,6 +97,9 @@ public class HumanPlayer extends Player {
                 break;
             case MessageProtocol.OP_TYPE_GETMOVE:
                 //send a message to the server with byte moveType and Location loc
+
+
+
                 break;
             default:
                 break;

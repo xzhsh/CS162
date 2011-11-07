@@ -63,7 +63,7 @@ public class ServerConnection {
         int ACK2 = iS2C.readInt();
 
         if (!(ACK1 == ACK2 && ACK1 == (SYN_ID + 1))) {
-            System.out.printf("ACKs do not match! Recieved %d and %d when expecting %d\n", ACK1, ACK2, SYN_ID + 1);
+            System.out.printf("ACKs do not match! Received %d and %d when expecting %d\n", ACK1, ACK2, SYN_ID + 1);
             return false;
         }
         if (SYN1 > SYN2) {

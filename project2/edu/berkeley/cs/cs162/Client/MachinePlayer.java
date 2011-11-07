@@ -13,7 +13,7 @@ public class MachinePlayer extends Player {
         super(name, MessageProtocol.TYPE_MACHINE);
     }
 
-    private void connectTo(String address, Integer port) {
+    protected boolean connectTo(String address, Integer port) {
         try {
             Socket c1 = new Socket(address, port);
             Socket c2 = new Socket(address, port);
@@ -26,12 +26,18 @@ public class MachinePlayer extends Player {
 
             if (ok.getMsgType() == MessageProtocol.OP_STATUS_OK) {
                 System.out.println("Status OK, connected");
+                return true;
             }
+
+            return false;
+
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 
     public ClientInfo getClientInfo() {
