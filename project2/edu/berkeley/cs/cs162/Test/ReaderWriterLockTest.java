@@ -85,45 +85,69 @@ public class ReaderWriterLockTest {
     @Test // Tests that readers cannot acquire a lock if a writer has it
     public void testSingleWriter() throws InterruptedException {
 
-        SharedResource<String> message = new SharedResource<String>("");
+        final SharedResource<String> message = new SharedResource<String>("");
+        final SharedResource<Integer> readerCount = new SharedResource<Integer>(0);
         final ReaderWriterLock lock = new ReaderWriterLock();
+        final Lock mutex = new Lock();
         ArrayList<Thread> threads = new ArrayList<Thread>();
+
+        int testreaders = 5;
 
         // Writes to the shared resources, waits for a bit, and then unlocks.
         class WriterThread extends Thread {
 
-            private SharedResource<String> msg;
-
-            public WriterThread(SharedResource<String> s){
-                msg = s;
+            public WriterThread(){
             }
 
             public void run() {
                 lock.writeLock();
-                msg.setResource("Yo dawg I heard you like ReaderWriterLocks");
-                try {
-                    Thread.sleep(1000L);
-                } catch (InterruptedException e) {
-                    // Resume execution...
-                }
+                message.setResource("Yo dawg I heard you like ReaderWriterLocks");
+
+                // Go to sleep to let the readers try and acquire the lock
+                try { Thread.sleep(1000L); }
+                catch (InterruptedException e) { /* Resume execution... */ }
+
                 lock.writeUnlock();
             }
         }
 
         class ReaderThread extends Thread {
 
-            private SharedResource<String> msg;
-
-            public ReaderThread(SharedResource<String> s){
-                msg = s;
+            public ReaderThread(){
             }
 
             public void run() {
                 lock.readLock();
-                assertEquals("Yo dawg I heard you like ReaderWriterLocks", msg.getResource());
+                mutex.acquire();
+                readerCount.setResource(readerCount.getResource() + 1);
+                mutex.release();
+
+                assertEquals("Yo dawg I heard you like ReaderWriterLocks", message.getResource());
+
                 lock.readUnlock();
             }
         }
+
+        Thread writer = new WriterThread();
+        writer.start();
+
+        for(int i = 0; i < testreaders; i++){
+            Thread reader = new ReaderThread();
+            threads.add(reader);
+            reader.start();
+        }
+
+        for(Thread reader : threads)
+            reader.join(10);
+
+        // Make sure no readers have the lock.
+        assertEquals(0, readerCount.getResource().intValue());
+
+        for(Thread reader: threads)
+            reader.join();
+
+        // All readers should have completed.
+        assertEquals(testreaders, readerCount.getResource().intValue());
 
     }
 }
