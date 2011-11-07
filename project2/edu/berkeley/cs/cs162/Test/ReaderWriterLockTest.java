@@ -104,7 +104,7 @@ public class ReaderWriterLockTest {
                 message.setResource("Yo dawg I heard you like ReaderWriterLocks");
 
                 // Go to sleep to let the readers try and acquire the lock
-                try { Thread.sleep(1000L); }
+                try { Thread.sleep(500L); }
                 catch (InterruptedException e) { /* Resume execution... */ }
 
                 lock.writeUnlock();
@@ -149,5 +149,61 @@ public class ReaderWriterLockTest {
         // All readers should have completed.
         assertEquals(testreaders, readerCount.getResource().intValue());
 
+    }
+
+
+    @Test // Test that waiting writers get priority over waiting readers
+    public void testWriterPriority() throws InterruptedException {
+
+        final SharedResource<String> message = new SharedResource<String>("");
+        final ReaderWriterLock lock = new ReaderWriterLock();
+        ArrayList<Thread> threads = new ArrayList<Thread>();
+
+        class WriterThread extends Thread {
+
+            String msg;
+
+            public WriterThread(String m){
+                msg = m;
+            }
+
+            public void run() {
+                lock.writeLock();
+                message.setResource(msg);
+
+                // Go to sleep to let the readers try and acquire the lock
+                try { Thread.sleep(250L); }
+                catch (InterruptedException e) { /* Resume execution... */ }
+
+                lock.writeUnlock();
+            }
+        }
+
+        class ReaderThread extends Thread {
+
+            public ReaderThread(){
+            }
+
+            public void run() {
+                lock.readLock();
+                assertEquals("Hahaha... I got here first.", message.getResource());
+                lock.readUnlock();
+            }
+        }
+
+        Thread writer = new WriterThread("Yo dawg, I heard you like ReaderWriterLocks");
+        writer.start();
+
+        for(int i = 0; i < 2; i++){
+            Thread reader = new ReaderThread();
+            threads.add(reader);
+            reader.start();
+        }
+
+        Thread sneakywriter = new WriterThread("Hahaha... I got here first.");
+        sneakywriter.start();
+
+        for (Thread reader : threads)
+            reader.join();
     }
 }
