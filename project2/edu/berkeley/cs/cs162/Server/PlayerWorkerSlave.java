@@ -4,77 +4,28 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.TimeoutException;
 
-import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
-import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
-class WorkerSlave extends Thread {
-    protected class MessageCourier implements Runnable {
-		private final Message message;
-
-		protected MessageCourier(Message message) {
-			this.message = message;
+public class PlayerWorkerSlave extends WorkerSlave{
+	Game game;
+	public PlayerWorkerSlave(ClientConnection connection, Worker master) {
+		super(connection, master);
+		game = null;
+	}
+	
+	protected void closeAndCleanup() {
+		if (game != null) {
+			if (game.getBlackPlayer() == getMaster())
+			{
+				//the black player is always in charge of initializing and cleaning up
+				getMaster().getServer().removeGame(game);
+			}
 		}
-
-		public void run() {
-	        try {
-	            connection.sendToClient(message);
-	            Message returnMessage = connection.readReplyFromClient(message);
-	            
-	            if (returnMessage.getMsgType() != MessageProtocol.OP_STATUS_OK) {
-	            	connection.invalidate(new IOException("Illegal return message"));
-	            }
-	        } catch (IOException e) {
-	            connection.invalidate(e);
-	        }
-		}
+		super.closeAndCleanup();
 	}
 
-	private static final int WORKER_MESSAGE_QUEUE_SIZE = 10;
-    private boolean done;
-    private Worker master;
-    private ClientConnection connection;
-    private ThreadSafeQueue<Runnable> messageQueue;
-    
-    public WorkerSlave(ClientConnection connection, Worker master) {
-        this.connection = connection;
-        this.master = master;
-        messageQueue = new ThreadSafeQueue<Runnable>(WORKER_MESSAGE_QUEUE_SIZE);
-        done = false;
-    }
-    
-    public Worker getMaster()
-    {
-    	return master;
-    }
-
-    public void run() {
-        while (!done) {
-            messageQueue.get().run();
-        }
-    }
-
-    public void handleTerminate() {
-        messageQueue.add(
-                new Runnable() {
-                    public void run() {
-                        done = true;
-                        closeAndCleanup();
-                    }
-                }
-        );
-    }
-    
-    /**
-     * Tells the worker to send an asynchronous message to the client.
-     * @param message
-     */
-    public void handleSendMessage(final Message message) {
-    	messageQueue.add(new MessageCourier(message));
-    }
-    
-    /**
+	/**
      * Tells this worker that the game has begun.
      * 
      * The worker should save the game if needed.
@@ -84,7 +35,7 @@ class WorkerSlave extends Thread {
     public void handleGameStart(Game game)
     {
     	final Message message = MessageFactory.createGameStartMessage(game);
-    	handleSendMessage(message);
+    	game.sendMessageToAllObserversAndPlayers(message);
     }
     
     /**
@@ -131,8 +82,4 @@ class WorkerSlave extends Thread {
     {
     	throw new AssertionError("Unimplemented method");
     }
-    
-	protected void closeAndCleanup() {
-		messageQueue.clear();
-	}
 }

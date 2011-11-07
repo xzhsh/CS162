@@ -6,6 +6,7 @@ import java.util.Set;
 import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
 import edu.berkeley.cs.cs162.Writable.BoardInfo;
 import edu.berkeley.cs.cs162.Writable.GameInfo;
+import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
 public class Game {
@@ -23,7 +24,7 @@ public class Game {
     }
 
     public GameInfo makeGameInfo() {
-        return new GameInfo(name);
+        return MessageFactory.createGameInfo(name);
     }
 
     /**
@@ -55,7 +56,6 @@ public class Game {
     }
 
     public BoardInfo makeBoardInfo() {
-        // TODO Auto-generated method stub
         return MessageFactory.createBoardInfo(board.getCurrentBoard());
     }
 
@@ -70,5 +70,20 @@ public class Game {
 	public byte getGameOverReason() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void sendMessageToAllObserversAndPlayers(Message message) {
+		observerLock.readLock();
+		for (Worker o : observerList)
+		{
+			o.handleSendMessageToClient(message);
+		}
+		observerLock.readUnlock();
+		blackPlayer.handleSendMessageToClient(message);
+		whitePlayer.handleSendMessageToClient(message);
 	}
 }

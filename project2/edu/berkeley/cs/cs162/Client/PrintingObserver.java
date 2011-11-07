@@ -49,18 +49,23 @@ public class PrintingObserver extends Observer {
     public void handleMessage(Message m) throws IOException {
         switch (m.getMsgType()) {
             case MessageProtocol.OP_TYPE_GAMESTART:
+            	System.out.println("Game start received");
                 handleGameStart((ServerMessages.GameStartMessage) m);
                 break;
             case MessageProtocol.OP_TYPE_GAMEOVER:
+            	System.out.println("Game over received");
                 handleGameOver((ServerMessages.GameOverMessage) m);
                 break;
             case MessageProtocol.OP_TYPE_MAKEMOVE:
+            	System.out.println("Make move received");
                 handleMakeMove((ServerMessages.MakeMoveMessage) m);
                 break;
             case MessageProtocol.OP_TYPE_GETMOVE:
                 // This should never be called...
+            	System.out.println("Get move received");
                 break;
             default:
+            	System.out.println("Weird shit received" + m.getMsgType());
                 break;
         }
     }

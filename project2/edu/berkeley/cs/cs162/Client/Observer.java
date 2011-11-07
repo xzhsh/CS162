@@ -6,8 +6,6 @@ import edu.berkeley.cs.cs162.Writable.GameInfo;
 import java.util.ArrayList;
 
 abstract public class Observer extends BaseClient {
-    String name;
-    byte type;
     ArrayList<GameInfo> joinedGames;
 
     public Observer() {
@@ -19,10 +17,8 @@ abstract public class Observer extends BaseClient {
     }
 
     public Observer(String name, byte type) {
-        this.name = name;
-        this.type = type;
-        joinedGames = null;
-
+    	super(name,type);
+        joinedGames = new ArrayList<GameInfo>();
     }
 
     public void setName(String name) {

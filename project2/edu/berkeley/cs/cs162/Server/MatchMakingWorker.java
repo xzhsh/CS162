@@ -27,6 +27,7 @@ public class MatchMakingWorker implements Runnable {
             Game game = new Game(player1.getWorker().getName() + "VS" + player2.getWorker().getName(), player1.getWorker(), player2.getWorker(), 10);
             player1.beginGame(game);
             player2.beginGame(game);
+            server.addGame(game);
         }
     }
 

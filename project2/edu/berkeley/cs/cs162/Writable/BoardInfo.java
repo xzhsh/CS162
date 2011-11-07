@@ -9,7 +9,11 @@ public class BoardInfo implements Writable {
     private StoneColorInfo[][] board;
 
     protected BoardInfo() {
-
+    	
+    }
+    
+    protected BoardInfo(int size) {
+    	board = new StoneColorInfo[size][size];
     }
 
     protected StoneColorInfo[][] getStoneColorState() {

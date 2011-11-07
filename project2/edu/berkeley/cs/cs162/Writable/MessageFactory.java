@@ -279,7 +279,7 @@ public class MessageFactory {
      */
 
     public static BoardInfo createBoardInfo(Board currentBoard) {
-        BoardInfo boardInfo = new BoardInfo();
+        BoardInfo boardInfo = new BoardInfo(currentBoard.getSize());
         for (int i = 0; i < currentBoard.getSize(); i++) {
             for (int j = 0; j < currentBoard.getSize(); j++) {
                 boardInfo.getStoneColorState()[i][j] = new StoneColorInfo(currentBoard.getAtLocation(new BoardLocation(i, j)).getByte());
@@ -307,7 +307,11 @@ public class MessageFactory {
 	public static Location createLocationInfo(int x, int y) {
 		return new Location(x,y);
 	}
-
+	
+	public static GameInfo createGameInfo(String name)
+	{
+		return new GameInfo(name);
+	}
 
 
 

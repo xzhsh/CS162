@@ -280,4 +280,16 @@ public class GameServer {
         activeGamesLock.readUnlock();
         return g;
     }
+    
+	public void removeGame(Game game) {
+		activeGamesLock.writeLock();
+		activeGames.remove(game.getName());
+		activeGamesLock.writeUnlock();
+	}
+	
+	public void addGame(Game game) {
+		activeGamesLock.writeLock();
+		activeGames.put(game.getName(), game);
+		activeGamesLock.writeUnlock();
+	}
 }

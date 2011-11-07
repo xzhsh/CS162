@@ -7,11 +7,11 @@ import java.io.OutputStream;
 public class GameInfo implements Writable {
     private String name;
 
-    public GameInfo() {
+    protected GameInfo() {
         name = null;
     }
 
-    public GameInfo(String name) {
+    protected GameInfo(String name) {
         this.name = name;
     }
 

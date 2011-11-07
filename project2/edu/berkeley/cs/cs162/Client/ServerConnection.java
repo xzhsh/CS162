@@ -93,11 +93,13 @@ public class ServerConnection {
     
     public void sendReplyToServer(Message message) throws IOException {
         message.writeTo(oS2C);
+        oS2C.flush();
     }
     
     // TODO Add specialized logic for STATUS_OK replies that need to have extra args, probably through a special ResponseMessages method.
     public Message sendSyncToServer(Message message) throws IOException {
         message.writeTo(oC2S);
+        oC2S.flush();
         //return ResponseMessages.readReplyFromInput(message, iC2S);
         return MessageFactory.readResponseMessage(iC2S, message);
     }
