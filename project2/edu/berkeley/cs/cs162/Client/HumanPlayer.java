@@ -14,7 +14,7 @@ public class HumanPlayer extends Player {
     }
 
     public static void main(String[] args){
-        assert args.length == 3 : "Enter arguments in the following format: <host> <port> <observername>";
+        assert args.length == 3 : "Enter arguments in the following format: <host> <port> <playername>";
         HumanPlayer player = new HumanPlayer(args[2]);
         String address = args[0];
         Integer port = Integer.valueOf(args[1]);
