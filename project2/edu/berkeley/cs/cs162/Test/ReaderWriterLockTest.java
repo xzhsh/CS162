@@ -85,5 +85,45 @@ public class ReaderWriterLockTest {
     @Test // Tests that readers cannot acquire a lock if a writer has it
     public void testSingleWriter() throws InterruptedException {
 
+        SharedResource<String> message = new SharedResource<String>("");
+        final ReaderWriterLock lock = new ReaderWriterLock();
+        ArrayList<Thread> threads = new ArrayList<Thread>();
+
+        // Writes to the shared resources, waits for a bit, and then unlocks.
+        class WriterThread extends Thread {
+
+            private SharedResource<String> msg;
+
+            public WriterThread(SharedResource<String> s){
+                msg = s;
+            }
+
+            public void run() {
+                lock.writeLock();
+                msg.setResource("Yo dawg I heard you like ReaderWriterLocks");
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    // Resume execution...
+                }
+                lock.writeUnlock();
+            }
+        }
+
+        class ReaderThread extends Thread {
+
+            private SharedResource<String> msg;
+
+            public ReaderThread(SharedResource<String> s){
+                msg = s;
+            }
+
+            public void run() {
+                lock.readLock();
+                assertEquals("Yo dawg I heard you like ReaderWriterLocks", msg.getResource());
+                lock.readUnlock();
+            }
+        }
+
     }
 }
