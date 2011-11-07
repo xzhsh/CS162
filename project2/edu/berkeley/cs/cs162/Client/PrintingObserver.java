@@ -1,11 +1,15 @@
 package edu.berkeley.cs.cs162.Client;
 
-import edu.berkeley.cs.cs162.Writable.*;
-
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Random;
+
+import edu.berkeley.cs.cs162.Writable.GameInfo;
+import edu.berkeley.cs.cs162.Writable.Message;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
+import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+import edu.berkeley.cs.cs162.Writable.ResponseMessages;
+import edu.berkeley.cs.cs162.Writable.ServerMessages;
+import edu.berkeley.cs.cs162.Writable.Writable;
+import edu.berkeley.cs.cs162.Writable.WritableList;
 
 public class PrintingObserver extends Observer {
 
@@ -74,7 +78,7 @@ public class PrintingObserver extends Observer {
         String whiteName = m.getWhiteClientInfo().getName();
 
         System.out.println("Game " + gameName + " starting with Black player " + blackName + " and White player " + whiteName + ".");
-        connection.sendAsyncToServer(MessageFactory.createStatusOkMessage());
+        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     private void handleGameOver(ServerMessages.GameOverMessage m) throws IOException {
@@ -93,7 +97,7 @@ public class PrintingObserver extends Observer {
             System.out.println("Game " + gameName + " ended with Black score " + blackScore + ", White score " + whiteScore + ". WINNER: " + winner + "!");
         }
 
-        connection.sendAsyncToServer(MessageFactory.createStatusOkMessage());
+        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
 
     }
 
@@ -102,6 +106,6 @@ public class PrintingObserver extends Observer {
         String player = m.getPlayer().getName();
 
 
-        connection.sendAsyncToServer(MessageFactory.createStatusOkMessage());
+        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 }

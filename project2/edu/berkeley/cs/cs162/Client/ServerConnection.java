@@ -90,11 +90,11 @@ public class ServerConnection {
         S2C.close();
         C2S.close();
     }
-
-    public void sendAsyncToServer(Message message) throws IOException {
-        message.writeTo(oC2S);
+    
+    public void sendReplyToServer(Message message) throws IOException {
+        message.writeTo(oS2C);
     }
-
+    
     // TODO Add specialized logic for STATUS_OK replies that need to have extra args, probably through a special ResponseMessages method.
     public Message sendSyncToServer(Message message) throws IOException {
         message.writeTo(oC2S);
