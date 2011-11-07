@@ -16,6 +16,10 @@ public abstract class Message implements Writable {
         return opCode;
     }
 
+    public boolean isOK(){
+        return opCode == MessageProtocol.OP_STATUS_OK;
+    }
+
     public abstract boolean isSynchronous();
 
     /**

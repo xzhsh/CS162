@@ -64,7 +64,7 @@ abstract public class BaseClient implements Client {
             Message connectMessage = MessageFactory.createConnectMessage(clientInfo);
             Message serverResponse = connection.sendSyncToServer(connectMessage);
 
-            return (serverResponse.getMsgType() == MessageProtocol.OP_STATUS_OK);
+            return (serverResponse.isOK());
         }
         catch(IOException e) { return false; }
     }
