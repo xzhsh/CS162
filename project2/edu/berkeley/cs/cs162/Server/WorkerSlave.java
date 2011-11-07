@@ -2,8 +2,8 @@ package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.TimeoutException;
 
-import edu.berkeley.cs.cs162.Synchronization.Lock;
 import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
@@ -12,17 +12,20 @@ import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 class WorkerSlave extends Thread {
     private static final int WORKER_MESSAGE_QUEUE_SIZE = 10;
     private boolean done;
+    private Worker master;
     private ClientConnection connection;
-    private Lock inputLock;
-    private Lock outputLock;
     private ThreadSafeQueue<Runnable> messageQueue;
-
-    public WorkerSlave(ClientConnection connection) {
+    
+    public WorkerSlave(ClientConnection connection, Worker master) {
         this.connection = connection;
-        inputLock = new Lock();
-        outputLock = new Lock();
+        this.master = master;
         messageQueue = new ThreadSafeQueue<Runnable>(WORKER_MESSAGE_QUEUE_SIZE);
         done = false;
+    }
+    
+    public Worker getMaster()
+    {
+    	return master;
     }
 
     public void run() {
@@ -36,53 +39,26 @@ class WorkerSlave extends Thread {
                 new Runnable() {
                     public void run() {
                         done = true;
+                        closeAndCleanup();
                     }
                 }
         );
     }
-
-    /**
-     * Immediately sends an synchronous message to the client (in the current thread of execution.
-     * <p/>
-     * In addition to that, this will block until the return message is received, or a timeout has occurred.
-     *
-     * @param message
-     */
-    public Message handleSendMessageSync(final Message message) {
-        try {
-            outputLock.acquire();
-            connection.sendToClient(message);
-            outputLock.release();
-            inputLock.acquire();
-            Message returnMessage = connection.readReplyFromClient(message);
-            inputLock.release();
-            return returnMessage;
-        } catch (IOException e) {
-            connection.invalidate(e);
-        }
-        return null;
-    }
-
     
     /**
      * Tells the worker to send an asynchronous message to the client.
      * @param message
      */
-    private void handleSendMessage(final Message message) {
+    public void handleSendMessage(final Message message) {
     	messageQueue.add(new Runnable() {
     		public void run() {
 			        try {
-			            outputLock.acquire();
 			            connection.sendToClient(message);
-			            outputLock.release();
-			            inputLock.acquire();
 			            Message returnMessage = connection.readReplyFromClient(message);
-			            inputLock.release();
 			            
 			            if (returnMessage.getMsgType() != MessageProtocol.OP_STATUS_OK) {
 			            	connection.invalidate(new IOException("Illegal return message"));
 			            }
-			            
 			        } catch (IOException e) {
 			            connection.invalidate(e);
 			        }
@@ -132,9 +108,23 @@ class WorkerSlave extends Thread {
     public void handleMakeMove(Game game, Worker currentPlayer, byte moveType, BoardLocation loc, Collection<BoardLocation> capturedList)
     {
     	final Message message = MessageFactory.createMakeMoveMessage(game.makeGameInfo(), currentPlayer.makeClientInfo(), moveType, loc, capturedList);
+    	handleSendMessage(message);
     }
     
-	public void closeAndCleanup() {
+    /**
+     * Gets a move from the player
+     * 
+     * @param timeoutInMs how long the client has to make a move
+     * @return The status_ok message from the client.
+     * @throws IOException if the connection dies
+     * @throws TimeoutException if the client takes too long
+     */
+    public Message doGetMove(long timeoutInMs) throws IOException, TimeoutException
+    {
+    	throw new AssertionError("Unimplemented method");
+    }
+    
+	protected void closeAndCleanup() {
 		messageQueue.clear();
 	}
 }

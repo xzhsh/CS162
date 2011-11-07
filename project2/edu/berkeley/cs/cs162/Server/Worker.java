@@ -27,11 +27,12 @@ public class Worker extends Thread {
             ClientInfo cInfo = initializeWorker();
             if (cInfo == null) {
                 server.getLog().println("Could not get info for client connection.");
-                
                 server.decrementConnectionCount();
                 connection.close();
                 return;
             } else {
+                slave = new WorkerSlave(connection, this);
+                slave.start();
                 server.addWorker(name, this);
                 server.getLog().println("Client connected! " + cInfo);
             }
@@ -40,7 +41,7 @@ public class Worker extends Thread {
             server.addWorker(name, this);
 
             //grab the client logic fo this type of worker.
-            clientLogic = ClientLogic.getClientLogicForClientType(this, cInfo.getPlayerType());
+            clientLogic = ClientLogic.getClientLogicForClientType(this, slave, cInfo.getPlayerType());
 
             while (!done) {
                 //just read messages from input and let the client logic handle stuff.
@@ -64,8 +65,6 @@ public class Worker extends Thread {
             //there should be no resources that the worker has otherwise allocated at this point.
             return null;
         }
-        slave = new WorkerSlave(connection);
-        slave.start();
 
         Message returnMessage = connection.readFromClient();
 
@@ -97,17 +96,12 @@ public class Worker extends Thread {
         }
     }
 
-    public Message handleSendMessageToClient(Message message) {
-        return slave.handleSendMessageSync(message);
+    public void handleSendMessageToClient(Message message) {
+        slave.handleSendMessage(message);
     }
 
     public GameServer getServer() {
         return server;
-    }
-
-    public boolean handleRegisterAsWaiting() {
-        server.addPlayerWorkerToWaitQueue(this);
-        return connection.isValid();
     }
 
     /**
@@ -115,17 +109,13 @@ public class Worker extends Thread {
      */
     public void closeAndCleanup() {
         // TODO remove game and wait list.
-    	slave.closeAndCleanup();
+    	slave.handleTerminate();
+    	getLogic().cleanup();
         cleanup();
     }
 
     public ClientLogic getLogic() {
-        // TODO Auto-generated method stub
         return clientLogic;
-    }
-
-    public void startGame(Game game) {
-        getLogic().startGame(game);
     }
 
     public ClientInfo makeClientInfo() {

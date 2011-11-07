@@ -205,7 +205,6 @@ public class MessageFactory {
         return new OpCodeOnlyMessage(MessageProtocol.OP_TYPE_GETMOVE);
     }
 
-
     /* Response Messages */
 
     // Status OK

@@ -10,11 +10,23 @@ public class MatchMakingWorker implements Runnable {
     @Override
     public void run() {
         while (true) {
-            Worker player1 = server.getNextWaitingPlayer();
-            Worker player2 = server.getNextWaitingPlayer();
-            Game game = new Game(player1.getName() + "VS" + player2.getName(), player1, player2, 10);
-            player1.startGame(game);
-            player2.startGame(game);
+        	PlayerLogic player1;
+        	PlayerLogic player2;
+        	while (true) {
+        		player1 = server.getNextWaitingPlayer();
+        		if(player1.startGame()) {
+        			break;
+        		}
+        	}
+        	while (true) {
+        		player2 = server.getNextWaitingPlayer();
+        		if(player2.startGame()) {
+        			break;
+        		}
+        	}
+            Game game = new Game(player1.getWorker().getName() + "VS" + player2.getWorker().getName(), player1.getWorker(), player2.getWorker(), 10);
+            player1.beginGame(game);
+            player2.beginGame(game);
         }
     }
 

@@ -1,5 +1,9 @@
 package edu.berkeley.cs.cs162.Server;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
 import edu.berkeley.cs.cs162.Writable.BoardInfo;
 import edu.berkeley.cs.cs162.Writable.GameInfo;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
@@ -9,9 +13,13 @@ public class Game {
     private String name;
     private Worker blackPlayer;
     private Worker whitePlayer;
-
+    private Set<Worker> observerList;
+    private ReaderWriterLock observerLock;
+    
     public Game(String name, Worker blackPlayer, Worker whitePlayer, int size) {
         board = new GoBoard(size);
+        observerList = new HashSet<Worker>();
+        observerLock = new ReaderWriterLock();
     }
 
     public GameInfo makeGameInfo() {
@@ -22,15 +30,28 @@ public class Game {
      * Adds an observer to this game. can be done asynchronously by multiple threads.
      *
      * @param worker
+     * @return 
      */
-    public void addObserver(Worker worker) {
-        // TODO Auto-generated method stub
-
+    public boolean addObserver(Worker worker) {
+    	observerLock.writeLock();
+    	boolean added = !observerList.contains(worker);
+    	if (added)
+    	{
+    		observerList.add(worker);
+    	}
+    	observerLock.writeUnlock();
+		return added;
     }
 
-    public void removeObserver(Worker worker) {
-        // TODO Auto-generated method stub
-
+    public boolean removeObserver(Worker worker) {
+    	observerLock.writeLock();
+    	boolean removed = observerList.contains(worker);
+    	if (removed)
+    	{
+    		observerList.remove(worker);
+    	}
+    	observerLock.writeUnlock();
+		return removed;
     }
 
     public BoardInfo makeBoardInfo() {
