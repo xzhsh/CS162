@@ -60,11 +60,11 @@ public class MachinePlayer extends Player {
     
     private Location decideMove() {
     	Random rng = new Random();
-    	Location loc = new MessageFactory.createLocationInfo(rng.nextInt(goBoard.board.getSize()), rng.nextInt(goBoard.board.getSize()));
+    	Location loc = new MessageFactory.createLocationInfo(rng.nextInt(/*goBoard.board.getSize()*/ 10), rng.nextInt(/*goBoard.board.getSize()*/10));
     	int chanceOfPass = 0;
 //    	Vector<Location> invalidatedLocations = Rules.getCapturedStones(goBoard.board, getPlayerColor(), loc);
    //need to get board state 	
-    	while (goBoard.board.getAtLocation(loc) != StoneColor.NONE) {
+    	while (/*goBoard.board.getAtLocation(loc) != StoneColor.NONE*/true) {
     		//adds .5% of pass per try
     		chanceOfPass+= 5;
     		if (chanceOfPass >= 10000 || rng.nextInt(10000-chanceOfPass) == 0) {
