@@ -1,9 +1,6 @@
 package edu.berkeley.cs.cs162.Client;
 
-import edu.berkeley.cs.cs162.Writable.ClientInfo;
-import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
-import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+import edu.berkeley.cs.cs162.Writable.*;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -67,5 +64,40 @@ abstract public class BaseClient implements Client {
             return (serverResponse.isOK());
         }
         catch(IOException e) { return false; }
+    }
+
+    protected void handleMessage(Message m) throws IOException {
+        switch (m.getMsgType()) {
+            case MessageProtocol.OP_TYPE_GAMESTART:
+                handleGameStart((ServerMessages.GameStartMessage) m);
+                break;
+            case MessageProtocol.OP_TYPE_GAMEOVER:
+                handleGameOver((ServerMessages.GameOverMessage) m);
+                break;
+            case MessageProtocol.OP_TYPE_MAKEMOVE:
+                handleMakeMove((ServerMessages.MakeMoveMessage) m);
+                break;
+            case MessageProtocol.OP_TYPE_GETMOVE:
+                handleGetMove(m);
+                break;
+            default:
+                assert false: "No method defined for message type.";
+        }
+    }
+
+    protected void handleGameStart(ServerMessages.GameStartMessage m) throws IOException {
+        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+    }
+
+    protected void handleGameOver(ServerMessages.GameOverMessage m) throws IOException {
+        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+    }
+
+    protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
+        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+    }
+
+    protected void handleGetMove(Message m) throws IOException {
+        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 }
