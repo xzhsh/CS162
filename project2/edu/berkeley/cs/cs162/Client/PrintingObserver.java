@@ -44,7 +44,7 @@ public class PrintingObserver extends Observer {
         return clientInfo;
     }
 
-    public void handleMessage{
+    public void handleMessage(Message m) {
 
     }
 }
