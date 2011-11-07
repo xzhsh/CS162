@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import edu.berkeley.cs.cs162.Server.BoardLocation;
+
 public class Location implements Writable {
 
     private int x;
@@ -33,5 +35,9 @@ public class Location implements Writable {
     public String toString() {
         return "(" + x + "," + y + ")";
     }
-
+    
+    public BoardLocation makeBoardLocation()
+    {
+    	return new BoardLocation(x,y);
+    }
 }

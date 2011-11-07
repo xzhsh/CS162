@@ -1,12 +1,13 @@
 package edu.berkeley.cs.cs162.Client;
 
 import edu.berkeley.cs.cs162.Server.GoBoard;
+import edu.berkeley.cs.cs162.Server.StoneColor;
 
 abstract public class Player extends BaseClient {
 
     GoBoard board;
     boolean waitingForGames;
-
+    StoneColor currentColor;
     public Player(String name, byte type) {
         super(name, type);
         board = new GoBoard(10);

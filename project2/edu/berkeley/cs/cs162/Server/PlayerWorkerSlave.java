@@ -2,16 +2,22 @@ package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
+import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+import edu.berkeley.cs.cs162.Writable.ResponseMessages;
 
 public class PlayerWorkerSlave extends WorkerSlave{
-	Game game;
-	public PlayerWorkerSlave(ClientConnection connection, Worker master) {
+	
+	private Game game;
+	private int moveTimeout;
+	public PlayerWorkerSlave(ClientConnection connection, Worker master, int moveTimeout) {
 		super(connection, master);
 		game = null;
+		this.moveTimeout = moveTimeout;
 	}
 	
 	protected void closeAndCleanup() {
@@ -31,11 +37,45 @@ public class PlayerWorkerSlave extends WorkerSlave{
      * The worker should save the game if needed.
      * 
      * @param game
+	 * @throws TimeoutException 
+	 * @throws IOException 
      */
-    public void handleGameStart(Game game)
+    public void startNewGame(Game game) throws IOException, TimeoutException
     {
-    	final Message message = MessageFactory.createGameStartMessage(game);
-    	game.sendMessageToAllObserversAndPlayers(message);
+    	game.broadcastStartMessage();
+    	doGetMove(game);
+    }
+    
+
+    /**
+     * Gets a move from the player
+     * 
+     * @param timeoutInMs how long the client has to make a move
+     * @return The status_ok message from the client.
+     * @throws IOException if the connection dies
+     * @throws TimeoutException if the client takes too long
+     */
+    public void doGetMove(Game game) 
+    {
+    	Message getMoveMsg = MessageFactory.createGetMoveMessage();
+    	
+    	Message reply = sendSynchronousMessage(getMoveMsg, moveTimeout);
+		if (reply != null && reply.isOK())
+		{
+			ResponseMessages.GetMoveStatusOkMessage moveMsg = (ResponseMessages.GetMoveStatusOkMessage)reply;
+			if (moveMsg.getMoveType() == MessageProtocol.MOVE_PASS)
+			{
+				game.makePassMove();
+			} 
+			else 
+			{
+				game.makeMove(moveMsg.getLocation().makeBoardLocation());
+			}
+		}
+		else 
+		{
+			game.broadcastGameover(MessageProtocol.PLAYER_TIMEOUT);
+		}
     }
     
     /**
@@ -48,7 +88,8 @@ public class PlayerWorkerSlave extends WorkerSlave{
     public void handleGameOver(Game game, double blackScore, double whiteScore, Worker winner)
     {
     	final Message message = MessageFactory.createGameOverMessage(game.makeGameInfo(), blackScore, whiteScore, winner.makeClientInfo());
-    	handleSendMessage(message);
+    	game.sendMessageToAllObserversAndPlayers(message);
+    	this.game = null;
     }
     
     /**
@@ -70,16 +111,4 @@ public class PlayerWorkerSlave extends WorkerSlave{
     	handleSendMessage(message);
     }
     
-    /**
-     * Gets a move from the player
-     * 
-     * @param timeoutInMs how long the client has to make a move
-     * @return The status_ok message from the client.
-     * @throws IOException if the connection dies
-     * @throws TimeoutException if the client takes too long
-     */
-    public Message doGetMove(long timeoutInMs) throws IOException, TimeoutException
-    {
-    	throw new AssertionError("Unimplemented method");
-    }
 }

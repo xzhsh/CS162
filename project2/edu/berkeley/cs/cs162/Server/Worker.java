@@ -122,4 +122,9 @@ public class Worker extends Thread {
         // TODO Auto-generated method stub
         return clientLogic.makeClientInfo();
     }
+
+	public WorkerSlave getSlave() {
+		// TODO Auto-generated method stub
+		return slave;
+	}
 }

@@ -135,4 +135,11 @@ public class ClientConnection {
     public boolean isValid() {
         return valid;
     }
+
+	public Message readReplyFromClient(Message message, int timeout) throws IOException {
+		S2C.setSoTimeout(timeout);
+		Message reply = readReplyFromClient(message);
+		S2C.setSoTimeout(GameServer.GLOBAL_TIMEOUT_IN_MS);
+		return reply;
+	}
 }

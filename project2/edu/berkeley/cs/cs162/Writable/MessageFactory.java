@@ -197,7 +197,7 @@ public class MessageFactory {
     	{
     		locInfoList.add(new Location(l.getX(), l.getY()));
     	}
-        return new ServerMessages.MakeMoveMessage(game, player, moveType, loc.makeLocationInfo(), createWritableList(Location.class, locInfoList));
+        return new ServerMessages.MakeMoveMessage(game, player, moveType, loc.makeLocationInfo(), locInfoList);
     }
 
     // Get Move

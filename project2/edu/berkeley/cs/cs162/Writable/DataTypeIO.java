@@ -5,11 +5,11 @@ import java.io.*;
 public class DataTypeIO {
 
     private static DataInputStream getDataInputStream(InputStream input) {
-        return (input instanceof DataInputStream) ? (DataInputStream) input : new DataInputStream(input);
+        return (DataInputStream)input;//(input instanceof DataInputStream) ? (DataInputStream) input : new DataInputStream(input);
     }
 
     private static DataOutputStream getDataOutputStream(OutputStream output) {
-        return (output instanceof DataOutputStream) ? (DataOutputStream) output : new DataOutputStream(output);
+        return (DataOutputStream) output;//(output instanceof DataOutputStream) ? (DataOutputStream) output : new DataOutputStream(output);
     }
 
     /**
@@ -53,7 +53,6 @@ public class DataTypeIO {
     /**
      * Read and write bytes.
      */
-
     public static byte readByte(InputStream input) throws IOException {
         int val = input.read();
         if (val > -1) {

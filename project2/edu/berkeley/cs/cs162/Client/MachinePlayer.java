@@ -1,6 +1,8 @@
 package edu.berkeley.cs.cs162.Client;
 
 import edu.berkeley.cs.cs162.Server.Board;
+import edu.berkeley.cs.cs162.Server.BoardLocation;
+import edu.berkeley.cs.cs162.Server.GoBoard;
 import edu.berkeley.cs.cs162.Writable.*;
 
 import java.io.IOException;
@@ -61,7 +63,6 @@ public class MachinePlayer extends Player {
         byte reason = m.getReason();
         String errorPlayerName = m.getErrorPlayer().getName();
         String errorMsg = m.getErrorMessage();
-
     }
 
     @Override
@@ -76,21 +77,29 @@ public class MachinePlayer extends Player {
     
     private Location decideMove() {
     	Random rng = new Random();
-    	Location loc = new MessageFactory.createLocationInfo(rng.nextInt(/*goBoard.board.getSize()*/ 10), rng.nextInt(/*goBoard.board.getSize()*/10));
+    	int size = board.getCurrentBoard().getSize();
+    	BoardLocation loc = new BoardLocation(rng.nextInt(size), rng.nextInt(size));
     	int chanceOfPass = 0;
 //    	Vector<Location> invalidatedLocations = Rules.getCapturedStones(goBoard.board, getPlayerColor(), loc);
-   //need to get board state 	
-    	while (/*goBoard.board.getAtLocation(loc) != StoneColor.NONE*/true) {
+   //need to get board state
+    	boolean valid = false;
+    	while (!valid) {
+    		
+    		
     		//adds .5% of pass per try
     		chanceOfPass+= 5;
     		if (chanceOfPass >= 10000 || rng.nextInt(10000-chanceOfPass) == 0) {
     			return null;
     		}
-    		loc = new MessageFactory.createLocationInfo(rng.nextInt(goBoard.board.getSize()), rng.nextInt(goBoard.board.getSize()));
+    		loc = new BoardLocation(rng.nextInt(size), rng.nextInt(size));
 //    		invalidatedLocations = Rules.getCapturedStones(goBoard.board, getPlayerColor(), loc);
+    		try {
+    			board.testMove(loc, currentColor);
+        		valid = true;
+    		} catch (GoBoard.IllegalMoveException e) {}
     	}
 
-		return loc;
+		return MessageFactory.createLocationInfo(loc.getX(), loc.getY());
     }
     @Override
     protected void handleGetMove() throws IOException {
@@ -114,6 +123,7 @@ public class MachinePlayer extends Player {
     		connection.sendReplyToServer(getMoveResp);
     	}
         //send a message to the server with byte moveType and Location loc
+        }
     }
         
 

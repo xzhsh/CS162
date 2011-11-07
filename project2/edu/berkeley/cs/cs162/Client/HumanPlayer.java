@@ -120,7 +120,7 @@ public class HumanPlayer extends Player {
         byte moveType;
         Location loc;
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        //BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         long startTime = System.currentTimeMillis();
 

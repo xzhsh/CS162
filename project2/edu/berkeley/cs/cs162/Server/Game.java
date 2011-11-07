@@ -86,4 +86,30 @@ public class Game {
 		blackPlayer.handleSendMessageToClient(message);
 		whitePlayer.handleSendMessageToClient(message);
 	}
+
+	public void broadcastStartMessage() {
+		observerLock.readLock();
+		for (Worker o : observerList)
+		{
+			o.getSlave().handleGameStart(this);
+		}
+		observerLock.readUnlock();
+		blackPlayer.getSlave().handleGameStart(this);
+		whitePlayer.getSlave().handleGameStart(this);
+	}
+
+	public void makePassMove() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void makeMove(BoardLocation makeBoardLocation) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void broadcastGameover(byte playerTimeout) {
+		// TODO Auto-generated method stub
+		
+	}
 }

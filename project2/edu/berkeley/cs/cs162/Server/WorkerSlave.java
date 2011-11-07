@@ -2,45 +2,71 @@ package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.concurrent.TimeoutException;
 
 import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
+/**
+ * WorkerSlave. It's in charge of handling messages sent from server to client and shit. Yup.
+ * 
+ * 
+ * @author xshi
+ *
+ */
 class WorkerSlave extends Thread {
+	
+	protected Message sendSynchronousMessage (Message message) {
+		Message returnMessage = null;
+		try {
+            connection.sendToClient(message);
+            returnMessage = connection.readReplyFromClient(message);
+            
+            if (returnMessage.getMsgType() != MessageProtocol.OP_STATUS_OK) {
+            	connection.invalidate(new IOException("Illegal return message"));
+            }
+        } catch (IOException e) {
+            connection.invalidate(e);
+        }
+		return returnMessage;
+	}
+	
+	protected Message sendSynchronousMessage (Message message, int timeout) {
+		Message returnMessage = null;
+		try {
+            connection.sendToClient(message);
+            returnMessage = connection.readReplyFromClient(message, timeout);
+            
+            if (returnMessage.getMsgType() != MessageProtocol.OP_STATUS_OK) {
+            	connection.invalidate(new IOException("Illegal return message"));
+            }
+        } catch (IOException e) {
+            connection.invalidate(e);
+        }
+		return returnMessage;
+	}
     protected class MessageCourier implements Runnable {
 		private final Message message;
 
 		protected MessageCourier(Message message) {
 			this.message = message;
 		}
-
 		public void run() {
-	        try {
-	            connection.sendToClient(message);
-	            Message returnMessage = connection.readReplyFromClient(message);
-	            
-	            if (returnMessage.getMsgType() != MessageProtocol.OP_STATUS_OK) {
-	            	connection.invalidate(new IOException("Illegal return message"));
-	            }
-	        } catch (IOException e) {
-	            connection.invalidate(e);
-	        }
+	        sendSynchronousMessage(message);
 		}
 	}
 
 	private static final int WORKER_MESSAGE_QUEUE_SIZE = 10;
     private boolean done;
     private Worker master;
-    private ClientConnection connection;
+    protected ClientConnection connection;
     private ThreadSafeQueue<Runnable> messageQueue;
     
     public WorkerSlave(ClientConnection connection, Worker master) {
         this.connection = connection;
         this.master = master;
-        messageQueue = new ThreadSafeQueue<Runnable>(WORKER_MESSAGE_QUEUE_SIZE);
+        setMessageQueue(new ThreadSafeQueue<Runnable>(WORKER_MESSAGE_QUEUE_SIZE));
         done = false;
     }
     
@@ -51,12 +77,12 @@ class WorkerSlave extends Thread {
 
     public void run() {
         while (!done) {
-            messageQueue.get().run();
+            getMessageQueue().get().run();
         }
     }
 
     public void handleTerminate() {
-        messageQueue.add(
+        getMessageQueue().add(
                 new Runnable() {
                     public void run() {
                         done = true;
@@ -71,7 +97,7 @@ class WorkerSlave extends Thread {
      * @param message
      */
     public void handleSendMessage(final Message message) {
-    	messageQueue.add(new MessageCourier(message));
+    	getMessageQueue().add(new MessageCourier(message));
     }
     
     /**
@@ -119,20 +145,15 @@ class WorkerSlave extends Thread {
     	handleSendMessage(message);
     }
     
-    /**
-     * Gets a move from the player
-     * 
-     * @param timeoutInMs how long the client has to make a move
-     * @return The status_ok message from the client.
-     * @throws IOException if the connection dies
-     * @throws TimeoutException if the client takes too long
-     */
-    public Message doGetMove(long timeoutInMs) throws IOException, TimeoutException
-    {
-    	throw new AssertionError("Unimplemented method");
-    }
-    
 	protected void closeAndCleanup() {
-		messageQueue.clear();
+		getMessageQueue().clear();
+	}
+
+	public ThreadSafeQueue<Runnable> getMessageQueue() {
+		return messageQueue;
+	}
+
+	public void setMessageQueue(ThreadSafeQueue<Runnable> messageQueue) {
+		this.messageQueue = messageQueue;
 	}
 }

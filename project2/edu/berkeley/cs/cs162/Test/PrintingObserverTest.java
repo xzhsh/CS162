@@ -29,7 +29,6 @@ public class PrintingObserverTest {
 
 	@Test
 	public void test() throws IOException {
-
 		final int TEST_PORT = 1234;
 		final String TEST_NAME = "TestObserver";
 		final String TEST_GAME_NAME = "TestGame";
@@ -83,10 +82,11 @@ public class PrintingObserverTest {
 		connection.sendToClient(MessageFactory.createMakeMoveMessage(gameInfo, blackPlayerInfo, 
 				MessageProtocol.MOVE_STONE, new BoardLocation(0,0), Collections.<BoardLocation> emptyList()));
 		System.out.println("Make Move Sent");
+		
 		assertTrue(connection.readReplyFromClient(genericMessageThatReturnsStatusOk).isOK());
 		System.out.println("Make Move Worked");
 		connection.sendToClient(MessageFactory.createMakeMoveMessage(gameInfo, blackPlayerInfo, 
-				MessageProtocol.MOVE_STONE, new BoardLocation(1,1), Collections.<BoardLocation> emptyList()));
+				MessageProtocol.MOVE_STONE, new BoardLocation(1,1), Collections.<BoardLocation> singletonList(new BoardLocation(1,0))));
 		assertTrue(connection.readReplyFromClient(genericMessageThatReturnsStatusOk).isOK());
 		
 		connection.sendToClient(MessageFactory.createMakeMoveMessage(gameInfo, blackPlayerInfo, 

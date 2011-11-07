@@ -14,7 +14,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 public class GameServer {
-    private static final int GLOBAL_TIMEOUT_IN_MS = 3000;
+    public static final int GLOBAL_TIMEOUT_IN_MS = 3000;
     private static final int WAITING_CONNECTION_BUFFER_SIZE = 10;
     /**
      * RNG for this game server.

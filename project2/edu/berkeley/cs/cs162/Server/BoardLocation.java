@@ -16,7 +16,7 @@ public class BoardLocation {
         this.y = y;
     }
 
-    public int getX() {
+	public int getX() {
         return x;
     }
 

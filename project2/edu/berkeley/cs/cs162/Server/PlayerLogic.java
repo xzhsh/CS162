@@ -42,10 +42,12 @@ public abstract class PlayerLogic extends ClientLogic {
     
     private PlayerState state;
     private Lock stateLock;
+    private long playerTimeoutInMs;
     public PlayerLogic(Worker worker, WorkerSlave slave, long playerTimeoutInMs) {
         super(worker, slave);
         state = PlayerState.CONNECTED;
         stateLock = new Lock();
+        this.playerTimeoutInMs = playerTimeoutInMs;
     }
 
 	public Message handleWaitForGame() {
@@ -91,4 +93,9 @@ public abstract class PlayerLogic extends ClientLogic {
     }
     
 	public abstract ClientInfo makeClientInfo();
+
+	public long getTimeout() {
+		// TODO Auto-generated method stub
+		return playerTimeoutInMs;
+	}
 }
