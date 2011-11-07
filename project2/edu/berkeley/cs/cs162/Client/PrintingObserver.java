@@ -24,6 +24,17 @@ public class PrintingObserver extends Observer {
     }
 
     public void handleMessage(Message m) {
-
+        switch (m.getMsgType()) {
+            case MessageProtocol.OP_TYPE_GAMESTART:
+                break;
+            case MessageProtocol.OP_TYPE_GAMEOVER:
+                break;
+            case MessageProtocol.OP_TYPE_MAKEMOVE:
+                break;
+            case MessageProtocol.OP_TYPE_GETMOVE:
+                break;
+            default:
+                break;
+        }
     }
 }
