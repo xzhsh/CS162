@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162.Client;
 
+import edu.berkeley.cs.cs162.Server.Board;
 import edu.berkeley.cs.cs162.Writable.*;
 
 import java.io.IOException;
@@ -44,52 +45,39 @@ public class MachinePlayer extends Player {
         return clientInfo;
     }
 
-    public void handleMessage(Message m) throws IOException {
-        switch (m.getMsgType()) {
-            case MessageProtocol.OP_TYPE_GAMESTART:
-                handleGameStart((ServerMessages.GameStartMessage) m);
-                break;
-            case MessageProtocol.OP_TYPE_GAMEOVER:
-                handleGameOver((ServerMessages.GameOverMessage) m);
-                break;
-            case MessageProtocol.OP_TYPE_MAKEMOVE:
-                handleMakeMove((ServerMessages.MakeMoveMessage) m);
-                break;
-            case MessageProtocol.OP_TYPE_GETMOVE:
-                handleGetMove();
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void handleGameStart(ServerMessages.GameStartMessage m) throws IOException {
+    @Override
+    protected void handleGameStart(ServerMessages.GameStartMessage m) throws IOException {
         String gameName = m.getGameInfo().getName();
-        String blackName = m.getBlackClientInfo().getName();
-        String whiteName = m.getWhiteClientInfo().getName();
+        String blackPlayerName = m.getBlackClientInfo().getName();
+        String whitePlayerName = m.getWhiteClientInfo().getName();
 
 
     }
 
-    private void handleGameOver(ServerMessages.GameOverMessage m) throws IOException {
+    @Override
+    protected void handleGameOver(ServerMessages.GameOverMessage m) throws IOException {
         String gameName = m.getGameInfo().getName();
-        double blackScore = m.getBlackScore();
-        double whiteScore = m.getWhiteScore();
+        double blackPlayerScore = m.getBlackScore();
+        double whitePlayerScore = m.getWhiteScore();
         String winner = m.getWinner().getName();
         byte reason = m.getReason();
-
+        String errorPlayerName = m.getErrorPlayer().getName();
+        String errorMsg = m.getErrorMessage();
 
     }
 
-    private void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
-        String game = m.getGameInfo().getName();
+    @Override
+    protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
+        String gameName = m.getGameInfo().getName();
         String player = m.getPlayer().getName();
         byte type = m.getMoveType();
         Location loc = m.getLocation();
         WritableList stonesCaptured = m.getLocationList();
+
     }
 
-    private void handleGetMove() throws IOException {
+    @Override
+    protected void handleGetMove() throws IOException {
         //send a message to the server with byte moveType and Location loc
     }
 }

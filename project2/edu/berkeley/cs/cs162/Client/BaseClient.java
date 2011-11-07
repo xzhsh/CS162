@@ -78,7 +78,7 @@ abstract public class BaseClient implements Client {
                 handleMakeMove((ServerMessages.MakeMoveMessage) m);
                 break;
             case MessageProtocol.OP_TYPE_GETMOVE:
-                handleGetMove(m);
+                handleGetMove();
                 break;
             default:
                 assert false: "No method defined for message type.";
@@ -97,7 +97,7 @@ abstract public class BaseClient implements Client {
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
-    protected void handleGetMove(Message m) throws IOException {
+    protected void handleGetMove() throws IOException {
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 }

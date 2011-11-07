@@ -122,8 +122,8 @@ public class ServerMessages {
         }
 
         // Used for sending
-        protected MakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, WritableList locationlist) {
-            super(MessageProtocol.OP_TYPE_MAKEMOVE, game, player, new WritableByte(moveType), loc, locationlist);
+        protected MakeMoveMessage(GameInfo game, ClientInfo player, byte moveType, Location loc, WritableList locList) {
+            super(MessageProtocol.OP_TYPE_MAKEMOVE, game, player, new WritableByte(moveType), loc, locList);
         }
 
         public GameInfo getGameInfo(){
