@@ -44,6 +44,7 @@ public class ReaderWriterLockTest {
             thread.join();
         }
 
+        // All readers were able to successfully acquire the lock
         assertEquals(100, count.getResource().intValue());
     }
 
@@ -67,16 +68,17 @@ public class ReaderWriterLockTest {
             }
         }
 
-        for(int i = 0; i < 100; i++){
-            Thread reader = new WriterThread(count);
-            threads.add(reader);
-            reader.start();
+        for(int i = 0; i < 10; i++){
+            Thread writer = new WriterThread(count);
+            threads.add(writer);
+            writer.start();
         }
 
         for(Thread thread : threads){
-            thread.join();
+            thread.join(100);
         }
 
+        // Only one writer successfully acquired the lock.
         assertEquals(1, count.getResource().intValue());
     }
 
