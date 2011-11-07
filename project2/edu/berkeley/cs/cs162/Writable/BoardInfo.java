@@ -50,8 +50,6 @@ public class BoardInfo implements Writable {
     }
 
     public GoBoard getBoard() {
-        GoBoard b = new GoBoard(board.length);
-
-        return b;
+        return new GoBoard(board.length);
     }
 }

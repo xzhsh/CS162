@@ -5,11 +5,11 @@ import java.io.*;
 public class DataTypeIO {
 
     private static DataInputStream getDataInputStream(InputStream input) {
-        return (DataInputStream)input;//(input instanceof DataInputStream) ? (DataInputStream) input : new DataInputStream(input);
+        return (input instanceof DataInputStream) ? (DataInputStream) input : new DataInputStream(input);
     }
 
     private static DataOutputStream getDataOutputStream(OutputStream output) {
-        return (DataOutputStream) output;//(output instanceof DataOutputStream) ? (DataOutputStream) output : new DataOutputStream(output);
+        return (output instanceof DataOutputStream) ? (DataOutputStream) output : new DataOutputStream(output);
     }
 
     /**
