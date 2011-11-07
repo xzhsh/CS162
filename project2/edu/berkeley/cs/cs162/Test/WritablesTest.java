@@ -20,7 +20,6 @@ public class WritablesTest {
         String address = "localhost";
         final int port = 1234;
 
-
         // Initialize sockets and stuff...
         final Socket container[] = new Socket[1];
         Thread serverThread = new Thread()  {

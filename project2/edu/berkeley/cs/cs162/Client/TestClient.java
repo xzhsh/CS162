@@ -19,8 +19,4 @@ public class TestClient extends BaseClient {
             e.printStackTrace();
         }
     }
-
-    public void handleMessage(Message m) {
-
-    }
 }
