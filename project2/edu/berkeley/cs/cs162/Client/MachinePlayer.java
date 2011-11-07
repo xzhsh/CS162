@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 import java.util.Random;
 
 public class MachinePlayer extends Player {
-
+	
     public MachinePlayer(String name) {
         super(name, MessageProtocol.TYPE_MACHINE);
     }
@@ -55,9 +55,45 @@ public class MachinePlayer extends Player {
         WritableList stonesCaptured = m.getLocationList();
 
     }
+    
+    private Location decideMove() {
+    	Location loc = new Location(rng.nextInt(goBoard.board.getSize()), rng.nextInt(goBoard.board.getSize()));
+    	int chanceOfPass = 0;
+    	Vector<Location> invalidatedLocations = Rules.getCapturedStones(goBoard.board, getPlayerColor(), loc);
+    	
+    	while (invalidatedLocations.contains(loc) || goBoard.board.getAtLocation(loc) != StoneColor.NONE) {
+    		//adds .5% of pass per try
+    		chanceOfPass+= 5;
+    		if (chanceOfPass >= 10000 || rng.nextInt(10000-chanceOfPass) == 0) {
+    			return null;
+    		}
+    		loc = new Location(rng.nextInt(goBoard.board.getSize()), rng.nextInt(goBoard.board.getSize()));
+    		invalidatedLocations = Rules.getCapturedStones(goBoard.board, getPlayerColor(), loc);
+    	}
 
+		return loc;
+    }
     @Override
     protected void handleGetMove() throws IOException {
+        long startTime = System.currentTimeMillis();
+        int moveTime
+        while (true) {
+            if(System.currentTimeMillis() - startTime >= timeout){
+                return;
+            }
+           
+        
+    	Location loc = decideMove();
+    	if (loc == null) {
+    		byte moveCode = MessageProtocol.MOVE_PASS;
+    		Location nullLoc = MessageFactory.createLocationInfo(0, 0);
+      		Message getMoveResp = MessageFactory.createGetMoveStatusOkMessage(moveCode, nullLoc);
+    		connection.sendReplyToServer(getMoveResp);
+    	} else {
+    		byte moveCode = MessageProtocol.MOVE_STONE;
+    		Message getMoveResp = MessageFactory.createGetMoveStatusOkMessage(moveCode, loc); 		
+    		connection.sendReplyToServer(getMoveResp);
+    	}
         //send a message to the server with byte moveType and Location loc
     }
 }
