@@ -31,6 +31,8 @@ public class MachinePlayer extends Player {
         String blackPlayerName = m.getBlackClientInfo().getName();
         String whitePlayerName = m.getWhiteClientInfo().getName();
 
+        board = m.getBoardInfo().getBoard();
+
 
     }
 

@@ -2,7 +2,9 @@ package edu.berkeley.cs.cs162.Client;
 
 import edu.berkeley.cs.cs162.Writable.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Random;
@@ -29,6 +31,8 @@ public class HumanPlayer extends Player {
         String gameName = m.getGameInfo().getName();
         String blackPlayerName = m.getBlackClientInfo().getName();
         String whitePlayerName = m.getWhiteClientInfo().getName();
+
+        board = m.getBoardInfo().getBoard();
 
 
     }
@@ -58,5 +62,34 @@ public class HumanPlayer extends Player {
     @Override
     protected void handleGetMove() throws IOException {
         //send a message to the server with byte moveType and Location loc
+
+        byte moveType;
+        Location loc;
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        long startTime = System.currentTimeMillis();
+
+        while (System.currentTimeMillis() - startTime >= 20000) {
+            if (reader.ready()) {
+                break;
+            }
+        }
+
+        String input = reader.readLine();
+
+        if (input.equals("pass")) {
+            moveType = MessageProtocol.MOVE_PASS;
+            loc = MessageFactory.createLocationInfo(0, 0);
+        } else {
+            moveType = MessageProtocol.MOVE_STONE;
+
+            String[] coordinates = input.split(" ");
+            loc = MessageFactory.createLocationInfo(Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1]));
+        }
+
+        Message m = MessageFactory.createGetMoveStatusOkMessage(moveType, loc);
+
+        connection.sendReplyToServer(m);
     }
 }

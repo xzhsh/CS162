@@ -1,5 +1,7 @@
 package edu.berkeley.cs.cs162.Writable;
 
+import edu.berkeley.cs.cs162.Server.GoBoard;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,4 +49,9 @@ public class BoardInfo implements Writable {
         }
     }
 
+    public GoBoard getBoard() {
+        GoBoard b = new GoBoard(board.length);
+
+        return b;
+    }
 }
