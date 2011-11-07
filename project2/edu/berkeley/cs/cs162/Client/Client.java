@@ -44,9 +44,4 @@ public interface Client {
      * @return clientInfo
      */
     public abstract ClientInfo getClientInfo();
-
-    /**
-     * Handles messages that the client receives
-     */
-    public abstract void handleMessage(Message m) throws IOException;
 }
