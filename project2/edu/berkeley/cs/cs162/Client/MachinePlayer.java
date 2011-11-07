@@ -95,9 +95,9 @@ public class MachinePlayer extends Player {
     @Override
     protected void handleGetMove() throws IOException {
         long startTime = System.currentTimeMillis();
-        int moveTime = 
+        int moveTime = 2000;
         while (true) {
-            if(System.currentTimeMillis() - startTime >= timeout){
+            if(System.currentTimeMillis() - startTime >= moveTime){
                 return;
             }
            
