@@ -2,14 +2,7 @@ package edu.berkeley.cs.cs162.Client;
 
 import java.io.IOException;
 
-import edu.berkeley.cs.cs162.Writable.GameInfo;
-import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
-import edu.berkeley.cs.cs162.Writable.MessageProtocol;
-import edu.berkeley.cs.cs162.Writable.ResponseMessages;
-import edu.berkeley.cs.cs162.Writable.ServerMessages;
-import edu.berkeley.cs.cs162.Writable.Writable;
-import edu.berkeley.cs.cs162.Writable.WritableList;
+import edu.berkeley.cs.cs162.Writable.*;
 
 public class PrintingObserver extends Observer {
 
@@ -104,6 +97,16 @@ public class PrintingObserver extends Observer {
     private void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
         String game = m.getGameInfo().getName();
         String player = m.getPlayer().getName();
+        byte type = m.getMoveType();
+        Location loc = m.getLocation();
+        WritableList stonesCaptured = m.getLocationList();
+
+        if(type == MessageProtocol.MOVE_STONE){
+            System.out.println("In game " + game + ", " + player + " placed a stone at " + loc + ". " + stonesCaptured.size() + " stones were captured.");
+        }
+        else{
+            System.out.println("In game " + game + ", " + player + " passed.");
+        }
 
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
