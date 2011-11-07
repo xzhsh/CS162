@@ -22,9 +22,25 @@ public class MachinePlayer extends Player {
 
         if(player.connectTo(address, port)){
             System.out.println("MachinePlayer " + player.getName() + " is connected to the server!");
+            try {
+                player.runExecutionLoop();
+            } catch (IOException e) {
+                System.out.println("An error occurred... MachinePlayer " + player.getName() + " terminating.");
+            }
         }
     }
 
+    private void runExecutionLoop() throws IOException {
+        while (true) {
+            if (/*waitingForGames for running purposes*/false) {
+
+            } else {
+
+            }
+
+            handleMessage(connection.readFromServer());
+        }
+    }
     @Override
     protected void handleGameStart(ServerMessages.GameStartMessage m) throws IOException {
         String gameName = m.getGameInfo().getName();
@@ -99,4 +115,6 @@ public class MachinePlayer extends Player {
     	}
         //send a message to the server with byte moveType and Location loc
     }
+        
+
 }
