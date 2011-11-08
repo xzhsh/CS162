@@ -142,4 +142,13 @@ public class ClientConnection {
 		S2C.setSoTimeout(GameServer.GLOBAL_TIMEOUT_IN_MS);
 		return reply;
 	}
+
+    // TESTING PURPOSES ONLY
+    public void setValid() throws IOException {
+        valid = true;
+        C2Sout = new DataOutputStream(C2S.getOutputStream());
+        S2Cout = new DataOutputStream(S2C.getOutputStream());
+        C2Sin = new DataInputStream(C2S.getInputStream());
+        S2Cin = new DataInputStream(S2C.getInputStream());
+    }
 }
