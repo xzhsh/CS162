@@ -96,7 +96,7 @@ public class HumanPlayerTest {
 		Message getMoveMsg = MessageFactory.createGetMoveMessage();
 		connection.sendToClient(getMoveMsg);
 //		Message movedMsg = connection.readFromClient();
-		System.out.println("Please enter location");
+		System.out.println("Please enter location waka waka waka");
 		Message moved = connection.readReplyFromClient(getMoveMsg);
 	    ResponseMessages.GetMoveStatusOkMessage movedMsg = (ResponseMessages.GetMoveStatusOkMessage) moved;
 		Location loc = movedMsg.getLocation();
