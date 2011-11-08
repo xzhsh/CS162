@@ -17,7 +17,7 @@ abstract public class BaseClient implements Client {
     public BaseClient(String name, byte type) {
         this.name = name;
         this.type = type;
-        clientInfo = MessageFactory.createObserverClientInfo(name);
+        clientInfo = MessageFactory.createClientInfo(this.name, this.type);
     }
 
     public BaseClient(String name) {

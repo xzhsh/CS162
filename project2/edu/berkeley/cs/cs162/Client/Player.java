@@ -118,6 +118,9 @@ abstract public class Player extends BaseClient {
         //game destructors
         waitingForGames = true;
         sentWFGMessage = false;
+        board = null;
+        currentColor = StoneColor.NONE;
+        opponentColor = StoneColor.NONE;
 
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }

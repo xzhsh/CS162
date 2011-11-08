@@ -246,6 +246,10 @@ public class MessageFactory {
      * Client Info.
      */
 
+    public static ClientInfo createClientInfo(String name, byte type) {
+        return new ClientInfo(name, type);
+    }
+
     public static ClientInfo createHumanPlayerClientInfo(String name) {
         return new ClientInfo(name, MessageProtocol.TYPE_HUMAN);
     }
