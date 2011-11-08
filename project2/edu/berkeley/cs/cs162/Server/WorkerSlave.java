@@ -11,7 +11,6 @@ import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 /**
  * WorkerSlave. It's in charge of handling messages sent from server to client and shit. Yup.
  * 
- * 
  * @author xshi
  *
  */
@@ -83,12 +82,12 @@ class WorkerSlave extends Thread {
 
     public void handleTerminate() {
         getMessageQueue().add(
-                new Runnable() {
-                    public void run() {
-                        done = true;
-                        closeAndCleanup();
-                    }
+            new Runnable() {
+                public void run() {
+                    done = true;
+                    closeAndCleanup();
                 }
+            }
         );
     }
     

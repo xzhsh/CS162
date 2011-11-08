@@ -1,7 +1,6 @@
 package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.concurrent.TimeoutException;
 
 import edu.berkeley.cs.cs162.Writable.Message;
@@ -30,7 +29,6 @@ public class PlayerWorkerSlave extends WorkerSlave{
 			game.broadcastTerminate();
 		}
 		game = null;
-
 		((PlayerLogic)getMaster().getLogic()).terminateGame();
 	}
 
@@ -97,38 +95,4 @@ public class PlayerWorkerSlave extends WorkerSlave{
 			game.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getName()+ " timed out.", MessageProtocol.PLAYER_FORFEIT));
 		}
     }
-    
-    /**
-     * Tells this worker that the game has finished.
-     * 
-     * The worker should clean up after itself when this message is received.
-     * 
-     * @param game
-     */
-    public void handleGameOver(Game game, double blackScore, double whiteScore, Worker winner)
-    {
-    	final Message message = MessageFactory.createGameOverMessage(game.makeGameInfo(), blackScore, whiteScore, winner.makeClientInfo());
-    	//game.broadcastMessage(message);
-    	this.game = null;
-    }
-    
-    /**
-     * Tells this worker that an error has occurred.
-     * 
-     * The worker should clean up after itself when this message is received.
-     * 
-     * @param game
-     */
-    public void handleGameOverError(Game game, double blackScore, double whiteScore, Worker winner, byte reason, Worker errorPlayer, String errorMessage)
-    {
-    	final Message message = MessageFactory.createGameOverErrorMessage(game.makeGameInfo(), blackScore, whiteScore, winner.makeClientInfo(), reason, errorPlayer.makeClientInfo(), errorMessage);
-    	handleSendMessage(message);
-    }
-    
-    public void handleMakeMove(Game game, Worker currentPlayer, byte moveType, BoardLocation loc, Collection<BoardLocation> capturedList)
-    {
-    	final Message message = MessageFactory.createMakeMoveMessage(game.makeGameInfo(), currentPlayer.makeClientInfo(), moveType, loc, capturedList);
-    	handleSendMessage(message);
-    }
-    
 }

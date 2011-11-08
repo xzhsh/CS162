@@ -55,27 +55,31 @@ public class Worker extends Thread {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             server.getLog().println("Connection closed unexpectedly.");
-            cleanup();
+            closeAndCleanup();
         }
     }
 
-    private ClientInfo initializeWorker() throws IOException {
+    private ClientInfo initializeWorker() {
         if (!connection.receive3WayHandshake(server.getRNG())) {
             //if the 3way handshake fails, just decrement the connection count, close the connections and terminate
             //there should be no resources that the worker has otherwise allocated at this point.
             return null;
         }
 
-        Message returnMessage = connection.readFromClient();
-
-        if (returnMessage.getMsgType() != MessageProtocol.OP_TYPE_CONNECT) {
-            //unexpected message, close and terminate.
-        	connection.sendReplyToClient(MessageFactory.createErrorUnconnectedMessage());
-            return null;
-        }
-        connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
-        //TODO Extract clientinfo from connectMessage
-        return ((ClientMessages.ConnectMessage) returnMessage).getClientInfo();
+        Message returnMessage;
+		try {
+			returnMessage = connection.readFromClient();
+	        if (returnMessage.getMsgType() != MessageProtocol.OP_TYPE_CONNECT) {
+	            //unexpected message, close and terminate.
+	        	connection.sendReplyToClient(MessageFactory.createErrorUnconnectedMessage());
+	            return null;
+	        }
+	        connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
+	
+	        return ((ClientMessages.ConnectMessage) returnMessage).getClientInfo();
+		} catch (IOException e) {
+			return null;
+		}
     }
 
     /**
@@ -89,11 +93,7 @@ public class Worker extends Thread {
     private void cleanup() {
         server.decrementConnectionCount();
         server.removeWorker(name);
-        try {
-            connection.close();
-        } catch (IOException e1) {
-            // Connection is already closed, just continue execution
-        }
+        connection.close();
     }
 
     public void handleSendMessageToClient(Message message) {

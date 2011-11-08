@@ -2,6 +2,7 @@ package edu.berkeley.cs.cs162.Server;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
@@ -42,6 +43,10 @@ public class Game {
 
     /**
      * Adds an observer to this game. can be done asynchronously by multiple threads.
+     * 
+     * This will simultaneously also add this game to the worker's observer list. 
+     * This is done atomically because otherwise, we could have a race condition and 
+     * end up with an orphaned observer.
      *
      * @param worker
      * @return 
@@ -53,6 +58,7 @@ public class Game {
     	if (added)
     	{
     		observerList.add(worker);
+    		((ObserverLogic)worker.getLogic()).addGame(this);
     	}
     	observerLock.writeUnlock();
 		return added;
@@ -64,6 +70,7 @@ public class Game {
     	if (removed)
     	{
     		observerList.remove(worker);
+    		((ObserverLogic)worker.getLogic()).removeGame(this);
     	}
     	observerLock.writeUnlock();
 		return removed;
@@ -99,7 +106,7 @@ public class Game {
 	public void makePassMove() {
 		final Message message = MessageFactory.createMakeMoveMessage(makeGameInfo(), getCurrentPlayer().makeClientInfo(), MessageProtocol.MOVE_PASS, new BoardLocation(0,0), Collections.<BoardLocation>emptyList());
 		broadcastMessage(message);
-		if(lastPassed) 
+		if(lastPassed)
 		{
 			doGameOver();
 		}
@@ -133,7 +140,6 @@ public class Game {
 			//illegal move, we need to send game over error.
 			doGameOverError(e);
 		}
-		
 	}
 	
 	private void advanceTurns() {
@@ -171,8 +177,18 @@ public class Game {
 	void broadcastTerminate() {
 		//terminates the game for the players.
 		//nothing needs to be done for observers because they hold no state.
+		
 		((PlayerWorkerSlave)blackPlayer.getSlave()).terminateGame(this);
 		((PlayerWorkerSlave)whitePlayer.getSlave()).terminateGame(this);
+		observerLock.writeLock();
+		Iterator<Worker> i = observerList.iterator();
+		while (i.hasNext())
+		{
+			Worker obs = i.next();
+			((ObserverLogic)obs.getLogic()).removeGame(this);
+			i.remove();
+		}
+		observerLock.writeUnlock();
 	}
 
 	private PlayerWorkerSlave getCurrentPlayerSlave() {

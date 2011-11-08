@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162.Server;
 
+import edu.berkeley.cs.cs162.Synchronization.Lock;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.ClientMessages;
 import edu.berkeley.cs.cs162.Writable.GameInfo;
@@ -10,11 +11,12 @@ import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 public abstract class ClientLogic {
     private Worker worker;
     private WorkerSlave slave;
+    Lock observingLock;
     public ClientLogic(Worker worker, WorkerSlave slave) {
         this.worker = worker;
         this.slave = slave;
+        observingLock = new Lock();
     }
-
     public static ClientLogic getClientLogicForClientType(Worker worker, WorkerSlave slave, byte playerType) {
         switch (playerType) {
             case MessageProtocol.TYPE_HUMAN:

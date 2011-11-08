@@ -93,10 +93,22 @@ public class ClientConnection {
         S2Cout.flush();
     }
 
-    public void close() throws IOException {
+    public void close(){
         valid = false;
-        S2C.close();
-        C2S.close();
+        try {
+        	S2C.close();
+        }
+        catch (IOException e)
+        {
+        	//already closed, just continue
+        }
+        try {
+        	C2S.close();
+        }
+        catch (IOException e)
+        {
+        	//already closed, just continue
+        }
     }
 
     public Message readFromClient() throws IOException {
