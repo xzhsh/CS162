@@ -34,11 +34,12 @@ public class HumanPlayer extends Player {
 
     private void runExecutionLoop() throws IOException {
         while (true) {
-            if (waitingForGames) {
+            //...not sure this is actually necessary if handleMessage actually does handle all the messages -jay
+            /*if (waitingForGames) {
 
             } else {
 
-            }
+            }*/
 
             handleMessage(connection.readFromServer());
         }
@@ -90,6 +91,9 @@ public class HumanPlayer extends Player {
         waitingForGames = true;
 
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+
+        //i think this is correct -jay
+        connection.sendSyncToServer(MessageFactory.createWaitForGameMessage());
     }
 
     @Override
