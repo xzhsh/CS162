@@ -1,13 +1,13 @@
 package edu.berkeley.cs.cs162.Client;
 
+import edu.berkeley.cs.cs162.Server.BoardLocation;
+import edu.berkeley.cs.cs162.Server.GoBoard;
+import edu.berkeley.cs.cs162.Server.StoneColor;
 import edu.berkeley.cs.cs162.Writable.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Random;
 
 public class HumanPlayer extends Player {
 
@@ -15,13 +15,13 @@ public class HumanPlayer extends Player {
         super(name, MessageProtocol.TYPE_HUMAN);
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         assert args.length == 3 : "Enter arguments in the following format: <host> <port> <playername>";
         HumanPlayer player = new HumanPlayer(args[2]);
         String address = args[0];
         Integer port = Integer.valueOf(args[1]);
 
-        if (player.connectTo(address, port)){
+        if (player.connectTo(address, port)) {
             System.out.println("HumanPlayer " + player.getName() + " is connected to the server!");
 
             try {
@@ -50,8 +50,20 @@ public class HumanPlayer extends Player {
         String blackPlayerName = m.getBlackClientInfo().getName();
         String whitePlayerName = m.getWhiteClientInfo().getName();
 
+        this.gameName = gameName;
         board = m.getBoardInfo().getBoard();
         waitingForGames = false;
+
+        if (blackPlayerName.equals(name)) {
+            currentColor = StoneColor.BLACK;
+            opponentColor = StoneColor.WHITE;
+        } else if (whitePlayerName.equals(name)) {
+            currentColor = StoneColor.WHITE;
+            opponentColor = StoneColor.BLACK;
+        } else {
+            currentColor = StoneColor.NONE;
+            opponentColor = StoneColor.NONE;
+        }
 
         System.out.println("Game " + gameName + " starting with Black player " + blackPlayerName + " and White player " + whitePlayerName + ".");
 
@@ -65,9 +77,16 @@ public class HumanPlayer extends Player {
         double whitePlayerScore = m.getWhiteScore();
         String winner = m.getWinner().getName();
         byte reason = m.getReason();
-        String errorPlayerName = m.getErrorPlayer().getName();
-        String errorMsg = m.getErrorMessage();
 
+        if (reason != MessageProtocol.GAME_OK) {
+            String errorPlayerName = m.getErrorPlayer().getName();
+            String errorMsg = m.getErrorMessage();
+            System.out.println("Game " + gameName + " ended with an error by " + errorPlayerName + ": " + errorMsg + ". Black score " + blackPlayerScore + ", White score " + whitePlayerScore + ". WINNER: " + winner + "!");
+        } else {
+            System.out.println("Game " + gameName + " ended with Black score " + blackPlayerScore + ", White score " + whitePlayerScore + ". WINNER: " + winner + "!");
+        }
+
+        //destructors?
         waitingForGames = true;
 
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
@@ -75,13 +94,36 @@ public class HumanPlayer extends Player {
 
     @Override
     protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
-        String gameName = m.getGameInfo().getName();
-        String player = m.getPlayer().getName();
+        //String gameName = m.getGameInfo().getName();
+        String playerName = m.getPlayer().getName();
         byte type = m.getMoveType();
-        Location loc = m.getLocation();
-        WritableList stonesCaptured = m.getLocationList();
+        BoardLocation loc = m.getLocation().makeBoardLocation();
+        //WritableList stonesCaptured = m.getLocationList();
 
+        if (playerName.equals(name)) {
+            if (type == MessageProtocol.MOVE_PASS) {
+                //what
+            } else {
+                try {
+                    board.makeMove(loc, currentColor);
+                } catch (GoBoard.IllegalMoveException e) {
 
+                }
+            }
+
+        } else {
+            if (type == MessageProtocol.MOVE_STONE) {
+                //what
+            } else {
+                try {
+                    board.makeMove(loc, opponentColor);
+                } catch (GoBoard.IllegalMoveException e) {
+
+                }
+            }
+        }
+
+        //board.makeMove(loc.makeBoardLocation(),);
 
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
@@ -91,36 +133,35 @@ public class HumanPlayer extends Player {
 
 //    	ServerMessages.MakeMoveMessage moveMsg = (ServerMessages.MakeMoveMessage) m;
 //    	GameInfo gInfo  = moveMsg.getGameInfo();
-    	
-    	
-    	final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    	String humanInput = reader.readLine();
-    	if (humanInput.equals("Pass")) {
-    		byte moveCode = MessageProtocol.MOVE_PASS;
-    		Location loc = MessageFactory.createLocationInfo(0, 0);
-    		Message getMoveResp = MessageFactory.createGetMoveStatusOkMessage(moveCode, loc);
-    		connection.sendReplyToServer(getMoveResp);
-    	}
-    		//send message to worker thread that player has passed
-    	
-    	else {
-    		byte moveCode = MessageProtocol.MOVE_STONE;
-    		String[] outCoordinates = humanInput.split(" ");
-    		int xCoord = Integer.parseInt(outCoordinates[0]);
-    		int yCoord = Integer.parseInt(outCoordinates[1]);
-    		Location loc = MessageFactory.createLocationInfo(xCoord, yCoord);
-    		Message getMoveResp = MessageFactory.createGetMoveStatusOkMessage(moveCode, loc);
-    		
-    		connection.sendReplyToServer(getMoveResp);
-    		//send message to server about new move
-    	}
-        //send a message to the server with byte moveType and Location loc
 
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        //doesn't account for time?
+        /*String humanInput = reader.readLine();
+
+        if (humanInput.equals("pass")) {
+            byte moveCode = MessageProtocol.MOVE_PASS;
+            Location loc = MessageFactory.createLocationInfo(0, 0);
+            Message getMoveResp = MessageFactory.createGetMoveStatusOkMessage(moveCode, loc);
+            connection.sendReplyToServer(getMoveResp);
+        }
+        //send message to worker thread that player has passed
+
+        else {
+            byte moveCode = MessageProtocol.MOVE_STONE;
+            String[] outCoordinates = humanInput.split(" ");
+            int xCoord = Integer.parseInt(outCoordinates[0]);
+            int yCoord = Integer.parseInt(outCoordinates[1]);
+            Location loc = MessageFactory.createLocationInfo(xCoord, yCoord);
+            Message getMoveResp = MessageFactory.createGetMoveStatusOkMessage(moveCode, loc);
+
+            connection.sendReplyToServer(getMoveResp);
+            //send message to server about new move
+        }*/
+        //send a message to the server with byte moveType and Location loc
 
         byte moveType;
         Location loc;
-
-        //BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         long startTime = System.currentTimeMillis();
 
@@ -145,6 +186,5 @@ public class HumanPlayer extends Player {
         Message m = MessageFactory.createGetMoveStatusOkMessage(moveType, loc);
 
         connection.sendReplyToServer(m);
-
     }
 }

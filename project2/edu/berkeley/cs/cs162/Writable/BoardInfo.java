@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162.Writable;
 
+import edu.berkeley.cs.cs162.Server.Board;
 import edu.berkeley.cs.cs162.Server.GoBoard;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class BoardInfo implements Writable {
         return board;
     }
 
-    //@Override
+    @Override
     public void readFrom(InputStream in) throws IOException {
         int xlen = DataTypeIO.readInt(in);
         board = new StoneColorInfo[xlen][];
@@ -36,7 +37,7 @@ public class BoardInfo implements Writable {
         }
     }
 
-    //@Override
+    @Override
     public void writeTo(OutputStream out) throws IOException {
         int xlen = board.length;
         DataTypeIO.writeInt(out, xlen);
