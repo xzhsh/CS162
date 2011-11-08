@@ -40,10 +40,15 @@ public class PlayerWorkerSlave extends WorkerSlave{
 	 * @throws TimeoutException 
 	 * @throws IOException 
      */
-    public void startNewGame(Game game) throws IOException, TimeoutException
+    public void startNewGame(final Game game) throws IOException, TimeoutException
     {
-    	game.broadcastStartMessage();
-    	doGetMove(game);
+    	getMessageQueue().add(new Runnable() {
+			@Override
+			public void run() {
+		    	game.broadcastStartMessage();
+		    	doGetMove(game);
+			}
+    	});
     }
     
 
