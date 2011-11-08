@@ -17,7 +17,20 @@ abstract public class BaseClient implements Client {
     public BaseClient(String name, byte type) {
         this.name = name;
         this.type = type;
-        clientInfo = MessageFactory.createObserverClientInfo(name);
+        switch(type)
+        {
+            case MessageProtocol.TYPE_HUMAN:
+                clientInfo = MessageFactory.createHumanPlayerClientInfo(name);
+                break;
+            case MessageProtocol.TYPE_MACHINE:
+                clientInfo = MessageFactory.createMachinePlayerClientInfo(name);
+                break;
+            case MessageProtocol.TYPE_OBSERVER:
+                clientInfo = MessageFactory.createObserverClientInfo(name);
+                break;
+            default:
+                clientInfo = null;
+        }
     }
 
     public BaseClient(String name) {
