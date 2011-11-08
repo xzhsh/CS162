@@ -7,7 +7,7 @@ import java.io.OutputStream;
 public class GameInfo implements Writable {
     private String name;
 
-    protected GameInfo() {
+    public GameInfo() {
         name = null;
     }
 

@@ -12,7 +12,7 @@ public class StoneColorInfo implements Writable {
         this.color = c;
     }
 
-    protected StoneColorInfo() {
+    public StoneColorInfo() {
         this((byte) -1);
     }
 

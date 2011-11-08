@@ -20,7 +20,7 @@ public class ClientInfo implements Writable {
         this.type = type;
     }
 
-    protected ClientInfo() {
+    public ClientInfo() {
         this("", (byte) -1);
     }
 
