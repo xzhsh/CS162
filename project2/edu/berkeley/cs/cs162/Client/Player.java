@@ -7,6 +7,7 @@ abstract public class Player extends BaseClient {
 
     GoBoard board;
     boolean waitingForGames;
+    boolean sentWFGMessage;
     StoneColor currentColor;
     StoneColor opponentColor;
     String gameName;
@@ -15,6 +16,7 @@ abstract public class Player extends BaseClient {
         super(name, type);
         board = new GoBoard(10);
         waitingForGames = true;
+        sentWFGMessage = false;
         gameName = "";
     }
 

@@ -35,14 +35,21 @@ public class HumanPlayer extends Player {
     private void runExecutionLoop() throws IOException {
         while (true) {
             //...not sure this is actually necessary if handleMessage actually does handle all the messages -jay
-            /*if (waitingForGames) {
+            if (waitingForGames && !sentWFGMessage) {
+                Message reply = connection.sendSyncToServer(MessageFactory.createWaitForGameMessage());
 
+                if (reply.isOK()) {
+                    sentWFGMessage = true;
+                } else {
+                    //terminate? what happens when reply is not okay
+                    break;
+                }
             } else {
-
-            }*/
-
-            handleMessage(connection.readFromServer());
+                handleMessage(connection.readFromServer());
+            }
         }
+
+        //end of program destructor
     }
 
     @Override
@@ -87,13 +94,11 @@ public class HumanPlayer extends Player {
             System.out.println("Game " + gameName + " ended with Black score " + blackPlayerScore + ", White score " + whitePlayerScore + ". WINNER: " + winner + "!");
         }
 
-        //destructors?
+        //game destructors
         waitingForGames = true;
+        sentWFGMessage = false;
 
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
-
-        //i think this is correct -jay
-        connection.sendSyncToServer(MessageFactory.createWaitForGameMessage());
     }
 
     @Override
@@ -116,7 +121,7 @@ public class HumanPlayer extends Player {
             }
 
         } else {
-            if (type == MessageProtocol.MOVE_STONE) {
+            if (type == MessageProtocol.MOVE_PASS) {
                 //what
             } else {
                 try {
