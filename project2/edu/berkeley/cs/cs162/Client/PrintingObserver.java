@@ -29,33 +29,36 @@ public class PrintingObserver extends Observer {
         }
 
         if (observer.connectTo(address, port)) {
-            System.out.println("Printing observer connected to remote server.");
-            try {
 
-                final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                System.out.println("Push any key to join games, or Q to quit.");
-                String input = reader.readLine();
+            System.out.println("PrintingObserver connected to remote server.");
+            while(true){
+                try {
 
-                if(input.equals("Q") || input.equals("q")){
-                    System.out.println("Disconnecting.");
-                    observer.disconnect();
-                    return;
-                }
+                    final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                    System.out.println("Push any key to join games, or Q to quit.");
+                    String input = reader.readLine();
 
-                System.out.println("Joining games...");
-                while(!observer.joinGames()){
-                    System.out.println("Could not connect to any games. Push any key to try again, or Q to quit.");
-                    input = reader.readLine();
                     if(input.equals("Q") || input.equals("q")){
                         System.out.println("Disconnecting.");
+                        observer.disconnect();
                         return;
-                        // TODO send disconnect message to server.
                     }
+
+                    System.out.println("Joining games...");
+                    while(!observer.joinGames()){
+                        System.out.println("Could not connect to any games. Push any key to try again, or Q to quit.");
+                        input = reader.readLine();
+                        if(input.equals("Q") || input.equals("q")){
+                            System.out.println("Disconnecting.");
+                            observer.disconnect();
+                            return;
+                        }
+                    }
+                    observer.runExecutionLoop();
+                } catch (IOException e) {
+                    System.out.println("An error occurred... PrintingObserver " + observer.getName() + " terminating.");
+                    e.printStackTrace();
                 }
-                observer.runExecutionLoop();
-            } catch (IOException e) {
-                System.out.println("An error occurred... PrintingObserver " + observer.getName() + " terminating.");
-                e.printStackTrace();
             }
         }
     }
@@ -83,6 +86,7 @@ public class PrintingObserver extends Observer {
         while (joinedGames > 0) {
             handleMessage(connection.readFromServer());
         }
+        System.out.println("All joined games have ended.");
     }
     
     @Override
