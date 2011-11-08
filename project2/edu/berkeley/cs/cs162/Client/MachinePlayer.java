@@ -1,12 +1,13 @@
 package edu.berkeley.cs.cs162.Client;
 
-import edu.berkeley.cs.cs162.Server.BoardLocation;
-import edu.berkeley.cs.cs162.Server.GoBoard;
-import edu.berkeley.cs.cs162.Server.StoneColor;
-import edu.berkeley.cs.cs162.Writable.*;
-
 import java.io.IOException;
 import java.util.Random;
+
+import edu.berkeley.cs.cs162.Server.BoardLocation;
+import edu.berkeley.cs.cs162.Server.GoBoard;
+import edu.berkeley.cs.cs162.Writable.Location;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
+import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
 public class MachinePlayer extends Player {
 
@@ -45,7 +46,6 @@ public class MachinePlayer extends Player {
         int size = board.getCurrentBoard().getSize();
         BoardLocation loc = new BoardLocation(rng.nextInt(size), rng.nextInt(size));
         int chanceOfPass = 0;
-        //Vector<Location> invalidatedLocations = Rules.getCapturedStones(goBoard.board, getPlayerColor(), loc);
 
         boolean valid = false;
         while (!valid) {
@@ -58,7 +58,6 @@ public class MachinePlayer extends Player {
             }
 
             loc = new BoardLocation(rng.nextInt(size), rng.nextInt(size));
-            //invalidatedLocations = Rules.getCapturedStones(goBoard.board, getPlayerColor(), loc);
 
             try {
                 board.testMove(loc, currentColor);

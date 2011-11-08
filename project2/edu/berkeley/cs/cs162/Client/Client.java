@@ -1,9 +1,6 @@
 package edu.berkeley.cs.cs162.Client;
 
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
-import edu.berkeley.cs.cs162.Writable.Message;
-
-import java.io.IOException;
 
 /**
  * The Client interface is implemented by Players and Observers.

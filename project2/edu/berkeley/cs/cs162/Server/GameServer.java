@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 public class GameServer {
-    public static final int GLOBAL_TIMEOUT_IN_MS = 3000000;
+    public static final int GLOBAL_TIMEOUT_IN_MS = 3000;
     private static final int WAITING_CONNECTION_BUFFER_SIZE = 10;
     /**
      * RNG for this game server.
@@ -111,21 +111,8 @@ public class GameServer {
                 connectionQueue.add(incomingConnection);
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            e.printStackTrace(getLog());
         }
-    }
-
-
-    /**
-     * @return true if no more clients can connect to this server.
-     */
-    public boolean maxNumberOfClientsReached() {
-        boolean limitReached;
-        clientsConnectedLock.readLock();
-        limitReached = clientsConnected < clientLimit;
-        clientsConnectedLock.readUnlock();
-        return limitReached;
     }
 
     /**
@@ -189,10 +176,15 @@ public class GameServer {
 
     private void initializeWorkerForConnection(Socket connection1,
                                                Socket connection2, int SYN_ID) {
-        incrementConnectionCount();
-        logStream.println("Initialized a worker with syn id = " + SYN_ID);
-        Worker worker = new Worker(this, new ClientConnection(connection1, connection2, SYN_ID));
-        worker.start();
+        if (tryIncrementConnectionCount()) 
+        {
+	        logStream.println("Initialized a worker with SYN_ID = " + SYN_ID);
+	        Worker worker = new Worker(this, new ClientConnection(connection1, connection2, SYN_ID));
+	        worker.start();
+        } else {
+        	logStream.println("Maximum number of connections reached. SYN_ID = " + SYN_ID + " rejected.");
+        	
+        }
     }
 
     /**
@@ -215,11 +207,16 @@ public class GameServer {
         clientsConnectedLock.writeUnlock();
     }
 
-    protected void incrementConnectionCount() {
-        clientsConnectedLock.writeLock();
-        clientsConnected++;
-        logStream.println("Client count: " + clientsConnected);
+    protected boolean tryIncrementConnectionCount() {
+        boolean accepted = false;
+    	clientsConnectedLock.writeLock();
+        if (clientsConnected < clientLimit) {
+        	clientsConnected++;
+        	logStream.println("Client count: " + clientsConnected);
+        	accepted = true;
+        }
         clientsConnectedLock.writeUnlock();
+        return accepted;
     }
 
     public PrintStream getLog() {
@@ -258,10 +255,10 @@ public class GameServer {
             server.waitForConnectionsOnPort(Integer.valueOf(args[1]), serverAddr);
         } catch (NumberFormatException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            e.printStackTrace(server.getLog());
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            e.printStackTrace(server.getLog());
         }
     }
 

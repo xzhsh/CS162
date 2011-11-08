@@ -7,10 +7,8 @@ import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
 public abstract class PlayerLogic extends ClientLogic {
     
-	//private static final int HUMAN_PLAYER_TIMEOUT_IN_MS = 30000;
-    //private static final int MACHINE_PLAYER_TIMEOUT_IN_MS = 2000;
-	private static final int HUMAN_PLAYER_TIMEOUT_IN_MS = 30000000;
-    private static final int MACHINE_PLAYER_TIMEOUT_IN_MS = 2000000;
+	private static final int HUMAN_PLAYER_TIMEOUT_IN_MS = 30000;
+    private static final int MACHINE_PLAYER_TIMEOUT_IN_MS = 2000;
 
     public static class HumanPlayerLogic extends PlayerLogic {
 

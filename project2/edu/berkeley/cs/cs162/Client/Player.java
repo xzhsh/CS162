@@ -74,8 +74,6 @@ abstract public class Player extends BaseClient {
                 handleMessage(connection.readFromServer());
             }
         }
-
-        //TODO send async message
     }
 
     protected void handleGameStart(ServerMessages.GameStartMessage m) throws IOException {
@@ -128,11 +126,9 @@ abstract public class Player extends BaseClient {
     }
 
     protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
-        //String gameName = m.getGameInfo().getName();
         String playerName = m.getPlayer().getName();
         byte type = m.getMoveType();
         BoardLocation loc = m.getLocation().makeBoardLocation();
-        //WritableList stonesCaptured = m.getLocationList();
 
         if (playerName.equals(name)) {
             if (type == MessageProtocol.MOVE_PASS) {

@@ -108,7 +108,6 @@ public class ServerConnection {
     public Message sendSyncToServer(Message message) throws IOException {
         message.writeTo(oC2S);
         oC2S.flush();
-        //return ResponseMessages.readReplyFromInput(message, iC2S);
         return MessageFactory.readResponseMessage(iC2S, message);
     }
 
@@ -122,7 +121,6 @@ public class ServerConnection {
     }
 
     public Message readFromServer() throws IOException {
-        //return ServerMessages.readFromInput(iS2C);
         return MessageFactory.readServerMessage(iS2C);
     }
 }
