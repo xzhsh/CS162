@@ -3,7 +3,6 @@ package edu.berkeley.cs.cs162.Server;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import edu.berkeley.cs.cs162.Synchronization.Lock;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
