@@ -49,9 +49,7 @@ public class ClientConnection {
         int C2SackID = Math.min(ackID1, ackID2);
         int S2CackID = Math.max(ackID1, ackID2);
 
-
         try {
-
             C2Sout = new DataOutputStream(C2S.getOutputStream());
             S2Cout = new DataOutputStream(S2C.getOutputStream());
             C2Sin = new DataInputStream(C2S.getInputStream());

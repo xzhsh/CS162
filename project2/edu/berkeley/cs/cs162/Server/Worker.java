@@ -49,7 +49,7 @@ public class Worker extends Thread {
                 Message returnMessage = clientLogic.handleMessage(connection.readFromClient());
                 if (returnMessage != null) {
                     //if it is a synchronous message, write the return message to output.
-                    connection.sendToClient(returnMessage);
+                    connection.sendReplyToClient(returnMessage);
                 }
             }
             connection.close();
@@ -86,6 +86,7 @@ public class Worker extends Thread {
 	
 	        return ((ClientMessages.ConnectMessage) returnMessage).getClientInfo();
 		} catch (IOException e) {
+			System.out.println("Error getting client info:\n" + e);
 			return null;
 		}
     }
