@@ -39,7 +39,7 @@ public class HumanPlayerTest {
 
 		BoardInfo boardInfo = MessageFactory.createBoardInfo(new Board(9));
 		GameInfo gameInfo = MessageFactory.createGameInfo(TEST_GAME_NAME);
-		ClientInfo blackPlayerInfo = MessageFactory.createHumanPlayerClientInfo("BlackPlayer");
+
 		ClientInfo whitePlayerInfo = MessageFactory.createHumanPlayerClientInfo("WhitePlayer");
 		
 		ServerSocket server = new ServerSocket(TEST_PORT);
@@ -54,9 +54,9 @@ public class HumanPlayerTest {
 		ClientConnection connection;
 		{
 			Socket c1 = server.accept();
-			c1.setSoTimeout(3000);
+		
 			Socket c2 = server.accept();
-			c2.setSoTimeout(3000);
+		
 			int syn_id = (new DataInputStream(c1.getInputStream())).readInt();
 			int syn_id2 = (new DataInputStream(c2.getInputStream())).readInt();
 			assertEquals(syn_id,syn_id2);
@@ -80,8 +80,7 @@ public class HumanPlayerTest {
 		assertEquals(waitMessage.getMsgType(), MessageProtocol.OP_TYPE_WAITFORGAME);
 		System.out.println("Wait For Game Worked");
 		connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
-//		ClientMessages.JoinMessage joinMessage = (ClientMessages.JoinMessage) connection.readFromClient();
-//		assertEquals(joinMessage.getGameInfo().getName(), TEST_GAME_NAME);
+
 
 		
 		
@@ -95,7 +94,7 @@ public class HumanPlayerTest {
 		//Get move and stone moved response
 		Message getMoveMsg = MessageFactory.createGetMoveMessage();
 		connection.sendToClient(getMoveMsg);
-//		Message movedMsg = connection.readFromClient();
+
 		System.out.println("Please enter location waka waka waka");
 		Message moved = connection.readReplyFromClient(getMoveMsg);
 	    ResponseMessages.GetMoveStatusOkMessage movedMsg = (ResponseMessages.GetMoveStatusOkMessage) moved;
@@ -113,9 +112,6 @@ public class HumanPlayerTest {
         connection.sendToClient(makeMoveMsg);
         Message makeMoveReply = connection.readReplyFromClient(makeMoveMsg);
         assertTrue(makeMoveReply.isOK());
-//		connection.sendReplyToClient(MessageFactory.createMakeMoveMessage(gameInfo, cInfo, MessageProtocol.MOVE_STONE, bLoc,  boardPieces));
-//		Message okResp = connection.readFromClient();
-//		assertEquals(okResp.getMsgType(), MessageProtocol.OP_STATUS_OK);
 		System.out.println("Make Move Response Worked");
 		
 		
