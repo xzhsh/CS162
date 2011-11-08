@@ -40,7 +40,6 @@ public class ServerConnection {
             throw new RuntimeException("Uninitialized Server Connection");
     }
 
-
     /**
      * Tries to receive a 3-way handshake.
      *
@@ -86,9 +85,18 @@ public class ServerConnection {
         return true;
     }
 
-    public void close() throws IOException {
-        S2C.close();
-        C2S.close();
+    public void close(){
+    	valid = false;
+    	try {
+			S2C.close();
+		} catch (IOException e1) {
+			// connection already closed. let it go.
+		}
+        try {
+			C2S.close();
+		} catch (IOException e) {
+			// connection already closed. let it go.
+		}
     }
     
     public void sendReplyToServer(Message message) throws IOException {
