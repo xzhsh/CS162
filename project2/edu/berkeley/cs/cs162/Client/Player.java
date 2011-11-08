@@ -74,6 +74,8 @@ abstract public class Player extends BaseClient {
                 handleMessage(connection.readFromServer());
             }
         }
+
+        //TODO send async message
     }
 
     protected void handleGameStart(ServerMessages.GameStartMessage m) throws IOException {
