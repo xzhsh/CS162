@@ -102,6 +102,7 @@ public class MachinePlayerTest {
         con.sendToClient(makeMoveMessage);
         Message reply = con.readReplyFromClient(makeMoveMessage);
         assertTrue(reply.isOK());
+
         // GET MOVE OPPONENT TEST
 
 
