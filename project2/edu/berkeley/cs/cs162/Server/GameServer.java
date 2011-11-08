@@ -1,7 +1,6 @@
 package edu.berkeley.cs.cs162.Server;
 
 import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
-import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLockStub;
 import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
 import edu.berkeley.cs.cs162.Writable.Message;
 
@@ -75,9 +74,9 @@ public class GameServer {
         activeGames = new HashMap<String, Game>();
         nameToWorkerMap = new HashMap<String, Worker>();
         //TODO change these to ReaderWriterLock when it's implemented.
-        waitingSocketMapLock = new ReaderWriterLockStub();
-        nameToWorkerMapLock = new ReaderWriterLockStub();
-        clientsConnectedLock = new ReaderWriterLockStub();
+        waitingSocketMapLock = new ReaderWriterLock();
+        nameToWorkerMapLock = new ReaderWriterLock();
+        clientsConnectedLock = new ReaderWriterLock();
         activeGamesLock = new ReaderWriterLock();
         clientsConnected = 0;
         
