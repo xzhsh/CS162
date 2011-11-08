@@ -15,10 +15,20 @@ public class MachinePlayer extends Player {
     }
 
     public static void main(String[] args) {
-        assert args.length == 3 : "Enter arguments in the following format: <host> <port> <playername>";
-        MachinePlayer player = new MachinePlayer(args[2]);
-        String address = args[0];
-        Integer port = Integer.valueOf(args[1]);
+
+        MachinePlayer player;
+        String address;
+        Integer port;
+
+        try{
+            player = new MachinePlayer(args[2]);
+            address = args[0];
+            port = Integer.valueOf(args[1]);
+        }
+        catch (Exception e){
+            System.out.println("Enter arguments in the following format: <host> <port> <playername>");
+            return;
+        }
 
         if (player.connectTo(address, port)) {
             System.out.println("MachinePlayer " + player.getName() + " is connected to the server!");
@@ -28,104 +38,6 @@ public class MachinePlayer extends Player {
                 System.out.println("An error occurred... MachinePlayer " + player.getName() + " terminating.");
             }
         }
-    }
-
-    private void runExecutionLoop() throws IOException {
-        while (true) {
-            //...not sure this is actually necessary if handleMessage actually does handle all the messages -jay
-            /*if (false) {
-
-            } else {
-
-            }*/
-
-            handleMessage(connection.readFromServer());
-        }
-    }
-
-    @Override
-    protected void handleGameStart(ServerMessages.GameStartMessage m) throws IOException {
-        String gameName = m.getGameInfo().getName();
-        String blackPlayerName = m.getBlackClientInfo().getName();
-        String whitePlayerName = m.getWhiteClientInfo().getName();
-
-        this.gameName = gameName;
-        board = m.getBoardInfo().getBoard();
-        waitingForGames = false;
-
-        if (blackPlayerName.equals(name)) {
-            currentColor = StoneColor.BLACK;
-            opponentColor = StoneColor.WHITE;
-        } else if (whitePlayerName.equals(name)) {
-            currentColor = StoneColor.WHITE;
-            opponentColor = StoneColor.BLACK;
-        } else {
-            currentColor = StoneColor.NONE;
-            opponentColor = StoneColor.NONE;
-        }
-
-        System.out.println("Game " + gameName + " starting with Black player " + blackPlayerName + " and White player " + whitePlayerName + ".");
-
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
-    }
-
-    @Override
-    protected void handleGameOver(ServerMessages.GameOverMessage m) throws IOException {
-        String gameName = m.getGameInfo().getName();
-        double blackPlayerScore = m.getBlackScore();
-        double whitePlayerScore = m.getWhiteScore();
-        String winner = m.getWinner().getName();
-        byte reason = m.getReason();
-
-        if (reason != MessageProtocol.GAME_OK) {
-            String errorPlayerName = m.getErrorPlayer().getName();
-            String errorMsg = m.getErrorMessage();
-            System.out.println("Game " + gameName + " ended with an error by " + errorPlayerName + ": " + errorMsg + ". Black score " + blackPlayerScore + ", White score " + whitePlayerScore + ". WINNER: " + winner + "!");
-        } else {
-            System.out.println("Game " + gameName + " ended with Black score " + blackPlayerScore + ", White score " + whitePlayerScore + ". WINNER: " + winner + "!");
-        }
-
-        //destructors?
-        waitingForGames = true;
-
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
-
-        //i think this is correct -jay
-        connection.sendSyncToServer(MessageFactory.createWaitForGameMessage());
-    }
-
-    @Override
-    protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
-        //String gameName = m.getGameInfo().getName();
-        String playerName = m.getPlayer().getName();
-        byte type = m.getMoveType();
-        BoardLocation loc = m.getLocation().makeBoardLocation();
-        //WritableList stonesCaptured = m.getLocationList();
-
-        if (playerName.equals(name)) {
-            if (type == MessageProtocol.MOVE_PASS) {
-                //uhh
-            } else {
-                try {
-                    board.makeMove(loc, currentColor);
-                } catch (GoBoard.IllegalMoveException e) {
-
-                }
-
-            }
-        } else {
-            if (type == MessageProtocol.MOVE_PASS) {
-                //uhh
-            } else {
-                try {
-                    board.makeMove(loc, opponentColor);
-                } catch (GoBoard.IllegalMoveException e) {
-
-                }
-            }
-        }
-
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     private Location decideMove() {
