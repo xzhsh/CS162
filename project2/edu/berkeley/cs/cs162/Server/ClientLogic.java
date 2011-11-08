@@ -58,7 +58,8 @@ public abstract class ClientLogic {
         }
         throw new AssertionError("Unimplemented Method");
     }
-    private Message handleWaitForGame() {
+    
+    public Message handleWaitForGame() {
 		return MessageFactory.createErrorRejectedMessage();
 	}
 

@@ -1,14 +1,7 @@
 package edu.berkeley.cs.cs162.Test;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
-
-import edu.berkeley.cs.cs162.Client.MachinePlayer;
-import edu.berkeley.cs.cs162.Server.Board;
-import edu.berkeley.cs.cs162.Server.BoardLocation;
-import edu.berkeley.cs.cs162.Server.ClientConnection;
-import edu.berkeley.cs.cs162.Writable.*;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -16,6 +9,21 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
 import java.util.Vector;
+
+import org.junit.Test;
+
+import edu.berkeley.cs.cs162.Client.MachinePlayer;
+import edu.berkeley.cs.cs162.Server.Board;
+import edu.berkeley.cs.cs162.Server.BoardLocation;
+import edu.berkeley.cs.cs162.Server.ClientConnection;
+import edu.berkeley.cs.cs162.Writable.BoardInfo;
+import edu.berkeley.cs.cs162.Writable.ClientInfo;
+import edu.berkeley.cs.cs162.Writable.ClientMessages;
+import edu.berkeley.cs.cs162.Writable.GameInfo;
+import edu.berkeley.cs.cs162.Writable.Message;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
+import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+import edu.berkeley.cs.cs162.Writable.ResponseMessages;
 
 /**
  * Created by IntelliJ IDEA.
@@ -73,6 +81,7 @@ public class MachinePlayerTest {
         // GAME START TEST
         Message gameStartMessage = MessageFactory.createGameStartMessage(gameInfo, boardInfo, blackPlayerInfo, whitePlayerInfo);
         con.sendToClient(gameStartMessage);
+
         assertTrue(con.readReplyFromClient(gameStartMessage).isOK());
 
         // GET MOVE TEST
@@ -91,9 +100,8 @@ public class MachinePlayerTest {
         Vector<BoardLocation> captured = new Vector<BoardLocation>();
         Message makeMoveMessage = MessageFactory.createMakeMoveMessage(gameInfo, blackPlayerInfo, moveReply.getMoveType(), moveReply.getLocation().makeBoardLocation(), captured);
         con.sendToClient(makeMoveMessage);
-
-        assertTrue(con.readReplyFromClient(makeMoveMessage).isOK());
-
+        Message reply = con.readReplyFromClient(makeMoveMessage);
+        assertTrue(reply.isOK());
         // GET MOVE OPPONENT TEST
 
 
@@ -103,7 +111,7 @@ public class MachinePlayerTest {
         // GAME OVER TEST
         Message gameOverMessage = MessageFactory.createGameOverMessage(gameInfo, 1.0, 0.5, blackPlayerInfo);
         con.sendToClient(gameOverMessage);
-
+        
         assertTrue(con.readReplyFromClient(gameOverMessage).isOK());
 
         // WAITING FOR GAMES TEST (AFTER OTHER GAME)

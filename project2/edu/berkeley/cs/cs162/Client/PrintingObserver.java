@@ -42,11 +42,14 @@ public class PrintingObserver extends Observer {
         Message listResponse = connection.sendSyncToServer(MessageFactory.createListGamesMessage());
         if (listResponse.isOK()) {
             WritableList gameList = ((ResponseMessages.ListGamesStatusOkMessage) listResponse).getGameList();
+            
             for (Writable game : gameList) {
                 GameInfo g = (GameInfo) game;
+            	System.out.println("Found game" + g.getName());
                 Message joinResponse = connection.sendSyncToServer(MessageFactory.createJoinMessage(g));
                 if (joinResponse.isOK()) {
-                    joinedGames.add(g);
+                	System.out.println("Joined game" + g.getName());
+                	joinedGames.add(g);
                 }
             }
         }
