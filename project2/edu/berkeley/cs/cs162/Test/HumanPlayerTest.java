@@ -32,6 +32,7 @@ import edu.berkeley.cs.cs162.Writable.ResponseMessages;
  */
 
 public class HumanPlayerTest {
+	@Test
 	public void test() throws IOException {
 		final int TEST_PORT = 1234;
 		final String TEST_NAME = "TestHuman";
