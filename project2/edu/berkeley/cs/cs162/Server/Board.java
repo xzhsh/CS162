@@ -152,7 +152,6 @@ public class Board {
                 sb.append(representation);
                 sb.append(' ');
             }
-
             sb.append('\n');
         }
 
