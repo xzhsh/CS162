@@ -32,11 +32,12 @@ public class MachinePlayer extends Player {
 
     private void runExecutionLoop() throws IOException {
         while (true) {
-            if (/*waitingForGames for running purposes*/false) {
+            //...not sure this is actually necessary if handleMessage actually does handle all the messages -jay
+            /*if (false) {
 
             } else {
 
-            }
+            }*/
 
             handleMessage(connection.readFromServer());
         }
@@ -88,6 +89,9 @@ public class MachinePlayer extends Player {
         waitingForGames = true;
 
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+
+        //i think this is correct -jay
+        connection.sendSyncToServer(MessageFactory.createWaitForGameMessage());
     }
 
     @Override
@@ -105,7 +109,7 @@ public class MachinePlayer extends Player {
                 try {
                     board.makeMove(loc, currentColor);
                 } catch (GoBoard.IllegalMoveException e) {
-                    //uhh
+
                 }
 
             }
@@ -116,7 +120,7 @@ public class MachinePlayer extends Player {
                 try {
                     board.makeMove(loc, opponentColor);
                 } catch (GoBoard.IllegalMoveException e) {
-                    //uhh
+
                 }
             }
         }

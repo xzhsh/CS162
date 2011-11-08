@@ -26,22 +26,6 @@ abstract public class Player extends BaseClient {
         this("");
     }
 
-    /*public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public byte getType() {
-        return this.type;
-    }
-
-    public void setType(byte type) {
-        this.type = type;
-    }*/
-
     public void setBoard(GoBoard b) {
         board = b;
     }
