@@ -102,7 +102,6 @@ public class MessageFactory {
         // Create the correct type of Message container, or return an OpCodeOnlyMessage.
         switch (opCode) {
             case MessageProtocol.OP_ERROR_INVALID_GAME:
-            case MessageProtocol.OP_ERROR_INVALID_USER:
             case MessageProtocol.OP_ERROR_REJECTED:
             case MessageProtocol.OP_ERROR_UNCONNECTED:
                 return new OpCodeOnlyMessage(opCode);
@@ -242,12 +241,6 @@ public class MessageFactory {
     public static Message createErrorInvalidGameMessage(){
         return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_INVALID_GAME);
     }
-
-    // Error (Invalid User)
-    public static Message createErrorInvalidUserMessage(){
-        return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_INVALID_USER);
-    }
-
 
     /**
      * Client Info.

@@ -66,7 +66,7 @@ class WorkerSlave extends Thread {
     public WorkerSlave(ClientConnection connection, Worker master) {
         this.connection = connection;
         this.master = master;
-        setMessageQueue(new ThreadSafeQueue<Runnable>(WORKER_MESSAGE_QUEUE_SIZE));
+        messageQueue = new ThreadSafeQueue<Runnable>(WORKER_MESSAGE_QUEUE_SIZE);
         done = false;
     }
     
@@ -151,9 +151,5 @@ class WorkerSlave extends Thread {
 
 	public ThreadSafeQueue<Runnable> getMessageQueue() {
 		return messageQueue;
-	}
-
-	public void setMessageQueue(ThreadSafeQueue<Runnable> messageQueue) {
-		this.messageQueue = messageQueue;
 	}
 }

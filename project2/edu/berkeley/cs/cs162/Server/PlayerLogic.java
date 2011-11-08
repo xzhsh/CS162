@@ -84,7 +84,7 @@ public abstract class PlayerLogic extends ClientLogic {
     
     public void beginGame(Game game) {
 		assert state == PlayerState.PLAYING : "Tried to start game when game was not active";
-		getWorkerSlave().handleGameStart(game);
+		((PlayerWorkerSlave)getWorkerSlave()).handleStartNewGame(game);
     }
     
     public void cleanup()
@@ -95,7 +95,13 @@ public abstract class PlayerLogic extends ClientLogic {
 	public abstract ClientInfo makeClientInfo();
 
 	public long getTimeout() {
-		// TODO Auto-generated method stub
 		return playerTimeoutInMs;
+	}
+
+	public void terminateGame() {
+		stateLock.acquire();
+    	assert state == PlayerState.PLAYING : "Terminated game when not playing";
+    	state = PlayerState.WAITING;
+    	stateLock.release();
 	}
 }

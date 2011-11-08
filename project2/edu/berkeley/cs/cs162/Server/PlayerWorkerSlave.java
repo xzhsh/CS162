@@ -2,7 +2,6 @@ package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import edu.berkeley.cs.cs162.Writable.Message;
@@ -22,14 +21,17 @@ public class PlayerWorkerSlave extends WorkerSlave{
 	}
 	
 	protected void closeAndCleanup() {
-		if (game != null) {
-			if (game.getBlackPlayer() == getMaster())
-			{
-				//the black player is always in charge of initializing and cleaning up
-				getMaster().getServer().removeGame(game);
-			}
-		}
+		terminateGame(game);
 		super.closeAndCleanup();
+	}
+	
+	protected void terminateGame(Game game) {
+		if (game != null) {
+			game.broadcastTerminate();
+		}
+		game = null;
+
+		((PlayerLogic)getMaster().getLogic()).terminateGame();
 	}
 
 	/**
@@ -38,10 +40,8 @@ public class PlayerWorkerSlave extends WorkerSlave{
      * The worker should save the game if needed.
      * 
      * @param game
-	 * @throws TimeoutException 
-	 * @throws IOException 
      */
-    public void startNewGame(final Game game) throws IOException, TimeoutException
+    public void handleStartNewGame(final Game game)
     {
     	getMessageQueue().add(new Runnable() {
 			@Override
@@ -52,7 +52,17 @@ public class PlayerWorkerSlave extends WorkerSlave{
     	});
     }
     
-
+    public void handleNextMove(final Game game)
+    {
+    	getMessageQueue().add(new Runnable() {
+			@Override
+			public void run() {
+		    	doGetMove(game);
+			}
+    	});
+    }
+    
+    
     /**
      * Gets a move from the player
      * 
@@ -61,7 +71,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
      * @throws IOException if the connection dies
      * @throws TimeoutException if the client takes too long
      */
-    public void doGetMove(Game game) 
+    private void doGetMove(Game game) 
     {
     	Message getMoveMsg = MessageFactory.createGetMoveMessage();
     	
@@ -72,15 +82,19 @@ public class PlayerWorkerSlave extends WorkerSlave{
 			if (moveMsg.getMoveType() == MessageProtocol.MOVE_PASS)
 			{
 				game.makePassMove();
-			} 
-			else 
+			}
+			else if (moveMsg.getMoveType() == MessageProtocol.MOVE_FORFEIT)
 			{
-				game.makeMove(moveMsg.getLocation().makeBoardLocation());
+				game.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getName()+ " timed out.", MessageProtocol.PLAYER_FORFEIT));
+			}
+			else if (moveMsg.getMoveType() == MessageProtocol.MOVE_STONE)
+			{
+				game.doMakeMove(moveMsg.getLocation().makeBoardLocation());
 			}
 		}
 		else 
 		{
-			game.broadcastGameover(MessageProtocol.PLAYER_TIMEOUT);
+			game.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getName()+ " timed out.", MessageProtocol.PLAYER_FORFEIT));
 		}
     }
     
@@ -94,7 +108,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
     public void handleGameOver(Game game, double blackScore, double whiteScore, Worker winner)
     {
     	final Message message = MessageFactory.createGameOverMessage(game.makeGameInfo(), blackScore, whiteScore, winner.makeClientInfo());
-    	game.sendMessageToAllObserversAndPlayers(message);
+    	//game.broadcastMessage(message);
     	this.game = null;
     }
     

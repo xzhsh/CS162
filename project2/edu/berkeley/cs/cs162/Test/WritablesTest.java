@@ -1,15 +1,24 @@
 package edu.berkeley.cs.cs162.Test;
 
-import edu.berkeley.cs.cs162.Server.Board;
-import edu.berkeley.cs.cs162.Writable.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import org.junit.Test;
+
+import edu.berkeley.cs.cs162.Writable.ClientInfo;
+import edu.berkeley.cs.cs162.Writable.GameInfo;
+import edu.berkeley.cs.cs162.Writable.Location;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
+import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+import edu.berkeley.cs.cs162.Writable.StoneColorInfo;
+import edu.berkeley.cs.cs162.Writable.WritableByte;
+import edu.berkeley.cs.cs162.Writable.WritableDouble;
+import edu.berkeley.cs.cs162.Writable.WritableString;
 
 
 public class WritablesTest {
