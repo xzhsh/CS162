@@ -7,7 +7,8 @@ import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import java.util.ArrayList;
 
 abstract public class Observer extends BaseClient {
-    ArrayList<GameInfo> joinedGames;
+
+    protected int joinedGames;
 
     public Observer() {
         this("");
@@ -19,7 +20,7 @@ abstract public class Observer extends BaseClient {
 
     public Observer(String name, byte type) {
     	super(name,type);
-        joinedGames = new ArrayList<GameInfo>();
+        joinedGames = 0;
     }
 
    /*public void setName(String name) {

@@ -112,6 +112,11 @@ public class ServerConnection {
         return MessageFactory.readResponseMessage(iC2S, message);
     }
 
+    public void sendDisconnectToServer() throws IOException {
+        MessageFactory.createDisconnectMessage().writeTo(oC2S);
+        oC2S.flush();
+    }
+
     public void readFromServer(Message messageContainer) throws IOException {
         messageContainer.readFrom(iS2C);
     }

@@ -104,4 +104,8 @@ abstract public class BaseClient implements Client {
     protected void handleGetMove() throws IOException {
         connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
+
+    protected void disconnect() throws IOException {
+        connection.sendDisconnectToServer();
+    }
 }
