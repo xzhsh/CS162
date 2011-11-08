@@ -34,7 +34,7 @@ import edu.berkeley.cs.cs162.Writable.ResponseMessages;
 public class HumanPlayerTest {
 	@Test
 	public void test() throws IOException {
-		final int TEST_PORT = 1234;
+		final int TEST_PORT = 1235;
 		final String TEST_NAME = "TestHuman";
 		final String TEST_GAME_NAME = "TestGame";
 
@@ -110,9 +110,13 @@ public class HumanPlayerTest {
 		//Make move and response	
 		Vector<BoardLocation> boardPieces = new Vector<BoardLocation>();
 		BoardLocation bLoc = loc.makeBoardLocation();
-		connection.sendReplyToClient(MessageFactory.createMakeMoveMessage(gameInfo, cInfo, MessageProtocol.MOVE_STONE, bLoc,  boardPieces));
-		Message okResp = connection.readFromClient();
-		assertEquals(okResp.getMsgType(), MessageProtocol.OP_STATUS_OK);
+		Message makeMoveMsg = MessageFactory.createMakeMoveMessage(gameInfo, cInfo, movedMsg.getMoveType(), bLoc, boardPieces);
+        connection.sendToClient(makeMoveMsg);
+        Message makeMoveReply = connection.readReplyFromClient(makeMoveMsg);
+        assertTrue(makeMoveReply.isOK());
+//		connection.sendReplyToClient(MessageFactory.createMakeMoveMessage(gameInfo, cInfo, MessageProtocol.MOVE_STONE, bLoc,  boardPieces));
+//		Message okResp = connection.readFromClient();
+//		assertEquals(okResp.getMsgType(), MessageProtocol.OP_STATUS_OK);
 		System.out.println("Make Move Response Worked");
 		
 		
