@@ -89,7 +89,7 @@ public abstract class PlayerLogic extends ClientLogic {
     
     public void cleanup()
     {
-    	state = PlayerState.DISCONNECTED;
+    	disconnectState();
     }
     
 	public abstract ClientInfo makeClientInfo();
@@ -103,5 +103,9 @@ public abstract class PlayerLogic extends ClientLogic {
     	assert state == PlayerState.PLAYING : "Terminated game when not playing";
     	state = PlayerState.WAITING;
     	stateLock.release();
+	}
+
+	public void disconnectState() {
+		state = PlayerState.DISCONNECTED;
 	}
 }

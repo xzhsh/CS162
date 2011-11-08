@@ -3,6 +3,7 @@ package edu.berkeley.cs.cs162.Server;
 import edu.berkeley.cs.cs162.Writable.*;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 public class Worker extends Thread {
     private WorkerSlave slave;
@@ -52,9 +53,16 @@ public class Worker extends Thread {
                 }
             }
             connection.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+        }
+        catch (SocketTimeoutException e)
+        {
+            server.getLog().println("Connection timed out.");
+            e.printStackTrace();
+            closeAndCleanup();
+        }
+        catch (IOException e) {
             server.getLog().println("Connection closed unexpectedly.");
+            e.printStackTrace();
             closeAndCleanup();
         }
     }

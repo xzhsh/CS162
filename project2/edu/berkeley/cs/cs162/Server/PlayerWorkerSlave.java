@@ -19,12 +19,21 @@ public class PlayerWorkerSlave extends WorkerSlave{
 		this.moveTimeout = moveTimeout;
 	}
 	
+	/**
+	 * Should only be called from the handleTerminate function. This assumes that 
+	 */
+	@Override
 	protected void closeAndCleanup() {
-		terminateGame(game);
+		super.closeAndCleanup();
+		if (game != null) {
+			game.broadcastTerminate();
+		}
+		game = null;
+		((PlayerLogic)getMaster().getLogic()).disconnectState();
 		super.closeAndCleanup();
 	}
 	
-	protected void terminateGame(Game game) {
+	protected void terminateGame() {
 		if (game != null) {
 			game.broadcastTerminate();
 		}

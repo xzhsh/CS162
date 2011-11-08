@@ -49,9 +49,9 @@ public class PrintingObserverTest {
 		ClientConnection connection;
 		{
 			Socket c1 = server.accept();
-			//c1.setSoTimeout(3000);
+			c1.setSoTimeout(3000);
 			Socket c2 = server.accept();
-			//c2.setSoTimeout(3000);
+			c2.setSoTimeout(3000);
 			int syn_id = (new DataInputStream(c1.getInputStream())).readInt();
 			int syn_id2 = (new DataInputStream(c2.getInputStream())).readInt();
 			assertEquals(syn_id,syn_id2);

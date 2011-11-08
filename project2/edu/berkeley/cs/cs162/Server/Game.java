@@ -93,14 +93,15 @@ public class Game {
 	}
 
 	public void broadcastStartMessage() {
+		Message message = MessageFactory.createGameStartMessage(this);
 		observerLock.readLock();
 		for (Worker o : observerList)
 		{
-			o.getSlave().handleGameStart(this);
+			o.handleSendMessageToClient(message);
 		}
 		observerLock.readUnlock();
-		blackPlayer.getSlave().handleGameStart(this);
-		whitePlayer.getSlave().handleGameStart(this);
+		blackPlayer.handleSendMessageToClient(message);
+		whitePlayer.handleSendMessageToClient(message);
 	}
 
 	public void makePassMove() {
@@ -178,8 +179,8 @@ public class Game {
 		//terminates the game for the players.
 		//nothing needs to be done for observers because they hold no state.
 		
-		((PlayerWorkerSlave)blackPlayer.getSlave()).terminateGame(this);
-		((PlayerWorkerSlave)whitePlayer.getSlave()).terminateGame(this);
+		((PlayerWorkerSlave)blackPlayer.getSlave()).terminateGame();
+		((PlayerWorkerSlave)whitePlayer.getSlave()).terminateGame();
 		observerLock.writeLock();
 		Iterator<Worker> i = observerList.iterator();
 		while (i.hasNext())

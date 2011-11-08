@@ -27,7 +27,6 @@ public class ThreadSafeQueue<E> {
 	Semaphore slotsFull;
 	
     public ThreadSafeQueue(int maxNumElements) {
-    	if (!active) {return;}
     	queue = new ArrayDeque<E>(maxNumElements);
     	maxSize = 0;
     	slotsEmpty = new Semaphore(maxNumElements);

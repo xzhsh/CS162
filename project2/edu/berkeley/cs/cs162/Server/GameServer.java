@@ -80,7 +80,7 @@ public class GameServer {
         clientsConnectedLock = new ReaderWriterLockStub();
         activeGamesLock = new ReaderWriterLock();
         clientsConnected = 0;
-
+        
         for (int i = 0; i < handshakeThreadPoolSize; i++) {
             //NOTE These worker threads will never be cleaned up.
             //However, since this is supposed to either run forever or is terminated by the process
@@ -104,7 +104,6 @@ public class GameServer {
     public void waitForConnectionsOnPort(int portNumber, InetAddress localIP) {
         try {
             ServerSocket server = new ServerSocket(portNumber, 50, localIP);
-
             while (true) {
                 Socket incomingConnection = server.accept();
                 incomingConnection.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
@@ -242,9 +241,20 @@ public class GameServer {
     }
 
     public static void main(String args[]) {
-        GameServer server = new GameServer(100, 5, System.out);
+        if (args.length != 2) 
+        {
+        	System.out.println("Not enough arguments!\n\tjava GameServer <port number> <ip address>");
+        	return;
+        }
+    	GameServer server = new GameServer(100, 5, System.out);
+        
         try {
-            server.waitForConnectionsOnPort(Integer.valueOf(args[1]), InetAddress.getByName(args[0]));
+        	InetAddress serverAddr = InetAddress.getByName(args[0]) ;
+        	if (serverAddr == null) {
+        		System.out.println("Invalid ip address given: " + args[0]);
+        		return;
+        	}
+            server.waitForConnectionsOnPort(Integer.valueOf(args[1]), serverAddr);
         } catch (NumberFormatException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
