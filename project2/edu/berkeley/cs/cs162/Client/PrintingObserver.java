@@ -11,10 +11,20 @@ public class PrintingObserver extends Observer {
     }
 
     public static void main(String[] args) {
-        assert args.length == 3 : "Enter arguments in the following format: <host> <port> <observername>";
-        PrintingObserver observer = new PrintingObserver(args[2]);
-        String address = args[0];
-        Integer port = Integer.valueOf(args[1]);
+
+        PrintingObserver observer;
+        String address;
+        Integer port;
+
+        try {
+            observer = new PrintingObserver(args[2]);
+            address = args[0];
+            port = Integer.valueOf(args[1]);
+        }
+        catch (Exception e) {
+            System.out.println("Enter arguments in the following format: <host> <port> <observername>");
+            return;
+        }
 
         if (observer.connectTo(address, port)) {
             System.out.println("Printing observer connected, yo.");

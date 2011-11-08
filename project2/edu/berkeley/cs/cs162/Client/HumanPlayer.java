@@ -16,10 +16,20 @@ public class HumanPlayer extends Player {
     }
 
     public static void main(String[] args) {
-        assert args.length == 3 : "Enter arguments in the following format: <host> <port> <playername>";
-        HumanPlayer player = new HumanPlayer(args[2]);
-        String address = args[0];
-        Integer port = Integer.valueOf(args[1]);
+
+        HumanPlayer player;
+        String address;
+        Integer port;
+
+        try{
+            player = new HumanPlayer(args[2]);
+            address = args[0];
+            port = Integer.valueOf(args[1]);
+        }
+        catch (Exception e){
+            System.out.println("Enter arguments in the following format: <host> <port> <playername>");
+            return;
+        }
 
         if (player.connectTo(address, port)) {
             System.out.println("HumanPlayer " + player.getName() + " is connected to the server!");
