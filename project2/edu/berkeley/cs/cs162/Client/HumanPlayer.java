@@ -77,7 +77,7 @@ public class HumanPlayer extends Player {
             //send message to server about new move
         }*/
         //send a message to the server with byte moveType and Location loc
-
+    	System.out.println("Your move:\n");
         byte moveType;
         Location loc;
 
@@ -93,20 +93,26 @@ public class HumanPlayer extends Player {
 	            moveType = MessageProtocol.MOVE_STONE;
 	
 	            String[] coordinates = input.split(" ");
-	            loc = MessageFactory.createLocationInfo(Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1]));
-	            try
+	            if (coordinates.length == 2 )
 	            {
-	            	board.testMove(loc.makeBoardLocation(), currentColor);
-	            }
-	            catch (GoBoard.IllegalMoveException e)
-	            {
-	            	System.out.println(e + "\nAre you sure you wish to procede? ('y' to continue)\n");
-	            	if (reader.readLine().equals("y"))
-	            	{
-	            		break;
-	            	}
+		            loc = MessageFactory.createLocationInfo(Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1]));
+		            try
+		            {
+		            	board.testMove(loc.makeBoardLocation(), currentColor);
+		            	break;
+		            }
+		            catch (GoBoard.IllegalMoveException e)
+		            {
+		            	System.out.println(e + "\nAre you sure you wish to procede? ('y' to continue)\n");
+		            	if (reader.readLine().equals("y"))
+		            	{
+		            		break;
+		            	}
+		            }
 	            }
 	        }
+	        System.out.println ("Unsupported Message, try again");
+	        input = reader.readLine();
         }
         
         Message m = MessageFactory.createGetMoveStatusOkMessage(moveType, loc);

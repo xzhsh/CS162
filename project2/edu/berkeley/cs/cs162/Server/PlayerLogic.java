@@ -6,27 +6,30 @@ import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
 public abstract class PlayerLogic extends ClientLogic {
-    private static final long HUMAN_PLAYER_TIMEOUT_IN_MS = 30000L;
-    private static final long MACHINE_PLAYER_TIMEOUT_IN_MS = 2000;
+    
+	//private static final int HUMAN_PLAYER_TIMEOUT_IN_MS = 30000;
+    //private static final int MACHINE_PLAYER_TIMEOUT_IN_MS = 2000;
+	private static final int HUMAN_PLAYER_TIMEOUT_IN_MS = 30000000;
+    private static final int MACHINE_PLAYER_TIMEOUT_IN_MS = 2000000;
 
     public static class HumanPlayerLogic extends PlayerLogic {
 
-        public HumanPlayerLogic(Worker worker, WorkerSlave slave) {
-            super(worker, slave, HUMAN_PLAYER_TIMEOUT_IN_MS);
+        public HumanPlayerLogic(Worker worker) {
+            super(worker, HUMAN_PLAYER_TIMEOUT_IN_MS);
         }
 
         public ClientInfo makeClientInfo() {
-            return MessageFactory.createHumanPlayerClientInfo(getWorker().getName());
+            return MessageFactory.createHumanPlayerClientInfo(getWorker().getClientName());
         }
     }
 
     public static class MachinePlayerLogic extends PlayerLogic {
-        public MachinePlayerLogic(Worker worker, WorkerSlave slave) {
-            super(worker, slave, MACHINE_PLAYER_TIMEOUT_IN_MS);
+        public MachinePlayerLogic(Worker worker) {
+            super(worker, MACHINE_PLAYER_TIMEOUT_IN_MS);
         }
 
         public ClientInfo makeClientInfo() {
-            return MessageFactory.createMachinePlayerClientInfo(getWorker().getName());
+            return MessageFactory.createMachinePlayerClientInfo(getWorker().getClientName());
         }
     }
 
@@ -42,9 +45,9 @@ public abstract class PlayerLogic extends ClientLogic {
     
     private PlayerState state;
     private Lock stateLock;
-    private long playerTimeoutInMs;
-    public PlayerLogic(Worker worker, WorkerSlave slave, long playerTimeoutInMs) {
-        super(worker, slave);
+    private int playerTimeoutInMs;
+    public PlayerLogic(Worker worker, int playerTimeoutInMs) {
+        super(worker);
         state = PlayerState.CONNECTED;
         stateLock = new Lock();
         this.playerTimeoutInMs = playerTimeoutInMs;
@@ -94,18 +97,25 @@ public abstract class PlayerLogic extends ClientLogic {
     
 	public abstract ClientInfo makeClientInfo();
 
-	public long getTimeout() {
+	public int getTimeout() {
 		return playerTimeoutInMs;
 	}
 
 	public void terminateGame() {
 		stateLock.acquire();
-    	assert state == PlayerState.PLAYING : "Terminated game when not playing";
-    	state = PlayerState.WAITING;
+    	if (state != PlayerState.DISCONNECTED)
+    	{
+        	assert state == PlayerState.PLAYING : "Terminated game when not playing";
+    		state = PlayerState.WAITING;
+    	}
     	stateLock.release();
 	}
 
 	public void disconnectState() {
 		state = PlayerState.DISCONNECTED;
+	}
+	
+	public WorkerSlave createSlaveThread(ClientConnection connection) {
+		return new PlayerWorkerSlave(connection, getWorker(), getTimeout());
 	}
 }

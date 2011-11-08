@@ -30,7 +30,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
 		}
 		game = null;
 		((PlayerLogic)getMaster().getLogic()).disconnectState();
-		super.closeAndCleanup();
+		System.out.println("PlayerWorker cleaned up, " + getMaster().getServer().getNumberOfActiveGames() + " Games active");
 	}
 	
 	protected void terminateGame() {
@@ -50,10 +50,10 @@ public class PlayerWorkerSlave extends WorkerSlave{
      */
     public void handleStartNewGame(final Game game)
     {
+    	game.broadcastStartMessage();
     	getMessageQueue().add(new Runnable() {
 			@Override
 			public void run() {
-		    	game.broadcastStartMessage();
 		    	doGetMove(game);
 			}
     	});
@@ -92,7 +92,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
 			}
 			else if (moveMsg.getMoveType() == MessageProtocol.MOVE_FORFEIT)
 			{
-				game.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getName()+ " timed out.", MessageProtocol.PLAYER_FORFEIT));
+				game.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getClientName()+ " timed out.", MessageProtocol.PLAYER_FORFEIT));
 			}
 			else if (moveMsg.getMoveType() == MessageProtocol.MOVE_STONE)
 			{
@@ -101,7 +101,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
 		}
 		else 
 		{
-			game.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getName()+ " timed out.", MessageProtocol.PLAYER_FORFEIT));
+			game.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getClientName()+ " timed out.", MessageProtocol.PLAYER_FORFEIT));
 		}
     }
 }

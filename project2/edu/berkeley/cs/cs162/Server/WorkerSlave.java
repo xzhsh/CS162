@@ -100,6 +100,7 @@ class WorkerSlave extends Thread {
 	protected void closeAndCleanup() {
 		getMessageQueue().clear();
 		connection.close();
+		System.out.println("Worker cleaned up");
 	}
 
 	public ThreadSafeQueue<Runnable> getMessageQueue() {

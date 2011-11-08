@@ -1,7 +1,7 @@
 package edu.berkeley.cs.cs162.Server;
 
 /**
- * Worker slave in charge of observers. Has some special logic for ending games.
+ * Worker slave in charge of observers.
  * @author xshi
  *
  */
