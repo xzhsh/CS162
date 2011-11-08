@@ -1,18 +1,23 @@
 package edu.berkeley.cs.cs162.Client;
 
-import edu.berkeley.cs.cs162.Server.BoardLocation;
-import edu.berkeley.cs.cs162.Server.GoBoard;
-import edu.berkeley.cs.cs162.Server.StoneColor;
-import edu.berkeley.cs.cs162.Writable.*;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import edu.berkeley.cs.cs162.Server.GoBoard;
+import edu.berkeley.cs.cs162.Writable.Location;
+import edu.berkeley.cs.cs162.Writable.Message;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
+import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+import edu.berkeley.cs.cs162.Writable.ServerMessages;
+
 public class HumanPlayer extends Player {
 
+    final BufferedReader reader;
+    
     public HumanPlayer(String name) {
         super(name, MessageProtocol.TYPE_HUMAN);
+        reader = new BufferedReader(new InputStreamReader(System.in));
     }
 
     public static void main(String[] args) {
@@ -48,7 +53,6 @@ public class HumanPlayer extends Player {
 //    	ServerMessages.MakeMoveMessage moveMsg = (ServerMessages.MakeMoveMessage) m;
 //    	GameInfo gInfo  = moveMsg.getGameInfo();
 
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         //doesn't account for time?
         /*String humanInput = reader.readLine();
@@ -77,28 +81,42 @@ public class HumanPlayer extends Player {
         byte moveType;
         Location loc;
 
-        long startTime = System.currentTimeMillis();
-
-        while (System.currentTimeMillis() - startTime >= 20000) {
-            if (reader.ready()) {
-                break;
-            }
-        }
-
         String input = reader.readLine();
-
-        if (input.equals("pass")) {
-            moveType = MessageProtocol.MOVE_PASS;
-            loc = MessageFactory.createLocationInfo(0, 0);
-        } else {
-            moveType = MessageProtocol.MOVE_STONE;
-
-            String[] coordinates = input.split(" ");
-            loc = MessageFactory.createLocationInfo(Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1]));
+        
+        while (true)
+        {
+	        if (input.equals("pass")) {
+	            moveType = MessageProtocol.MOVE_PASS;
+	            loc = MessageFactory.createLocationInfo(0, 0);
+	            break;
+	        } else {
+	            moveType = MessageProtocol.MOVE_STONE;
+	
+	            String[] coordinates = input.split(" ");
+	            loc = MessageFactory.createLocationInfo(Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1]));
+	            try
+	            {
+	            	board.testMove(loc.makeBoardLocation(), currentColor);
+	            }
+	            catch (GoBoard.IllegalMoveException e)
+	            {
+	            	System.out.println(e + "\nAre you sure you wish to procede? ('y' to continue)\n");
+	            	if (reader.readLine().equals("y"))
+	            	{
+	            		break;
+	            	}
+	            }
+	        }
         }
-
+        
         Message m = MessageFactory.createGetMoveStatusOkMessage(moveType, loc);
 
         connection.sendReplyToServer(m);
+    }
+    
+    @Override
+    protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
+    	super.handleMakeMove(m);
+    	System.out.println(board.getCurrentBoard().toString());
     }
 }

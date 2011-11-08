@@ -49,7 +49,7 @@ public abstract class PlayerLogic extends ClientLogic {
         stateLock = new Lock();
         this.playerTimeoutInMs = playerTimeoutInMs;
     }
-
+    @Override
 	public Message handleWaitForGame() {
 		stateLock.acquire();
 		if (state == PlayerState.CONNECTED) {

@@ -73,28 +73,18 @@ public class MachinePlayer extends Player {
 
     @Override
     protected void handleGetMove() throws IOException {
-        long startTime = System.currentTimeMillis();
-        int moveTime = 2000;
 
         byte moveCode;
 
-        while (true) {
+        Location loc = decideMove();
 
-            //not entirely sure this times out correctly
-            if (System.currentTimeMillis() - startTime >= moveTime) {
-                return;
-            }
-
-            Location loc = decideMove();
-
-            if (loc == null) {
-                moveCode = MessageProtocol.MOVE_PASS;
-                loc = MessageFactory.createLocationInfo(0, 0);
-            } else {
-                moveCode = MessageProtocol.MOVE_STONE;
-            }
-
-            connection.sendReplyToServer(MessageFactory.createGetMoveStatusOkMessage(moveCode, loc));
+        if (loc == null) {
+            moveCode = MessageProtocol.MOVE_PASS;
+            loc = MessageFactory.createLocationInfo(0, 0);
+        } else {
+            moveCode = MessageProtocol.MOVE_STONE;
         }
+
+        connection.sendReplyToServer(MessageFactory.createGetMoveStatusOkMessage(moveCode, loc));
     }
 }

@@ -123,7 +123,6 @@ public class MessageFactory {
             default:
                 assert false : "Unimplemented method";
         }
-
         // Fill out the container via the InputStream.
         container.readDataFrom(in);
         return container;
