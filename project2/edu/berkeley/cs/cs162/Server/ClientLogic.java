@@ -10,21 +10,19 @@ import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
 public abstract class ClientLogic {
     private Worker worker;
-    private WorkerSlave slave;
     Lock observingLock;
-    public ClientLogic(Worker worker, WorkerSlave slave) {
+    public ClientLogic(Worker worker) {
         this.worker = worker;
-        this.slave = slave;
         observingLock = new Lock();
     }
-    public static ClientLogic getClientLogicForClientType(Worker worker, WorkerSlave slave, byte playerType) {
+    public static ClientLogic getClientLogicForClientType(Worker worker, byte playerType) {
         switch (playerType) {
             case MessageProtocol.TYPE_HUMAN:
-                return new PlayerLogic.HumanPlayerLogic(worker, slave);
+                return new PlayerLogic.HumanPlayerLogic(worker);
             case MessageProtocol.TYPE_MACHINE:
-                return new PlayerLogic.MachinePlayerLogic(worker, slave);
+                return new PlayerLogic.MachinePlayerLogic(worker);
             case MessageProtocol.TYPE_OBSERVER:
-                return new ObserverLogic(worker, slave);
+                return new ObserverLogic(worker);
         }
         throw new AssertionError("Unknown Client Type");
     }
@@ -34,7 +32,7 @@ public abstract class ClientLogic {
     }
     
     public WorkerSlave getWorkerSlave() {
-		return slave;
+		return getWorker().getSlave();
 	}
 
     public Message handleMessage(Message message) {
@@ -77,4 +75,5 @@ public abstract class ClientLogic {
 
     public abstract void cleanup();
 	public abstract ClientInfo makeClientInfo();
+	public abstract WorkerSlave createSlaveThread(ClientConnection connection);
 }

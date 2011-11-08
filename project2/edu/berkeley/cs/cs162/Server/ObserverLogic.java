@@ -23,8 +23,8 @@ public class ObserverLogic extends ClientLogic {
      */
     Set<Game> currentlyObserving;
     
-    public ObserverLogic(Worker worker, WorkerSlave slave) {
-        super(worker, slave);
+    public ObserverLogic(Worker worker) {
+        super(worker);
         currentlyObserving = new HashSet<Game>();
     }
 
@@ -34,7 +34,8 @@ public class ObserverLogic extends ClientLogic {
     public Message handleListGames() {
 		List<GameInfo> gInfos = new ArrayList<GameInfo>();
 		for (Game g : getWorker().getServer().getGameList()) {
-		    gInfos.add(g.makeGameInfo());
+			if (g.isActive())
+				gInfos.add(g.makeGameInfo());
 		}
 		WritableList gameInfoList = MessageFactory.createWritableListFromCollection(GameInfo.class, gInfos);
 		return MessageFactory.createListGamesStatusOkMessage(gameInfoList);
@@ -92,7 +93,7 @@ public class ObserverLogic extends ClientLogic {
     }
 
     public ClientInfo makeClientInfo() {
-        return MessageFactory.createObserverClientInfo(getWorker().getName());
+        return MessageFactory.createObserverClientInfo(getWorker().getClientName());
     }
 
 	public void addGame(Game game) {
@@ -104,5 +105,9 @@ public class ObserverLogic extends ClientLogic {
 		observingLock.acquire();
 		currentlyObserving.remove(game);
 		observingLock.release();
+	}
+
+	public WorkerSlave createSlaveThread(ClientConnection connection) {
+		return new ObserverWorkerSlave(connection, getWorker());
 	}
 }

@@ -94,6 +94,8 @@ public class GameServer {
         SocketGarbageCollector collector = new SocketGarbageCollector(waitingSocketMap, waitingSocketMapLock, GLOBAL_TIMEOUT_IN_MS, 10);
         Thread collectorThread = new Thread(collector);
         collectorThread.start();
+        MatchMakingWorker matchMaker = new MatchMakingWorker(this);
+        (new Thread(matchMaker)).start();
     }
 
     /**
@@ -293,7 +295,10 @@ public class GameServer {
     
 	public void removeGame(Game game) {
 		activeGamesLock.writeLock();
-		activeGames.remove(game.getName());
+		if (activeGames.containsKey(game.getName()))
+		{
+			activeGames.remove(game.getName());
+		}
 		activeGamesLock.writeUnlock();
 	}
 	
@@ -301,5 +306,9 @@ public class GameServer {
 		activeGamesLock.writeLock();
 		activeGames.put(game.getName(), game);
 		activeGamesLock.writeUnlock();
+	}
+
+	public int getNumberOfActiveGames() {
+		return activeGames.size();
 	}
 }

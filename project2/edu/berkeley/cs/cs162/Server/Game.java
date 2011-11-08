@@ -30,6 +30,9 @@ public class Game {
 	private boolean lastPassed;
 	
     public Game(String name, Worker blackPlayer, Worker whitePlayer, int size) {
+    	this.blackPlayer = blackPlayer;
+    	this.whitePlayer = whitePlayer;
+    	this.name = name;
         board = new GoBoard(size);
         observerList = new HashSet<Worker>();
         observerLock = new ReaderWriterLock();
@@ -89,7 +92,7 @@ public class Game {
     }
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public void broadcastStartMessage() {
@@ -166,11 +169,11 @@ public class Game {
 	}
 
 	void doGameOverError(IllegalMoveException e) {
-		state = GameState.GAME_OVER;
 		double blackScore = state == GameState.BLACK_MOVE ? 0 : 1;
 		double whiteScore = 1 - blackScore;
 		Message err = MessageFactory.createGameOverErrorMessage(makeGameInfo(), blackScore, whiteScore, 
 				getInactivePlayer().makeClientInfo(), e.getReasonByte(), getCurrentPlayer().makeClientInfo(), e.getMessage());
+		state = GameState.GAME_OVER;
 		broadcastMessage(err);
 		broadcastTerminate();
 	}
@@ -190,6 +193,7 @@ public class Game {
 			i.remove();
 		}
 		observerLock.writeUnlock();
+		blackPlayer.getServer().removeGame(this);
 	}
 
 	private PlayerWorkerSlave getCurrentPlayerSlave() {
@@ -215,5 +219,9 @@ public class Game {
 		if (state == GameState.BLACK_MOVE) { return StoneColor.BLACK;}
 		if (state == GameState.WHITE_MOVE) { return StoneColor.WHITE;}
 		return null;
+	}
+
+	public boolean isActive() {
+		return state != GameState.GAME_OVER;
 	}
 }

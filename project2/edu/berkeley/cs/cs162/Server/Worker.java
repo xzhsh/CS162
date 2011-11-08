@@ -9,14 +9,14 @@ public class Worker extends Thread {
     private WorkerSlave slave;
     private boolean done;
     private GameServer server;
-    private String name;
+    private String clientName;
     private ClientConnection connection;
     private ClientLogic clientLogic;
-
+    
     public Worker(GameServer server, ClientConnection connection) {
         this.server = server;
         done = false;
-        name = null;
+        clientName = null;
         this.connection = connection;
     }
 
@@ -31,19 +31,19 @@ public class Worker extends Thread {
                 server.decrementConnectionCount();
                 connection.close();
                 return;
-            } else {
-                slave = new WorkerSlave(connection, this);
-                slave.start();
-                server.addWorker(name, this);
-                server.getLog().println("Client connected! " + cInfo);
             }
 
-            name = cInfo.getName();
-            server.addWorker(name, this);
+            clientName = cInfo.getName();
 
             //grab the client logic fo this type of worker.
-            clientLogic = ClientLogic.getClientLogicForClientType(this, slave, cInfo.getPlayerType());
+            clientLogic = ClientLogic.getClientLogicForClientType(this, cInfo.getPlayerType());
 
+            slave = clientLogic.createSlaveThread(connection);
+            slave.start();
+            server.addWorker(clientName, this);
+            server.getLog().println("Client connected! " + cInfo);
+
+            server.addWorker(clientName, this);
             while (!done) {
                 //just read messages from input and let the client logic handle stuff.
                 Message returnMessage = clientLogic.handleMessage(connection.readFromClient());
@@ -101,8 +101,10 @@ public class Worker extends Thread {
      */
     private void cleanup() {
         server.decrementConnectionCount();
-        server.removeWorker(name);
+        server.removeWorker(clientName);
         connection.close();
+
+        System.out.println("Worker cleaned up, " + getServer().getNumberOfActiveGames() + " Games active");
     }
 
     public void handleSendMessageToClient(Message message) {
@@ -135,5 +137,10 @@ public class Worker extends Thread {
 	public WorkerSlave getSlave() {
 		// TODO Auto-generated method stub
 		return slave;
+	}
+	
+	public String getClientName()
+	{
+		return clientName;
 	}
 }

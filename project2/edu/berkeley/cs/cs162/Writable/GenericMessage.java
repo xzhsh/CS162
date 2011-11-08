@@ -3,7 +3,9 @@ package edu.berkeley.cs.cs162.Writable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class GenericMessage extends Message {
@@ -11,7 +13,7 @@ public class GenericMessage extends Message {
 
     protected GenericMessage(byte opCode, Writable... writables) {
         this.opCode = opCode;
-        this.writables = Arrays.asList(writables);
+        this.writables = new ArrayList<Writable>(Arrays.asList(writables));
     }
 
     @Override
