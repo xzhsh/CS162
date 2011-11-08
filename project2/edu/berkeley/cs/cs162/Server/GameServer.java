@@ -244,7 +244,7 @@ public class GameServer {
     public static void main(String args[]) {
         if (args.length != 2) 
         {
-        	System.out.println("Not enough arguments!\n\tjava GameServer <port number> <ip address>");
+        	System.out.println("Not enough arguments!\n\tjava GameServer <ip address> <port number>");
         	return;
         }
     	GameServer server = new GameServer(100, 5, System.out);

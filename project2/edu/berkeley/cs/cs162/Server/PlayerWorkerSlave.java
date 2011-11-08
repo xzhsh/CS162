@@ -3,6 +3,7 @@ package edu.berkeley.cs.cs162.Server;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import edu.berkeley.cs.cs162.Synchronization.Lock;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
@@ -12,7 +13,6 @@ public class PlayerWorkerSlave extends WorkerSlave{
 	
 	private Game game;
 	private int moveTimeout;
-
 	public PlayerWorkerSlave(ClientConnection connection, Worker master, int moveTimeout) {
 		super(connection, master);
 		game = null;
@@ -25,19 +25,25 @@ public class PlayerWorkerSlave extends WorkerSlave{
 	@Override
 	protected void closeAndCleanup() {
 		super.closeAndCleanup();
-		if (game != null) {
-			game.broadcastTerminate();
+		if (game != null)
+		{
+			getMaster().getServer().removeGame(game);
+			Game temp = game;
+			game = null;
+			temp.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getClientName()+ " disconnected.", MessageProtocol.PLAYER_FORFEIT));
 		}
-		game = null;
 		((PlayerLogic)getMaster().getLogic()).disconnectState();
 		System.out.println("PlayerWorker cleaned up, " + getMaster().getServer().getNumberOfActiveGames() + " Games active");
 	}
 	
 	protected void terminateGame() {
+		System.out.println(getMaster().getClientName() + " received terminateGame message!");
 		if (game != null) {
-			game.broadcastTerminate();
+			getMaster().getServer().removeGame(game);
+			Game temp = game;
+			game = null;
+			temp.broadcastTerminate();
 		}
-		game = null;
 		((PlayerLogic)getMaster().getLogic()).terminateGame();
 	}
 
@@ -104,4 +110,8 @@ public class PlayerWorkerSlave extends WorkerSlave{
 			game.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getClientName()+ " timed out.", MessageProtocol.PLAYER_FORFEIT));
 		}
     }
+
+	public void setGame(Game game) {
+		this.game = game;
+	}
 }

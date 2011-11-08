@@ -17,12 +17,12 @@ import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 public class Game {
 	enum GameState {
 		BLACK_MOVE,
-		WHITE_MOVE,
-		GAME_OVER
+		WHITE_MOVE
 	}
 	private GameState state;
     private GoBoard board;
     private String name;
+    private boolean active;
     private Worker blackPlayer;
     private Worker whitePlayer;
     private Set<Worker> observerList;
@@ -38,6 +38,7 @@ public class Game {
         observerLock = new ReaderWriterLock();
         state = GameState.BLACK_MOVE;
         lastPassed = false;
+        active = true;
     }
 
     public GameInfo makeGameInfo() {
@@ -55,7 +56,7 @@ public class Game {
      * @return 
      */
     public boolean addObserver(Worker worker) {
-    	if (state == GameState.GAME_OVER) {return false;}
+    	if (!isActive()) {return false;}
     	observerLock.writeLock();
     	boolean added = !observerList.contains(worker);
     	if (added)
@@ -105,6 +106,9 @@ public class Game {
 		observerLock.readUnlock();
 		blackPlayer.handleSendMessageToClient(message);
 		whitePlayer.handleSendMessageToClient(message);
+		((PlayerWorkerSlave)blackPlayer.getSlave()).setGame(this);
+		((PlayerWorkerSlave)whitePlayer.getSlave()).setGame(this);
+		
 	}
 
 	public void makePassMove() {
@@ -147,7 +151,7 @@ public class Game {
 	}
 	
 	private void advanceTurns() {
-		assert state != GameState.GAME_OVER: "Something tried to advance turns when game is inactive";
+		assert isActive(): "Something tried to advance turns when game is inactive";
 		if (state == GameState.BLACK_MOVE)
 		{
 			state = GameState.WHITE_MOVE;
@@ -159,7 +163,7 @@ public class Game {
 	}
 	
 	private void doGameOver() {
-		state = GameState.GAME_OVER;
+		active = false;
 		double blackScore = board.getScore(StoneColor.BLACK);
 		double whiteScore = board.getScore(StoneColor.WHITE);
 		Worker winner = blackScore > whiteScore ? blackPlayer : whitePlayer;
@@ -173,7 +177,7 @@ public class Game {
 		double whiteScore = 1 - blackScore;
 		Message err = MessageFactory.createGameOverErrorMessage(makeGameInfo(), blackScore, whiteScore, 
 				getInactivePlayer().makeClientInfo(), e.getReasonByte(), getCurrentPlayer().makeClientInfo(), e.getMessage());
-		state = GameState.GAME_OVER;
+		active = false;
 		broadcastMessage(err);
 		broadcastTerminate();
 	}
@@ -215,13 +219,12 @@ public class Game {
 	}
 
 	private StoneColor getActiveColor() {
-		assert state != GameState.GAME_OVER: "Something tried to get active stone color when game is inactive";
 		if (state == GameState.BLACK_MOVE) { return StoneColor.BLACK;}
 		if (state == GameState.WHITE_MOVE) { return StoneColor.WHITE;}
 		return null;
 	}
 
 	public boolean isActive() {
-		return state != GameState.GAME_OVER;
+		return active;
 	}
 }

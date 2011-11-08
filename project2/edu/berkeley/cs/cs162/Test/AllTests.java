@@ -5,7 +5,10 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ ConnectionWorkerTest.class, WorkerTest.class })
+@SuiteClasses({ ClientConnectionTest.class, ConnectionWorkerTest.class,
+		DataTypeIOTest.class, HumanPlayerTest.class, MachinePlayerTest.class,
+		PrintingObserverTest.class, ReaderWriterLockTest.class,
+		WritablesTest.class })
 public class AllTests {
 
 }
