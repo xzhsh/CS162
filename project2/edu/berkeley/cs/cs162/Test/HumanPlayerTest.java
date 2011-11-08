@@ -127,7 +127,7 @@ public class HumanPlayerTest {
 		Message movedPass = connection.readReplyFromClient(newGetMoveMsg);
 		ResponseMessages.GetMoveStatusOkMessage movedPassMsg = (ResponseMessages.GetMoveStatusOkMessage) movedPass;
 		Location nullLoc = movedPassMsg.getLocation();		
-		assertEquals(movedMsg.getMoveType(), MessageProtocol.MOVE_PASS);
+		assertEquals(movedPassMsg.getMoveType(), MessageProtocol.MOVE_PASS);
 		System.out.println("Pass Move Worked");
 		bLoc = nullLoc.makeBoardLocation();
 		connection.sendReplyToClient(MessageFactory.createMakeMoveMessage(gameInfo, cInfo, MessageProtocol.MOVE_PASS, bLoc,  boardPieces));
