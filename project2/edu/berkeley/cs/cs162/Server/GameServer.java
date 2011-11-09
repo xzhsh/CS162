@@ -13,8 +13,8 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 public class GameServer {
-    public static final int GLOBAL_TIMEOUT_IN_MS = 300000;
-    private static final int WAITING_CONNECTION_BUFFER_SIZE = 10;
+    public static final int GLOBAL_TIMEOUT_IN_MS = 3000;
+    private static final int WAITING_CONNECTION_BUFFER_SIZE = 200;
     /**
      * RNG for this game server.
      */
@@ -69,12 +69,11 @@ public class GameServer {
         this.logStream = logStream;
         rng = new Random();
         waitingSocketMap = new HashMap<Integer, SocketWithTimeStamp>();
-
+        
         connectionQueue = new ThreadSafeQueue<Socket>(WAITING_CONNECTION_BUFFER_SIZE);
         waitingPlayerQueue = new ThreadSafeQueue<PlayerLogic>(clientLimit);
         activeGames = new HashMap<String, Game>();
         nameToWorkerMap = new HashMap<String, Worker>();
-        //TODO change these to ReaderWriterLock when it's implemented.
         waitingSocketMapLock = new ReaderWriterLock();
         nameToWorkerMapLock = new ReaderWriterLock();
         clientsConnectedLock = new ReaderWriterLock();
@@ -110,7 +109,9 @@ public class GameServer {
             while (true) {
                 Socket incomingConnection = server.accept();
                 incomingConnection.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
+                getLog().println("Found conneciton");
                 connectionQueue.add(incomingConnection);
+                getLog().println("Added conneciton");
             }
         } catch (IOException e) {
             e.printStackTrace(getLog());
@@ -160,7 +161,6 @@ public class GameServer {
             otherConnection = waitingSocketMap.get(SYN_ID);
         }
         ////////////////////////////////////////
-
         if (otherConnection != null) {
             logStream.println("Pair found!");
             waitingSocketMap.remove(SYN_ID);
@@ -176,7 +176,7 @@ public class GameServer {
         if (tryIncrementConnectionCount()) 
         {
 	        logStream.println("Initialized a worker with SYN_ID = " + SYN_ID);
-	        Worker worker = new Worker(this, new ClientConnection(connection1, connection2, SYN_ID));
+	        Worker worker = new Worker(this, new ClientConnection(connection1, connection2, SYN_ID, getLog()));
 	        worker.start();
         } else {
         	logStream.println("Maximum number of connections reached. SYN_ID = " + SYN_ID + " rejected.");
@@ -190,7 +190,6 @@ public class GameServer {
      * @param name
      */
     protected void removeWorker(String name) {
-        //TODO implement stuff for game.
         nameToWorkerMapLock.writeLock();
         nameToWorkerMap.remove(name);
         logStream.println("Client<" + name + "> disconnected");
@@ -252,11 +251,9 @@ public class GameServer {
         	}
             server.waitForConnectionsOnPort(Integer.valueOf(args[1]), serverAddr);
         } catch (NumberFormatException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace(server.getLog());
+        	System.out.println("Invalid port number: " + args[1]);
         } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace(server.getLog());
+        	System.out.println("Host not found: " + args[0]);
         }
     }
 
@@ -307,7 +304,6 @@ public class GameServer {
 	}
 
 	public boolean isReady() {
-		// TODO Auto-generated method stub
 		return ready;
 	}
 }

@@ -24,10 +24,10 @@ public class PlayerWorkerSlave extends WorkerSlave{
 	@Override
 	protected void closeAndCleanup() {
 		super.closeAndCleanup();
-		if (game != null)
+		Game temp = game;
+		if (temp != null)
 		{
 			getMaster().getServer().removeGame(game);
-			Game temp = game;
 			game = null;
 			temp.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getClientName()+ " disconnected.", MessageProtocol.PLAYER_FORFEIT));
 		}
@@ -37,9 +37,9 @@ public class PlayerWorkerSlave extends WorkerSlave{
 	
 	protected void terminateGame() {
 		System.out.println(getMaster().getClientName() + " received terminateGame message!");
-		if (game != null) {
+		Game temp = game;
+		if (temp != null) {
 			getMaster().getServer().removeGame(game);
-			Game temp = game;
 			game = null;
 			temp.broadcastTerminate();
 		}

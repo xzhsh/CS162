@@ -57,7 +57,6 @@ public class PrintingObserver extends Observer {
                     observer.runExecutionLoop();
                 } catch (IOException e) {
                     System.out.println("An error occurred... PrintingObserver " + observer.getName() + " terminating.");
-                    e.printStackTrace();
                 }
             }
         }

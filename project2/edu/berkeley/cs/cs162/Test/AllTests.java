@@ -6,8 +6,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ ClientConnectionTest.class, ConnectionWorkerTest.class,
-		DataTypeIOTest.class, HumanPlayerTest.class, MachinePlayerTest.class,
-		PrintingObserverTest.class, ReaderWriterLockTest.class,
+		DataTypeIOTest.class, HalfOpenConnectionTest.class, MachinePlayerTest.class,
+		PrintingObserverTest.class, ReaderWriterLockTest.class, ServerStressTest.class,
 		WritablesTest.class })
 public class AllTests {
 

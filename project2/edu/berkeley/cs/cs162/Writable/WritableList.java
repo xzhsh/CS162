@@ -36,9 +36,9 @@ public class WritableList extends ArrayList<Writable> implements Writable {
                 e.readFrom(in);
                 add(e);
             } catch (InstantiationException e1) {
-                e1.printStackTrace();
+                throw new AssertionError("Writable class used in writable list has no default constructor");
             } catch (IllegalAccessException e1) {
-                e1.printStackTrace();
+            	throw new AssertionError("Cannot access writable class used in writable list's default constructor");
             }
         }
     }

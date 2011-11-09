@@ -14,8 +14,7 @@ public class TestClient extends BaseClient {
                 System.out.println("Succesfully connected... now time to do shit.");
             }
         } catch (NumberFormatException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        	System.out.println("Invalid port: " + args[1]);
         }
     }
 }

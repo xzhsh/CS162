@@ -1,22 +1,15 @@
 package edu.berkeley.cs.cs162.Test;
 
-import edu.berkeley.cs.cs162.Client.HumanPlayer;
-import edu.berkeley.cs.cs162.Client.MachinePlayer;
-import edu.berkeley.cs.cs162.Server.Board;
-import edu.berkeley.cs.cs162.Server.ClientConnection;
-import edu.berkeley.cs.cs162.Writable.BoardInfo;
-import edu.berkeley.cs.cs162.Writable.GameInfo;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
-import org.junit.Test;
-
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+
+import edu.berkeley.cs.cs162.Server.ClientConnection;
 
 /**
  * Harvey
@@ -45,7 +38,7 @@ public class HumanPlayerTimeoutTest {
         serverThread.join();
         Socket sock2 = container[0];
 
-        ClientConnection connection = new ClientConnection(sock1, sock2, 0);
+        ClientConnection connection = new ClientConnection(sock1, sock2, 0, new PrintStream(new NullOutputStream()));
         connection.setValid();
 
      

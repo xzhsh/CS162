@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
@@ -60,7 +61,7 @@ public class HumanPlayerTest {
 			int syn_id = (new DataInputStream(c1.getInputStream())).readInt();
 			int syn_id2 = (new DataInputStream(c2.getInputStream())).readInt();
 			assertEquals(syn_id,syn_id2);
-			connection = new ClientConnection(c1, c2, syn_id);
+			connection = new ClientConnection(c1, c2, syn_id, new PrintStream(new NullOutputStream()));
 		
 		}
 		

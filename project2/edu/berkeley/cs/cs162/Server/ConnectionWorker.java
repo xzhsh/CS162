@@ -29,10 +29,11 @@ public class ConnectionWorker implements Runnable {
 
     public void run() {
         while (!done) {
-            handleConnection(server.getNextConnection());
+        	Socket connection = server.getNextConnection();
+            handleConnection(connection);
         }
     }
-
+    
     private void handleConnection(Socket connection) {
         try {
             DataInputStream isStream = new DataInputStream(connection.getInputStream());
@@ -40,7 +41,7 @@ public class ConnectionWorker implements Runnable {
             int SYN_ID = isStream.readInt();
             server.handleSYN(SYN_ID, connection);
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(server.getLog());
             try {
                 connection.close();
             } catch (IOException e1) {
