@@ -49,6 +49,16 @@ public class MachinePlayerTimeoutTest {
 
         //"wfg" message from machineplayer
 
-        //send
+        //send an "ok" reply
+
+        //send a "game start" w/ params message to machineplayer and other player
+
+        //receive "ok" from both
+
+        //send a "get move" message to machineplayer
+
+        //artificially timeout
+
+        //check if player gets a "game over"
     }
 }
