@@ -90,7 +90,7 @@ public class HumanPlayer extends Player {
         
         Message m = MessageFactory.createGetMoveStatusOkMessage(moveType, loc);
 
-        connection.sendReplyToServer(m);
+        getConnection().sendReplyToServer(m);
     }
     
     @Override

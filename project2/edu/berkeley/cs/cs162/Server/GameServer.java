@@ -90,7 +90,7 @@ public class GameServer {
         }
         //NOTE the garbage collector thread will never be cleaned up either.
         //However the same logic holds for HandshakeWorker threads.
-        SocketGarbageCollector collector = new SocketGarbageCollector(waitingSocketMap, waitingSocketMapLock, GLOBAL_TIMEOUT_IN_MS, 10);
+        SocketGarbageCollector collector = new SocketGarbageCollector(waitingSocketMap, waitingSocketMapLock, GLOBAL_TIMEOUT_IN_MS, 10, getLog());
         Thread collectorThread = new Thread(collector);
         collectorThread.start();
         MatchMakingWorker matchMaker = new MatchMakingWorker(this);

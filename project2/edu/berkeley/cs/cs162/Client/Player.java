@@ -14,7 +14,7 @@ abstract public class Player extends BaseClient {
 
     GoBoard board;
     boolean waitingForGames;
-    boolean sentWFGMessage;
+    private boolean sentWFGMessage;
     StoneColor currentColor;
     StoneColor opponentColor;
     String gameName;
@@ -62,7 +62,7 @@ abstract public class Player extends BaseClient {
     protected void runExecutionLoop() throws IOException {
         while (true) {
             if (waitingForGames && !sentWFGMessage) {
-                Message reply = connection.sendSyncToServer(MessageFactory.createWaitForGameMessage());
+                Message reply = getConnection().sendSyncToServer(MessageFactory.createWaitForGameMessage());
 
                 if (reply.isOK()) {
                     sentWFGMessage = true;
@@ -71,7 +71,7 @@ abstract public class Player extends BaseClient {
                     break;
                 }
             } else {
-                handleMessage(connection.readFromServer());
+                handleMessage(getConnection().readFromServer());
             }
         }
     }
@@ -97,7 +97,7 @@ abstract public class Player extends BaseClient {
 
         System.out.println("Game " + gameName + " starting with Black player " + blackPlayerName + " and White player " + whitePlayerName + ".");
 
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     protected void handleGameOver(ServerMessages.GameOverMessage m) throws IOException {
@@ -122,7 +122,7 @@ abstract public class Player extends BaseClient {
         currentColor = StoneColor.NONE;
         opponentColor = StoneColor.NONE;
 
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
@@ -153,6 +153,14 @@ abstract public class Player extends BaseClient {
             }
         }
 
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
+
+	public boolean isSentWFGMessage() {
+		return sentWFGMessage;
+	}
+
+	public void setSentWFGMessage(boolean sentWFGMessage) {
+		this.sentWFGMessage = sentWFGMessage;
+	}
 }

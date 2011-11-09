@@ -11,7 +11,6 @@ public abstract class PlayerLogic extends ClientLogic {
     private static final int MACHINE_PLAYER_TIMEOUT_IN_MS = 2000;
 
     public static class HumanPlayerLogic extends PlayerLogic {
-
         public HumanPlayerLogic(Worker worker) {
             super(worker, HUMAN_PLAYER_TIMEOUT_IN_MS);
         }

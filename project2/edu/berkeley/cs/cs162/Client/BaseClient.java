@@ -15,7 +15,7 @@ abstract public class BaseClient implements Client {
     String name;
     byte type;
     ClientInfo clientInfo;
-    ServerConnection connection;
+    private ServerConnection connection;
 
     public BaseClient(String name, byte type) {
         this.name = name;
@@ -60,9 +60,9 @@ abstract public class BaseClient implements Client {
 
             // Attempt to connect to the GameServer via 3-way Handshake
             connection = new ServerConnection(c1, c2);
-            System.out.println(connection.initiate3WayHandshake(new Random()));
+            System.out.println(getConnection().initiate3WayHandshake(new Random()));
             Message connectMessage = MessageFactory.createConnectMessage(clientInfo);
-            Message serverResponse = connection.sendSyncToServer(connectMessage);
+            Message serverResponse = getConnection().sendSyncToServer(connectMessage);
 
             return (serverResponse.isOK());
         }
@@ -93,22 +93,26 @@ abstract public class BaseClient implements Client {
     }
 
     protected void handleGameStart(ServerMessages.GameStartMessage m) throws IOException {
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     protected void handleGameOver(ServerMessages.GameOverMessage m) throws IOException {
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     protected void handleGetMove() throws IOException {
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     protected void disconnect() throws IOException {
-        connection.sendDisconnectToServer();
+        getConnection().sendDisconnectToServer();
     }
+
+	protected ServerConnection getConnection() {
+		return connection;
+	}
 }
