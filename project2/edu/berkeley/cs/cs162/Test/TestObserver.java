@@ -25,7 +25,7 @@ public class TestObserver extends Observer{
 		super(name);
 		this.gameOverMessages = new HashSet<String>(gameOverMessages);
 		goodGameOvers = 0;
-		badMessages = 0;
+		setBadMessages(0);
 	}
 	private boolean joinGames() throws IOException {
 		Message listResponse = getConnection().sendSyncToServer(MessageFactory.createListGamesMessage());
@@ -73,7 +73,7 @@ public class TestObserver extends Observer{
         	getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
         }
         else {
-        	badMessages++;
+        	setBadMessages(getBadMessages() + 1);
         }
     }
     
@@ -103,4 +103,10 @@ public class TestObserver extends Observer{
     public int getNumGoodGameOvers() {
 		return goodGameOvers;
     }
+	public int getBadMessages() {
+		return badMessages;
+	}
+	public void setBadMessages(int badMessages) {
+		this.badMessages = badMessages;
+	}
 }

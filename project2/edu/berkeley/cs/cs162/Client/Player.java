@@ -59,7 +59,7 @@ abstract public class Player extends BaseClient {
         return gameName;
     }
 
-    protected void runExecutionLoop() throws IOException {
+    public void runExecutionLoop() throws IOException {
         while (true) {
             if (waitingForGames && !sentWFGMessage) {
                 Message reply = getConnection().sendSyncToServer(MessageFactory.createWaitForGameMessage());

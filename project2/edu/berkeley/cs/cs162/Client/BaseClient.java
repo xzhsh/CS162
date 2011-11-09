@@ -51,7 +51,7 @@ abstract public class BaseClient implements Client {
         return clientInfo;
     }
 
-    protected boolean connectTo(String address, Integer port){
+    public boolean connectTo(String address, Integer port){
         try
         {
             // Create the C2S and S2C sockets
@@ -69,7 +69,9 @@ abstract public class BaseClient implements Client {
 
             return (serverResponse.isOK());
         }
-        catch(IOException e) { return false; }
+        catch(IOException e) { 
+        	return false; 
+    	}
     }
 
     protected void handleMessage(Message m) throws IOException {
@@ -111,7 +113,7 @@ abstract public class BaseClient implements Client {
         getConnection().sendDisconnectToServer();
     }
 
-	protected ServerConnection getConnection() {
+	public ServerConnection getConnection() {
 		return connection;
 	}
 }
