@@ -64,14 +64,14 @@ public class PrintingObserver extends Observer {
     }
 
     private boolean joinGames() throws IOException {
-        Message listResponse = connection.sendSyncToServer(MessageFactory.createListGamesMessage());
+        Message listResponse = getConnection().sendSyncToServer(MessageFactory.createListGamesMessage());
         if (listResponse.isOK()) {
             WritableList gameList = ((ResponseMessages.ListGamesStatusOkMessage) listResponse).getGameList();
             
             for (Writable game : gameList) {
                 GameInfo g = (GameInfo) game;
             	System.out.println("Found game" + g.getName());
-                Message joinResponse = connection.sendSyncToServer(MessageFactory.createJoinMessage(g));
+                Message joinResponse = getConnection().sendSyncToServer(MessageFactory.createJoinMessage(g));
                 if (joinResponse.isOK()) {
                     System.out.println("Joining game " + g.getName());
                     joinedGames++;
@@ -82,10 +82,8 @@ public class PrintingObserver extends Observer {
         return joinedGames > 0;
     }
 
-    private void runExecutionLoop() throws IOException {
-        while (joinedGames > 0) {
-            handleMessage(connection.readFromServer());
-        }
+    protected void runExecutionLoop() throws IOException {
+        super.runExecutionLoop();
         System.out.println("All joined games have ended.");
     }
     
@@ -96,7 +94,7 @@ public class PrintingObserver extends Observer {
         String whiteName = m.getWhiteClientInfo().getName();
 
         System.out.println("Game " + gameName + " starting with Black player " + blackName + " and White player " + whiteName + ".");
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     @Override
@@ -114,9 +112,8 @@ public class PrintingObserver extends Observer {
         } else {
             System.out.println("Game " + gameName + " ended with Black score " + blackScore + ", White score " + whiteScore + ". WINNER: " + winner + "!");
         }
-
         joinedGames--;
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     @Override
@@ -133,6 +130,6 @@ public class PrintingObserver extends Observer {
             System.out.println("In game " + game + ", " + player + " passed.");
         }
 
-        connection.sendReplyToServer(MessageFactory.createStatusOkMessage());
+        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 }

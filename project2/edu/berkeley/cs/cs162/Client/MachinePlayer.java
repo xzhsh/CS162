@@ -84,6 +84,6 @@ public class MachinePlayer extends Player {
             moveCode = MessageProtocol.MOVE_STONE;
         }
 
-        connection.sendReplyToServer(MessageFactory.createGetMoveStatusOkMessage(moveCode, loc));
+        getConnection().sendReplyToServer(MessageFactory.createGetMoveStatusOkMessage(moveCode, loc));
     }
 }

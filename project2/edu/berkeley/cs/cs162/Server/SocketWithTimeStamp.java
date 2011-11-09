@@ -20,6 +20,7 @@ class SocketWithTimeStamp {
      * @return true if this connection has already timed out.
      */
     public boolean timedOut(long timeoutInNs) {
-        return (System.nanoTime() - timeStamp) > timeoutInNs;
+    	long elapsed = System.nanoTime() - timeStamp;
+        return (elapsed) > timeoutInNs;
     }
 }
