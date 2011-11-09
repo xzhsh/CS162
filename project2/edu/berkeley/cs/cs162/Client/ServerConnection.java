@@ -39,7 +39,7 @@ public class ServerConnection {
         else
             throw new RuntimeException("Uninitialized Server Connection");
     }
-
+    
     /**
      * Tries to receive a 3-way handshake.
      *
@@ -54,7 +54,10 @@ public class ServerConnection {
         oS2C = new DataOutputStream(S2C.getOutputStream());
 
         oC2S.writeInt(SYN_ID);
+        //System.out.println(count1.addAndGet(1) + " syn1 have been sent");
         oS2C.writeInt(SYN_ID);
+        //System.out.println(count2.addAndGet(1) + " syn2 have been sent");
+        
 
         int SYN1 = iC2S.readInt();
         int ACK1 = iC2S.readInt();

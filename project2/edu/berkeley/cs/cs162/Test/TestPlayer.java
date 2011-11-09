@@ -15,7 +15,6 @@ import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 import edu.berkeley.cs.cs162.Writable.ServerMessages;
 
 public class TestPlayer extends Player {
-	
 	List<Message> moves;
 	Iterator<Message> it;
 	AtomicInteger goodCount;
@@ -54,12 +53,12 @@ public class TestPlayer extends Player {
 					}
 	                if (reply.isOK()) {
 	                    player.setSentWFGMessage(true);
-	                    lock.readLock();
+	                    //lock.readLock();
 	                    try {
 	                    	player.runExecutionLoop();
 	                    }
 	                    catch (IOException e){}
-	                    lock.readUnlock();
+	                    //lock.readUnlock();
 	                }
 		        }
 			}

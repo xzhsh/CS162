@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162.Test;
 import static org.junit.Assert.assertEquals;
 
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -18,18 +19,17 @@ import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
 public class ServerStressTest {
 	private static final int TEST_PORT = 1234;
-	private static final int NUM_PLAYERS = 50;
+	private static final int NUM_PLAYERS = 100;
 
 	@Test
 	public void test() throws InterruptedException {
-		final GameServer server = new GameServer(100, 5, System.out);//new PrintStream(new NullOutputStream()));
+		final GameServer server = new GameServer(100, 5, new PrintStream(new NullOutputStream()));
 		
 		Thread t = new Thread() {
 			public void run() {
 				try {
 					server.waitForConnectionsOnPort(TEST_PORT, InetAddress.getByName("localhost"));
 				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
 					throw new AssertionError(e);
 				}
 			}
@@ -39,6 +39,7 @@ public class ServerStressTest {
 		while (!server.isReady()) {
 			Thread.sleep(10);//waits until server is ready;
 		}
+		
 		ReaderWriterLock lock = new ReaderWriterLock();
 		List<Thread> threads = new ArrayList<Thread>();
 		AtomicInteger sharedCount = new AtomicInteger(0);

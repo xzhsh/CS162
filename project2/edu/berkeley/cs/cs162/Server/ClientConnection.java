@@ -3,6 +3,7 @@ package edu.berkeley.cs.cs162.Server;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -21,14 +22,16 @@ public class ClientConnection {
     private DataInputStream C2Sin;
     private DataOutputStream S2Cout;
     private boolean valid;
+    private PrintStream log;
     List<Exception> errors;
 
-    public ClientConnection(Socket connection1, Socket connection2, int SYN_ID) {
+    public ClientConnection(Socket connection1, Socket connection2, int SYN_ID, PrintStream log) {
         S2C = connection1;
         C2S = connection2;
         this.SYN_ID = SYN_ID;
         errors = new ArrayList<Exception>();
         valid = false;
+        this.log = log;
     }
 
     /**
@@ -68,16 +71,16 @@ public class ClientConnection {
                 valid = true;
             } else {
                 //wrong ack... something went wrong.
-                System.out.printf("Wrong ack received from client. Expecting %d and %d, but received %d and %d\n", C2SackID + 1, S2CackID + 1, ackC2S, ackS2C);
+                log.printf("Wrong ack received from client. Expecting %d and %d, but received %d and %d\n", C2SackID + 1, S2CackID + 1, ackC2S, ackS2C);
                 valid = false;
             }
         } catch (SocketTimeoutException e) {
             //socket timed out.
-            System.out.printf("Connection from client timed out\n");
+            log.printf("Connection from client timed out\n");
             valid = false;
         } catch (IOException e) {
-            System.out.printf("Connection error:\n");
-            e.printStackTrace();
+            log.printf("Connection error:\n");
+            e.printStackTrace(log);
             valid = false;
         }
         return valid;

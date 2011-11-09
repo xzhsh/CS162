@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162.Test;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -39,7 +40,7 @@ public class MachinePlayerTimeoutTest {
         serverThread.join();
         Socket s2 = container[0];
 
-        ClientConnection con = new ClientConnection(s1, s2, 0);
+        ClientConnection con = new ClientConnection(s1, s2, 0, new PrintStream(new NullOutputStream()));
         con.setValid();
 
         //"connect" message from machineplayer

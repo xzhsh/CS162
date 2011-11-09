@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
@@ -61,7 +62,7 @@ public class MachinePlayerTest {
         int synId1 = (new DataInputStream(c1.getInputStream())).readInt();
         int synId2 = (new DataInputStream(c2.getInputStream())).readInt();
         assertEquals(synId1, synId2);
-        con = new ClientConnection(c1, c2, synId1);
+        con = new ClientConnection(c1, c2, synId1, new PrintStream(new NullOutputStream()));
 
         // CONNECTION TEST
         con.receive3WayHandshake(new Random());

@@ -6,6 +6,7 @@ import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -37,7 +38,7 @@ public class ClientConnectionTest {
         serverThread.join();
         Socket sock2 = container[0];
 
-        ClientConnection connection = new ClientConnection(sock1, sock2, 0);
+        ClientConnection connection = new ClientConnection(sock1, sock2, 0, new PrintStream(new NullOutputStream()));
         connection.setValid();
 
         Message message = MessageFactory.createGenericOpCodeOnlyMessage();

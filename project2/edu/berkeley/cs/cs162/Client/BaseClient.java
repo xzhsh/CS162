@@ -60,7 +60,10 @@ abstract public class BaseClient implements Client {
 
             // Attempt to connect to the GameServer via 3-way Handshake
             connection = new ServerConnection(c1, c2);
-            System.out.println(getConnection().initiate3WayHandshake(rng));
+            if (!getConnection().initiate3WayHandshake(rng))
+            {
+            	return false;
+            }
             Message connectMessage = MessageFactory.createConnectMessage(clientInfo);
             Message serverResponse = getConnection().sendSyncToServer(connectMessage);
 
@@ -72,19 +75,15 @@ abstract public class BaseClient implements Client {
     protected void handleMessage(Message m) throws IOException {
         switch (m.getMsgType()) {
             case MessageProtocol.OP_TYPE_GAMESTART:
-            	System.out.println("Received game start");
                 handleGameStart((ServerMessages.GameStartMessage) m);
                 break;
             case MessageProtocol.OP_TYPE_GAMEOVER:
-            	System.out.println("Received game over");
                 handleGameOver((ServerMessages.GameOverMessage) m);
                 break;
             case MessageProtocol.OP_TYPE_MAKEMOVE:
-            	System.out.println("Received make move");
                 handleMakeMove((ServerMessages.MakeMoveMessage) m);
                 break;
             case MessageProtocol.OP_TYPE_GETMOVE:
-            	System.out.println("Received get move");
                 handleGetMove();
                 break;
             default:

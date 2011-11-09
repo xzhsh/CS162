@@ -55,12 +55,12 @@ public class Worker extends Thread {
         catch (SocketTimeoutException e)
         {
             server.getLog().println("Connection timed out.");
-            e.printStackTrace();
+            e.printStackTrace(getServer().getLog());
             closeAndCleanup();
         }
         catch (IOException e) {
             server.getLog().println("Connection closed unexpectedly.");
-            e.printStackTrace();
+            e.printStackTrace(getServer().getLog());
             closeAndCleanup();
         }
     }
@@ -84,7 +84,7 @@ public class Worker extends Thread {
 	
 	        return ((ClientMessages.ConnectMessage) returnMessage).getClientInfo();
 		} catch (IOException e) {
-			System.out.println("Error getting client info:\n" + e);
+			getServer().getLog().println("Error getting client info:\n" + e);
 			return null;
 		}
     }
@@ -102,7 +102,7 @@ public class Worker extends Thread {
         server.removeWorker(clientName);
         connection.close();
 
-        System.out.println("Worker cleaned up, " + getServer().getNumberOfActiveGames() + " Games active");
+        getServer().getLog().println("Worker cleaned up, " + getServer().getNumberOfActiveGames() + " Games active");
     }
 
     public void handleSendMessageToClient(Message message) {

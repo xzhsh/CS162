@@ -4,6 +4,7 @@ import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ public class SocketGarbageCollector implements Runnable {
     private ReaderWriterLock lock;
     private long timeoutInNs;
     private long sleepTime;
+	@SuppressWarnings("unused")
 	private PrintStream log;
 
     public SocketGarbageCollector(
@@ -39,17 +41,23 @@ public class SocketGarbageCollector implements Runnable {
                 }
                 lock.readUnlock();
                 lock.writeLock();
+                List<Socket> closingSockets = new ArrayList<Socket>();
                 for (Integer id : timedOutSockets) {
                     SocketWithTimeStamp s = socketMap.remove(id);
-                    try {
-						s.getConnection().close();
-						log.println("Closed socket with syn id: " + id + ", " + socketMap.size() + " active sockets in map");
+                    if (s != null) {
+                        closingSockets.add(s.getConnection());
+                    }
+                }
+                lock.writeUnlock();
+
+                for (Socket s : closingSockets)
+                {
+                	try {
+						s.close();
 					} catch (IOException e) {
 						//if already closed, just ignore it.
 					}
                 }
-                lock.writeUnlock();
-
                 //some small sleep value so that the garbage collector isn't taking up all the cpu time
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
