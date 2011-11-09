@@ -46,10 +46,7 @@ public class HumanPlayerTimeoutTest {
         ClientConnection connection = new ClientConnection(sock1, sock2, 0);
         connection.setValid();
 
-        Message message = MessageFactory.createGenericOpCodeOnlyMessage();
-
-        try {connection.readReplyFromClient(message, 33000); }
-        catch (IOException e) { assertTrue(e instanceof SocketTimeoutException); }
+     
 
         sock1.close();
         sock2.close();
