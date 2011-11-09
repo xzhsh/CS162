@@ -1,20 +1,12 @@
 package edu.berkeley.cs.cs162.Test;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-
-import edu.berkeley.cs.cs162.Client.HumanPlayer;
-import edu.berkeley.cs.cs162.Client.MachinePlayer;
-import edu.berkeley.cs.cs162.Server.Board;
-import edu.berkeley.cs.cs162.Server.ClientConnection;
-import edu.berkeley.cs.cs162.Writable.*;
-import org.junit.Test;
-
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Random;
+
+import org.junit.Test;
+
+import edu.berkeley.cs.cs162.Server.ClientConnection;
 
 /**
  * Created by IntelliJ IDEA.

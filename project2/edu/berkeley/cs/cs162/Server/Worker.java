@@ -42,8 +42,6 @@ public class Worker extends Thread {
             slave.start();
             server.addWorker(clientName, this);
             server.getLog().println("Client connected! " + cInfo);
-
-            server.addWorker(clientName, this);
             while (!done) {
                 //just read messages from input and let the client logic handle stuff.
                 Message returnMessage = clientLogic.handleMessage(connection.readFromClient());
@@ -52,7 +50,7 @@ public class Worker extends Thread {
                     connection.sendReplyToClient(returnMessage);
                 }
             }
-            connection.close();
+        	connection.close();
         }
         catch (SocketTimeoutException e)
         {
@@ -120,6 +118,7 @@ public class Worker extends Thread {
      */
     public void closeAndCleanup() {
         // TODO remove game and wait list.
+    	done = true;
     	slave.handleTerminate();
     	getLogic().cleanup();
         cleanup();

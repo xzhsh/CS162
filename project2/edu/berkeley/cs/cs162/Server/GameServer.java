@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 public class GameServer {
-    public static final int GLOBAL_TIMEOUT_IN_MS = 3000;
+    public static final int GLOBAL_TIMEOUT_IN_MS = 300000;
     private static final int WAITING_CONNECTION_BUFFER_SIZE = 10;
     /**
      * RNG for this game server.
@@ -56,6 +56,7 @@ public class GameServer {
     private ReaderWriterLock activeGamesLock;
 
     private PrintStream logStream;
+	private boolean ready;
 
     /**
      * Constructor for gameServer
@@ -105,6 +106,7 @@ public class GameServer {
     public void waitForConnectionsOnPort(int portNumber, InetAddress localIP) {
         try {
             ServerSocket server = new ServerSocket(portNumber, 50, localIP);
+            ready = true;
             while (true) {
                 Socket incomingConnection = server.accept();
                 incomingConnection.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
@@ -153,25 +155,20 @@ public class GameServer {
         SocketWithTimeStamp otherConnection = null;
         logStream.println("Connection initiated with SYN_ID: " + SYN_ID);
         //Read whether the syn id exists already
-        waitingSocketMapLock.readLock();
+        waitingSocketMapLock.writeLock();
         if (waitingSocketMap.containsKey(SYN_ID)) {
             otherConnection = waitingSocketMap.get(SYN_ID);
         }
-        waitingSocketMapLock.readUnlock();
         ////////////////////////////////////////
 
         if (otherConnection != null) {
             logStream.println("Pair found!");
-            waitingSocketMapLock.writeLock();
             waitingSocketMap.remove(SYN_ID);
-            waitingSocketMapLock.writeUnlock();
             initializeWorkerForConnection(connection, otherConnection.getConnection(), SYN_ID);
         } else {
-
-            waitingSocketMapLock.writeLock();
             waitingSocketMap.put(SYN_ID, new SocketWithTimeStamp(connection));
-            waitingSocketMapLock.writeUnlock();
         }
+        waitingSocketMapLock.writeUnlock();
     }
 
     private void initializeWorkerForConnection(Socket connection1,
@@ -203,6 +200,7 @@ public class GameServer {
     protected void decrementConnectionCount() {
         clientsConnectedLock.writeLock();
         clientsConnected--;
+        assert clientsConnected >=0 : "cannot have negative client connected";
         logStream.println("Client count: " + clientsConnected);
         clientsConnectedLock.writeUnlock();
     }
@@ -306,5 +304,10 @@ public class GameServer {
 
 	public int getNumberOfActiveGames() {
 		return activeGames.size();
+	}
+
+	public boolean isReady() {
+		// TODO Auto-generated method stub
+		return ready;
 	}
 }

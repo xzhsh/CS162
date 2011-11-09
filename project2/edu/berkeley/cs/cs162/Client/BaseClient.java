@@ -16,7 +16,7 @@ abstract public class BaseClient implements Client {
     byte type;
     ClientInfo clientInfo;
     private ServerConnection connection;
-
+    static Random rng = new Random();
     public BaseClient(String name, byte type) {
         this.name = name;
         this.type = type;
@@ -60,7 +60,7 @@ abstract public class BaseClient implements Client {
 
             // Attempt to connect to the GameServer via 3-way Handshake
             connection = new ServerConnection(c1, c2);
-            System.out.println(getConnection().initiate3WayHandshake(new Random()));
+            System.out.println(getConnection().initiate3WayHandshake(rng));
             Message connectMessage = MessageFactory.createConnectMessage(clientInfo);
             Message serverResponse = getConnection().sendSyncToServer(connectMessage);
 
