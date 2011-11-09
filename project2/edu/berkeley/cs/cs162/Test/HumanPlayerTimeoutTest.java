@@ -17,7 +17,7 @@ import java.net.UnknownHostException;
 
 
 import org.junit.Test;
-import static org.junit.Test.Assert.*;
+import static org.junit.Assert.*;
 
 import edu.berkeley.cs.cs162.Server.GameServer;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
