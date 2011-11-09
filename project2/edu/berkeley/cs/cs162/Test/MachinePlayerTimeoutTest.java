@@ -57,49 +57,23 @@ public class MachinePlayerTimeoutTest {
         ClientInfo clientInfo = MessageFactory.createMachinePlayerClientInfo("test");
         ClientInfo opp = MessageFactory.createMachinePlayerClientInfo("opponentDummy");
 
-        ServerConnection client = new ServerConnection(s2, s1);
-
-        Random rng = new Random();
-        //client.initiate3WayHandshake(rng);
-        con.receive3WayHandshake(rng);
-
-        //"connect" message from MachinePlayer
-        /*client.sendSyncToServer(MessageFactory.createConnectMessage(clientInfo));
-        msg = con.readFromClient();
-        assertEquals(msg.getMsgType(), MessageProtocol.OP_TYPE_CONNECT);
-
-        //send an "ok" reply
-        con.sendReplyToClient(MessageFactory.createStatusOkMessage());
-
-        //"wfg" message from MachinePlayer
-        Message wfgMessage = MessageFactory.createWaitForGameMessage();
-        client.sendSyncToServer(wfgMessage);
-        msg = con.readFromClient();
-        assertEquals(msg.getMsgType(), MessageProtocol.OP_TYPE_WAITFORGAME);
-
-        //send an "ok" reply
-        con.sendReplyToClient(MessageFactory.createStatusOkMessage());
-
-        //send a "game start" w/ params message to MachinePlayer and other player
-        con.sendToClient(MessageFactory.createGameStartMessage(gameInfo, boardInfo, clientInfo, opp));
-
-        //receive "ok" from both
-        Message reply = con.readReplyFromClient(MessageFactory.createStatusOkMessage());
-        assertTrue(reply.getMsgType() == MessageProtocol.OP_STATUS_OK);*/
-
+        System.out.println("beginning message to client");
         //send a "get move" message to MachinePlayer
         con.sendToClient(MessageFactory.createGetMoveMessage());
 
+        System.out.println("sleep you fools");
         //artificially timeout; game over message should be sent because of this
         Thread.sleep(2000);
 
         //check if player gets a "game over"
+        //...how can i check if the game over message is sent without knowing what kind of message is sent to it? hm.
+        //this hangs gosh darn it
         Message clientMsg = con.readReplyFromClient(MessageFactory.createGameOverMessage(gameInfo, 1.0, 0.0, clientInfo));
         assertEquals(clientMsg.getMsgType(), MessageProtocol.OP_TYPE_GAMEOVER);
 
         s1.close();
         s2.close();
 
-        System.out.println("done");
+        System.out.println("test complete");
     }
 }
