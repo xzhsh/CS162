@@ -17,38 +17,41 @@ import java.net.Socket;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Jay
- * Date: 11/8/11
- * Time: 3:29 PM
- * To change this template use File | Settings | File Templates.
+ * Harvey
  */
 public class HumanPlayerTimeoutTest {
     @Test
-    public void test() throws IOException {
+    public void testPlayerTimeout() throws IOException, InterruptedException {
 
-        final int PORT = 1234;
-        final String GAME = "TestGame";
-        final String HPTEST = "TestHumanPlayer";
+        String address = "localhost";
+        final int port = 12345;
 
-        GameInfo gameInfo = MessageFactory.createGameInfo(GAME);
-        BoardInfo boardInfo = MessageFactory.createBoardInfo(new Board(8));
-        ServerSocket server = new ServerSocket(PORT);
-        Thread hpThread = new Thread() {
-            public void run() {
-                HumanPlayer.main(new String[]{"localhost", String.valueOf(PORT), HPTEST});
+        final Socket container[] = new Socket[1];
+        Thread serverThread = new Thread()  {
+            public void run(){
+                try {
+                ServerSocket server = new ServerSocket(port);
+                container[0] = server.accept();
+                } catch (IOException e)
+                {
+
+                }
             }
         };
+        serverThread.start();
+        Socket sock1 = new Socket(address, port);
+        serverThread.join();
+        Socket sock2 = container[0];
 
-        hpThread.start();
+        ClientConnection connection = new ClientConnection(sock1, sock2, 0);
+        connection.setValid();
 
-        Socket c1 = server.accept();
-        Socket c2 = server.accept();
-        int synId1 = (new DataInputStream(c1.getInputStream())).readInt();
-        int synId2 = (new DataInputStream(c2.getInputStream())).readInt();
-        assertEquals(synId1, synId2);
-        ClientConnection con = new ClientConnection(c1, c2, synId1);
+        Message message = MessageFactory.createGenericOpCodeOnlyMessage();
 
+        try {connection.readReplyFromClient(message, 33000); }
+        catch (IOException e) { assertTrue(e instanceof SocketTimeoutException); }
 
+        sock1.close();
+        sock2.close();
     }
 }
