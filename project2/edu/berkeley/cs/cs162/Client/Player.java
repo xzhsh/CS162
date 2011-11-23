@@ -63,7 +63,6 @@ abstract public class Player extends BaseClient {
         while (true) {
             if (waitingForGames && !sentWFGMessage) {
                 Message reply = getConnection().sendSyncToServer(MessageFactory.createWaitForGameMessage());
-
                 if (reply.isOK()) {
                     sentWFGMessage = true;
                 } else {

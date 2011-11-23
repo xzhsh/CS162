@@ -55,6 +55,7 @@ public abstract class PlayerLogic extends ClientLogic {
 		if (state == PlayerState.CONNECTED) {
 		    state = PlayerState.WAITING;
 		    stateLock.release();
+		    System.out.println("Wait for game message received for player " + getWorker().getName());
 		    getWorker().getServer().addPlayerToWaitQueue(this);
 		    return MessageFactory.createStatusOkMessage();
 		}
@@ -75,8 +76,11 @@ public abstract class PlayerLogic extends ClientLogic {
     	stateLock.acquire();
     	if (state == PlayerState.WAITING)
     	{
+		    System.out.println("Game started for player " + getWorker().getName());
     		state = PlayerState.PLAYING;
     		started = true;
+    	} else {
+    		System.out.println("Tried to start game for player " + getWorker().getClientName() + " who was " + state);
     	}
     	stateLock.release();
     	return started;
@@ -100,16 +104,18 @@ public abstract class PlayerLogic extends ClientLogic {
 
 	public void terminateGame() {
 		stateLock.acquire();
-    	if (state != PlayerState.DISCONNECTED)
+    	if (state == PlayerState.PLAYING)
     	{
-        	assert state == PlayerState.PLAYING : "Terminated game when not playing";
-    		state = PlayerState.WAITING;
+        	//assert state == PlayerState.PLAYING : "Terminated game when not playing";
+    		state = PlayerState.CONNECTED;
     	}
     	stateLock.release();
 	}
 
 	public void disconnectState() {
+		stateLock.acquire();
 		state = PlayerState.DISCONNECTED;
+		stateLock.release();
 	}
 	
 	public WorkerSlave createSlaveThread(ClientConnection connection) {
