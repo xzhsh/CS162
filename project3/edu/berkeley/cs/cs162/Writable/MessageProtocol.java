@@ -50,4 +50,5 @@ public class MessageProtocol {
     public static final byte PLAYER_INVALID_MOVE  = (byte) 20;
     public static final byte PLAYER_KO_RULE       = (byte) 22;
     public static final byte PLAYER_FORFEIT       = (byte) 24;
+	public static final byte UNUSED = -1;
 }
