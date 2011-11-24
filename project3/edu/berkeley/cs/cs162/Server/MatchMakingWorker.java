@@ -18,7 +18,7 @@ public class MatchMakingWorker implements Runnable {
         			break;
         		} else 
         		{
-        			System.out.println(player1.getWorker().getClientName() + " is still playing");
+        			System.out.println(player1.getName() + " is still playing");
         		}
         	}
         	while (true) {
@@ -26,10 +26,10 @@ public class MatchMakingWorker implements Runnable {
         		if(player2.startGame()) {
         			break;
         		} else {
-        			System.out.println(player2.getWorker().getClientName() + " is still playing");
+        			System.out.println(player2.getName() + " is still playing");
         		}
         	}
-            Game game = new Game(player1.getWorker().getClientName() + "VS" + player2.getWorker().getClientName(), player1.getWorker(), player2.getWorker(), 10);
+            Game game = new Game(player1.getName() + "VS" + player2.getName(), player1, player2, 10);
             player1.beginGame(game);
             server.addGame(game);
         }

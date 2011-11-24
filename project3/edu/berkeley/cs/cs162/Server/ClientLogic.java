@@ -9,32 +9,27 @@ import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
 public abstract class ClientLogic {
-    private Worker worker;
+    private String name;
+    private GameServer server;
     Lock observingLock;
-    public ClientLogic(Worker worker) {
-        this.worker = worker;
+    
+    public ClientLogic(GameServer server, String name) {
+        this.name = name;
+        this.server = server;
         observingLock = new Lock();
     }
-    public static ClientLogic getClientLogicForClientType(Worker worker, byte playerType) {
+    public static ClientLogic getClientLogicForClientType(GameServer server, String name, byte playerType, ClientConnection connection) {
         switch (playerType) {
             case MessageProtocol.TYPE_HUMAN:
-                return new PlayerLogic.HumanPlayerLogic(worker);
+                return new PlayerLogic.HumanPlayerLogic(server, connection, name);
             case MessageProtocol.TYPE_MACHINE:
-                return new PlayerLogic.MachinePlayerLogic(worker);
+                return new PlayerLogic.MachinePlayerLogic(server, connection, name);
             case MessageProtocol.TYPE_OBSERVER:
-                return new ObserverLogic(worker);
+                return new ObserverLogic(server, connection, name);
         }
         throw new AssertionError("Unknown Client Type");
     }
-
-    public Worker getWorker() {
-        return worker;
-    }
     
-    public WorkerSlave getWorkerSlave() {
-		return getWorker().getSlave();
-	}
-
     public Message handleMessage(Message message) {
         switch (message.getMsgType()) {
             case MessageProtocol.OP_TYPE_LISTGAMES: {
@@ -50,7 +45,6 @@ public abstract class ClientLogic {
             	return handleWaitForGame();
             }
             case MessageProtocol.OP_TYPE_DISCONNECT: {
-                getWorker().closeAndCleanup();
                 return null;
             }
         }
@@ -72,8 +66,17 @@ public abstract class ClientLogic {
     public Message handleListGames() {
 		return MessageFactory.createErrorRejectedMessage();
 	}
+    
+    public GameServer getServer() {
+		return server;
+	}
+    
+    public String getName() {
+    	return name;
+    }
+    
+	public abstract void handleSendMessage(Message message);
 
     public abstract void cleanup();
 	public abstract ClientInfo makeClientInfo();
-	public abstract WorkerSlave createSlaveThread(ClientConnection connection);
 }

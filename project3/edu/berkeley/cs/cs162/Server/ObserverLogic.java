@@ -14,17 +14,17 @@ import edu.berkeley.cs.cs162.Writable.WritableList;
 /**
  * Logic for handling messages from observer.
  * @author Excess
- *
  */
 public class ObserverLogic extends ClientLogic {
-
     /**
      * List of currently observed game. 
      */
     Set<Game> currentlyObserving;
-    
-    public ObserverLogic(Worker worker) {
-        super(worker);
+    ObserverWorkerSlave slave;
+    public ObserverLogic(GameServer server, ClientConnection connection, String name) {
+        super(server, name);
+        slave = new ObserverWorkerSlave(connection, server);
+        slave.start();
         currentlyObserving = new HashSet<Game>();
     }
 
@@ -33,7 +33,7 @@ public class ObserverLogic extends ClientLogic {
      */
     public Message handleListGames() {
 		List<GameInfo> gInfos = new ArrayList<GameInfo>();
-		for (Game g : getWorker().getServer().getGameList()) {
+		for (Game g : getServer().getGameList()) {
 			if (g.isActive())
 				gInfos.add(g.makeGameInfo());
 		}
@@ -45,11 +45,11 @@ public class ObserverLogic extends ClientLogic {
      * Attempts to join a game with observer. This also stores the game in the corresponding workerslave.
      */
 	public Message handleJoinGame(GameInfo gameInfo) {
-		Game game = getWorker().getServer().getGame(gameInfo.getName());
+		Game game = getServer().getGame(gameInfo.getName());
 		if (game == null) {
 		    return MessageFactory.createErrorInvalidGameMessage();
 		}
-		if (game.addObserver(getWorker()))
+		if (game.addObserver(this))
 		{
 			return MessageFactory.createJoinStatusOkMessage(game.makeBoardInfo(), game.getBlackPlayer().makeClientInfo(), game.getWhitePlayer().makeClientInfo());
 		}
@@ -59,12 +59,12 @@ public class ObserverLogic extends ClientLogic {
 	}
 
 	public Message handleLeaveGame(GameInfo gameInfo) {
-		Game desiredGame = getWorker().getServer().getGame(gameInfo.getName());
+		Game desiredGame = getServer().getGame(gameInfo.getName());
 		if (desiredGame == null)
 		{
 		    return MessageFactory.createErrorInvalidGameMessage();
 		}
-		if (desiredGame.removeObserver(getWorker()))
+		if (desiredGame.removeObserver(this))
 		{
 			return MessageFactory.createStatusOkMessage();
 		}
@@ -87,13 +87,13 @@ public class ObserverLogic extends ClientLogic {
     	observingLock.acquire();
     	for (Game game : currentlyObserving)
     	{
-    		game.removeObserver(getWorker());
+    		game.removeObserver(this);
     	}
     	observingLock.release();
     }
 
     public ClientInfo makeClientInfo() {
-        return MessageFactory.createObserverClientInfo(getWorker().getClientName());
+        return MessageFactory.createObserverClientInfo(getName());
     }
 
 	public void addGame(Game game) {
@@ -107,7 +107,8 @@ public class ObserverLogic extends ClientLogic {
 		observingLock.release();
 	}
 
-	public WorkerSlave createSlaveThread(ClientConnection connection) {
-		return new ObserverWorkerSlave(connection, getWorker());
+	@Override
+	public void handleSendMessage(Message message) {
+		slave.handleSendMessage(message);
 	}
 }

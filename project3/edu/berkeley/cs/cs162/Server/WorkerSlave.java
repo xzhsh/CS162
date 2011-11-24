@@ -56,22 +56,20 @@ class WorkerSlave extends Thread {
 
 	private static final int WORKER_MESSAGE_QUEUE_SIZE = 10;
     private boolean done;
-    private Worker master;
+    private GameServer server;
     protected ClientConnection connection;
     private ThreadSafeQueue<Runnable> messageQueue;
-    
-    public WorkerSlave(ClientConnection connection, Worker master) {
+    public WorkerSlave(ClientConnection connection, GameServer gameServer) {
         this.connection = connection;
-        this.master = master;
+        this.server = gameServer;
         messageQueue = new ThreadSafeQueue<Runnable>(WORKER_MESSAGE_QUEUE_SIZE);
         done = false;
     }
     
-    public Worker getMaster()
-    {
-    	return master;
+    public GameServer getServer() {
+    	return server;
     }
-
+    
     public void run() {
         while (!done) {
             getMessageQueue().get().run();

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 public class Worker extends Thread {
-    private WorkerSlave slave;
     private boolean done;
     private GameServer server;
     private String clientName;
@@ -36,10 +35,7 @@ public class Worker extends Thread {
             clientName = cInfo.getName();
 
             //grab the client logic fo this type of worker.
-            clientLogic = ClientLogic.getClientLogicForClientType(this, cInfo.getPlayerType());
-
-            slave = clientLogic.createSlaveThread(connection);
-            slave.start();
+            clientLogic = ClientLogic.getClientLogicForClientType(getServer(), getClientName(), cInfo.getPlayerType(), connection);
             server.addWorker(clientName, this);
             server.getLog().println("Client connected! " + cInfo);
             while (!done) {
@@ -71,7 +67,6 @@ public class Worker extends Thread {
             //there should be no resources that the worker has otherwise allocated at this point.
             return null;
         }
-
         Message returnMessage;
 		try {
 			returnMessage = connection.readFromClient();
@@ -105,10 +100,6 @@ public class Worker extends Thread {
         getServer().getLog().println("Worker cleaned up, " + getServer().getNumberOfActiveGames() + " Games active");
     }
 
-    public void handleSendMessageToClient(Message message) {
-        slave.handleSendMessage(message);
-    }
-
     public GameServer getServer() {
         return server;
     }
@@ -119,7 +110,6 @@ public class Worker extends Thread {
     public void closeAndCleanup() {
         // TODO remove game and wait list.
     	done = true;
-    	slave.handleTerminate();
     	getLogic().cleanup();
         cleanup();
     }
@@ -129,14 +119,8 @@ public class Worker extends Thread {
     }
 
     public ClientInfo makeClientInfo() {
-        // TODO Auto-generated method stub
         return clientLogic.makeClientInfo();
     }
-
-	public WorkerSlave getSlave() {
-		// TODO Auto-generated method stub
-		return slave;
-	}
 	
 	public String getClientName()
 	{

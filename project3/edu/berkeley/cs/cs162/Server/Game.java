@@ -23,18 +23,20 @@ public class Game {
     private GoBoard board;
     private String name;
     private boolean active;
-    private Worker blackPlayer;
-    private Worker whitePlayer;
-    private Set<Worker> observerList;
+    private PlayerLogic blackPlayer;
+    private PlayerLogic whitePlayer;
+    private Set<ObserverLogic> observerList;
     private ReaderWriterLock observerLock;
 	private boolean lastPassed;
+	private GameServer server;
 	
-    public Game(String name, Worker blackPlayer, Worker whitePlayer, int size) {
+    public Game(String name, PlayerLogic blackPlayer, PlayerLogic whitePlayer, int size) {
     	this.blackPlayer = blackPlayer;
     	this.whitePlayer = whitePlayer;
+    	server = blackPlayer.getServer();
     	this.name = name;
         board = new GoBoard(size);
-        observerList = new HashSet<Worker>();
+        observerList = new HashSet<ObserverLogic>();
         observerLock = new ReaderWriterLock();
         state = GameState.BLACK_MOVE;
         lastPassed = false;
@@ -55,26 +57,26 @@ public class Game {
      * @param worker
      * @return 
      */
-    public boolean addObserver(Worker worker) {
+    public boolean addObserver(ObserverLogic o) {
     	if (!isActive()) {return false;}
     	observerLock.writeLock();
-    	boolean added = !observerList.contains(worker);
+    	boolean added = !observerList.contains(o);
     	if (added)
     	{
-    		observerList.add(worker);
-    		((ObserverLogic)worker.getLogic()).addGame(this);
+    		observerList.add(o);
+    		o.addGame(this);
     	}
     	observerLock.writeUnlock();
 		return added;
     }
 
-    public boolean removeObserver(Worker worker) {
+    public boolean removeObserver(ObserverLogic o) {
     	observerLock.writeLock();
-    	boolean removed = observerList.contains(worker);
+    	boolean removed = observerList.contains(o);
     	if (removed)
     	{
-    		observerList.remove(worker);
-    		((ObserverLogic)worker.getLogic()).removeGame(this);
+    		observerList.remove(o);
+    		o.removeGame(this);
     	}
     	observerLock.writeUnlock();
 		return removed;
@@ -84,11 +86,11 @@ public class Game {
         return MessageFactory.createBoardInfo(board.getCurrentBoard());
     }
 
-    public Worker getBlackPlayer() {
+    public PlayerLogic getBlackPlayer() {
         return blackPlayer;
     }
 
-    public Worker getWhitePlayer() {
+    public PlayerLogic getWhitePlayer() {
         return whitePlayer;
     }
 
@@ -99,16 +101,15 @@ public class Game {
 	public void broadcastStartMessage() {
 		Message message = MessageFactory.createGameStartMessage(this);
 		observerLock.readLock();
-		for (Worker o : observerList)
+		for (ObserverLogic o : observerList)
 		{
-			o.handleSendMessageToClient(message);
+			o.handleSendMessage(message);
 		}
 		observerLock.readUnlock();
-		blackPlayer.handleSendMessageToClient(message);
-		whitePlayer.handleSendMessageToClient(message);
-		((PlayerWorkerSlave)blackPlayer.getSlave()).setGame(this);
-		((PlayerWorkerSlave)whitePlayer.getSlave()).setGame(this);
-		
+		blackPlayer.handleSendMessage(message);
+		whitePlayer.handleSendMessage(message);
+		blackPlayer.setGame(this);
+		whitePlayer.setGame(this);
 	}
 
 	public void makePassMove() {
@@ -127,13 +128,13 @@ public class Game {
 	public void broadcastMessage(Message message)
 	{
 		observerLock.readLock();
-		for (Worker o : observerList)
+		for (ObserverLogic o : observerList)
 		{
-			o.getSlave().handleSendMessage(message);
+			o.handleSendMessage(message);
 		}
 		observerLock.readUnlock();
-		blackPlayer.getSlave().handleSendMessage(message);
-		whitePlayer.getSlave().handleSendMessage(message);
+		blackPlayer.handleSendMessage(message);
+		whitePlayer.handleSendMessage(message);
 	}
 	
 	public void doMakeMove(BoardLocation loc) {
@@ -159,7 +160,7 @@ public class Game {
 		{
 			state = GameState.BLACK_MOVE;
 		}
-		getCurrentPlayerSlave().handleNextMove(this);
+		getCurrentPlayer().handleNextMove(this);
 	}
 	
 	private void doGameOver() {
@@ -167,7 +168,7 @@ public class Game {
 		System.out.println(board);
 		double blackScore = board.getScore(StoneColor.BLACK);
 		double whiteScore = board.getScore(StoneColor.WHITE);
-		Worker winner = blackScore > whiteScore ? blackPlayer : whitePlayer;
+		PlayerLogic winner = blackScore > whiteScore ? blackPlayer : whitePlayer;
 		final Message message = MessageFactory.createGameOverMessage(makeGameInfo(), blackScore, whiteScore, winner.makeClientInfo());
     	broadcastMessage(message);
 		broadcastTerminate();
@@ -187,32 +188,28 @@ public class Game {
 		//terminates the game for the players.
 		//nothing needs to be done for observers because they hold no state.
 		
-		((PlayerWorkerSlave)blackPlayer.getSlave()).terminateGame();
-		((PlayerWorkerSlave)whitePlayer.getSlave()).terminateGame();
+		blackPlayer.terminateGame();
+		whitePlayer.terminateGame();
 		observerLock.writeLock();
-		Iterator<Worker> i = observerList.iterator();
+		Iterator<ObserverLogic> i = observerList.iterator();
 		while (i.hasNext())
 		{
-			Worker obs = i.next();
-			((ObserverLogic)obs.getLogic()).removeGame(this);
+			ObserverLogic obs = i.next();
+			obs.removeGame(this);
 			i.remove();
 		}
 		observerLock.writeUnlock();
-		blackPlayer.getServer().removeGame(this);
+		server.removeGame(this);
 	}
 
-	private PlayerWorkerSlave getCurrentPlayerSlave() {
-		return (PlayerWorkerSlave) getCurrentPlayer().getSlave();
-	}
-	
-	private Worker getCurrentPlayer() {
+	private PlayerLogic getCurrentPlayer() {
 		if (state == GameState.BLACK_MOVE) { return blackPlayer;}
 		if (state == GameState.WHITE_MOVE) { return whitePlayer;}
 		//if game over, return null.
 		return null;
 	}
 
-	private Worker getInactivePlayer() {
+	private PlayerLogic getInactivePlayer() {
 		if (state == GameState.BLACK_MOVE) { return whitePlayer;}
 		if (state == GameState.WHITE_MOVE) { return blackPlayer;}
 		//if game over, return null.

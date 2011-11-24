@@ -12,8 +12,10 @@ public class PlayerWorkerSlave extends WorkerSlave{
 	
 	private Game game;
 	private int moveTimeout;
-	public PlayerWorkerSlave(ClientConnection connection, Worker master, int moveTimeout) {
-		super(connection, master);
+	private PlayerLogic master;
+	public PlayerWorkerSlave(ClientConnection connection, PlayerLogic logic, int moveTimeout) {
+		super(connection, logic.getServer());
+		this.master = logic;
 		game = null;
 		this.moveTimeout = moveTimeout;
 	}
@@ -27,23 +29,23 @@ public class PlayerWorkerSlave extends WorkerSlave{
 		Game temp = game;
 		if (temp != null)
 		{
-			getMaster().getServer().removeGame(game);
+			getServer().removeGame(game);
 			game = null;
-			temp.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getClientName()+ " disconnected.", MessageProtocol.PLAYER_FORFEIT));
+			temp.doGameOverError(new GoBoard.IllegalMoveException(master.makeClientInfo().getName() + " disconnected.", MessageProtocol.PLAYER_FORFEIT));
 		}
-		((PlayerLogic)getMaster().getLogic()).disconnectState();
-		System.out.println("PlayerWorker cleaned up, " + getMaster().getServer().getNumberOfActiveGames() + " Games active");
+		master.disconnectState();
+		System.out.println("PlayerWorker cleaned up, " + getServer().getNumberOfActiveGames() + " Games active");
 	}
 	
 	protected void terminateGame() {
-		System.out.println(getMaster().getClientName() + " received terminateGame message!");
+		System.out.println(master.makeClientInfo().getName() + " received terminateGame message!");
 		Game temp = game;
 		if (temp != null) {
-			getMaster().getServer().removeGame(game);
+			getServer().removeGame(game);
 			game = null;
 			temp.broadcastTerminate();
 		}
-		((PlayerLogic)getMaster().getLogic()).terminateGame();
+		master.terminateGame();
 	}
 
 	/**
@@ -97,7 +99,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
 			}
 			else if (moveMsg.getMoveType() == MessageProtocol.MOVE_FORFEIT)
 			{
-				game.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getClientName()+ " timed out.", MessageProtocol.PLAYER_FORFEIT));
+				game.doGameOverError(new GoBoard.IllegalMoveException(master.makeClientInfo().getName() + " timed out.", MessageProtocol.PLAYER_FORFEIT));
 			}
 			else if (moveMsg.getMoveType() == MessageProtocol.MOVE_STONE)
 			{
@@ -106,7 +108,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
 		}
 		else 
 		{
-			game.doGameOverError(new GoBoard.IllegalMoveException(getMaster().getClientName()+ " timed out.", MessageProtocol.PLAYER_FORFEIT));
+			game.doGameOverError(new GoBoard.IllegalMoveException(master.makeClientInfo().getName() + " timed out.", MessageProtocol.PLAYER_FORFEIT));
 		}
     }
 

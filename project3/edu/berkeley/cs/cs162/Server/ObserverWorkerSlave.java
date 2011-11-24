@@ -6,7 +6,7 @@ package edu.berkeley.cs.cs162.Server;
  *
  */
 public class ObserverWorkerSlave extends WorkerSlave {
-	public ObserverWorkerSlave(ClientConnection connection, Worker master) {
-		super(connection, master);
+	public ObserverWorkerSlave(ClientConnection connection, GameServer gameServer) {
+		super(connection, gameServer);
 	}
 }

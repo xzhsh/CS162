@@ -1,16 +1,19 @@
 package edu.berkeley.cs.cs162.Server;
 
-import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
-import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
-import edu.berkeley.cs.cs162.Writable.Message;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
+import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
 
 public class GameServer {
     public static final int GLOBAL_TIMEOUT_IN_MS = 300000;
@@ -117,20 +120,6 @@ public class GameServer {
         } catch (IOException e) {
             e.printStackTrace(getLog());
         }
-    }
-
-    /**
-     * Sends a message to the named client through a worker.
-     *
-     * @param name
-     * @param message
-     */
-    public void sendMessageToClient(String name, Message message) {
-        Worker worker;
-        nameToWorkerMapLock.readLock();
-        worker = nameToWorkerMap.get(name);
-        nameToWorkerMapLock.readUnlock();
-        worker.handleSendMessageToClient(message);
     }
 
     /**
