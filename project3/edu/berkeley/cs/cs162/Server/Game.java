@@ -31,19 +31,24 @@ public class Game {
 	private GameServer server;
 	
     public Game(String name, PlayerLogic blackPlayer, PlayerLogic whitePlayer, int size) {
+    	this(name, blackPlayer, whitePlayer, new GoBoard(size));
+    }
+
+    public Game(String name, PlayerLogic blackPlayer,
+			PlayerLogic whitePlayer, GoBoard board) {
     	this.blackPlayer = blackPlayer;
     	this.whitePlayer = whitePlayer;
     	server = blackPlayer.getServer();
     	this.name = name;
-        board = new GoBoard(size);
+        this.board = board;
         observerList = new HashSet<ObserverLogic>();
         observerLock = new ReaderWriterLock();
         state = GameState.BLACK_MOVE;
         lastPassed = false;
         active = true;
-    }
+	}
 
-    public GameInfo makeGameInfo() {
+	public GameInfo makeGameInfo() {
         return MessageFactory.createGameInfo(name);
     }
 
@@ -224,5 +229,9 @@ public class Game {
 
 	public boolean isActive() {
 		return active;
+	}
+
+	public void begin() {
+		getCurrentPlayer().beginGame(this);
 	}
 }

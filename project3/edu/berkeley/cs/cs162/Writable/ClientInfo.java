@@ -61,4 +61,13 @@ public class ClientInfo implements Writable {
         }
         return "<" + typeName + ": " + name + ">";
     }
+    
+    @Override
+    public boolean equals(Object other) {
+    	if (other instanceof ClientInfo) {
+    		ClientInfo o = (ClientInfo) other;
+    		return o.getName().equals(getName()) && o.getPlayerType() == o.getPlayerType();
+    	}
+    	return false;
+    }
 }

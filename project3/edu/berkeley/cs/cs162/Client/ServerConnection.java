@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Random;
 
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
@@ -20,9 +19,7 @@ public class ServerConnection {
 
     private boolean valid;
 
-    public ServerConnection(Socket connection1, Socket connection2) {
-        S2C = connection1;
-        C2S = connection2;
+    public ServerConnection() {
         valid = false;
     }
 
@@ -46,17 +43,16 @@ public class ServerConnection {
      * @param rng The random number generator that will be used.
      * @throws IOException
      */
-    public boolean initiate3WayHandshake(Random rng) throws IOException {
-        int SYN_ID = rng.nextInt();
+    public boolean initiate3WayHandshake(String address, int port, int SYN_ID) throws IOException {
+    	C2S = new Socket(address, port);
         iC2S = new DataInputStream(C2S.getInputStream());
-        iS2C = new DataInputStream(S2C.getInputStream());
         oC2S = new DataOutputStream(C2S.getOutputStream());
-        oS2C = new DataOutputStream(S2C.getOutputStream());
-
         oC2S.writeInt(SYN_ID);
-        //System.out.println(count1.addAndGet(1) + " syn1 have been sent");
+        
+        S2C = new Socket(address, port);
+        iS2C = new DataInputStream(S2C.getInputStream());
+        oS2C = new DataOutputStream(S2C.getOutputStream());
         oS2C.writeInt(SYN_ID);
-        //System.out.println(count2.addAndGet(1) + " syn2 have been sent");
         
 
         int SYN1 = iC2S.readInt();
