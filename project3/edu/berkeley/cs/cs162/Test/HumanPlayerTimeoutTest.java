@@ -25,7 +25,7 @@ public class HumanPlayerTimeoutTest {
 		byte type = MessageProtocol.TYPE_HUMAN;
 		int pTimeout = 31000;
 		
-        final GameServer server =new GameServer("HumanPlayerTest.db",100, 5, new PrintStream(new NullOutputStream()));
+        final GameServer server =new GameServer("edu.berkeley.cs.cs162.Test.HumanPlayerTest.db",100, 5, new PrintStream(new NullOutputStream()));
         Thread serverThread = new Thread() {
 			public void run() {
 				try {

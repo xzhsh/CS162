@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -136,9 +137,8 @@ public class GameServer {
                     incomingConnection.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
                     connectionQueue.add(incomingConnection);
                     getLog().println("Added connection");
-            	} catch (Exception e) {
-            		getLog().println("Accept failed");
-            		e.printStackTrace(getLog());
+            	} catch (SocketTimeoutException e) {
+            		//socket timedout, no need to do anything
             	}
             }
         } catch (IOException e) {
@@ -255,7 +255,7 @@ public class GameServer {
         	System.out.println("Not enough arguments!\n\tjava GameServer <ip address> <port number>");
         	return;
         }
-    	GameServer server = new GameServer("cs162-project3.db", 100, 5, System.out);
+    	GameServer server = new GameServer("edu.berkeley.cs.cs162.Server.cs162-project3.db", 100, 5, System.out);
         
         try {
         	InetAddress serverAddr = InetAddress.getByName(args[0]) ;

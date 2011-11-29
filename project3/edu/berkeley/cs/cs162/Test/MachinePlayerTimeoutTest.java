@@ -27,7 +27,7 @@ public class MachinePlayerTimeoutTest {
 		byte type = MessageProtocol.TYPE_MACHINE;
 		int timeout = 3000;
 		
-        final GameServer server =new GameServer("MachinePlayerTest.db", 100, 5, new PrintStream(new NullOutputStream()));
+        final GameServer server =new GameServer("edu.berkeley.cs.cs162.Test.MachinePlayerTest.db", 100, 5, new PrintStream(new NullOutputStream()));
         Thread serverThread = new Thread() {
 			public void run() {
 				try {
