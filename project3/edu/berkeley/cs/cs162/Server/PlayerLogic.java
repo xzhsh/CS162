@@ -60,11 +60,16 @@ public abstract class PlayerLogic extends ClientLogic {
 	public Message handleWaitForGame() {
 		stateLock.acquire();
 		if (state == PlayerState.CONNECTED) {
-		    state = PlayerState.WAITING;
-		    stateLock.release();
-		    System.out.println("Wait for game message received for player " + getName());
-		    getServer().addPlayerToWaitQueue(this);
-		    return MessageFactory.createStatusOkMessage();
+			state = PlayerState.WAITING;
+			stateLock.release();
+			Game unfinishedGame = getServer().checkForUnfinishedGame(this);
+			if (unfinishedGame != null) {
+				//TODO reconnect logic!
+				throw new AssertionError("Unimplemented method");
+			} else {
+				getServer().addPlayerToWaitQueue(this);
+				return MessageFactory.createStatusOkMessage();
+			}
 		}
 		else
 		{

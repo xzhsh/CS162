@@ -5,7 +5,9 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +18,7 @@ import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
 import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
 
 public class GameServer {
-    public static final int GLOBAL_TIMEOUT_IN_MS = 300000;
-    private static final int WAITING_CONNECTION_BUFFER_SIZE = 100;
+    public static final int GLOBAL_TIMEOUT_IN_MS = 3000;
     /**
      * RNG for this game server.
      */
@@ -35,6 +36,7 @@ public class GameServer {
      * Queue for players waiting for games.
      */
     private ThreadSafeQueue<PlayerLogic> waitingPlayerQueue;
+    
     /**
      * Mapping between the name of a client and the worker handling the client's connection
      */
@@ -61,19 +63,25 @@ public class GameServer {
     private PrintStream logStream;
 	private boolean ready;
 
+	
+	////PROJECT THREE FIELDS:
+	private DatabaseConnection connection;
+	private List<UnfinishedGame> unfinishedGames;
+	private ServerStateManager stateManager;
+	private AuthenticationManager authManager;
     /**
      * Constructor for gameServer
      *
      * @param clientLimit             how many max clients can be connected
      * @param handshakeThreadPoolSize How many {@link ConnectionWorker} threads there will be.
      */
-    public GameServer(int clientLimit, int handshakeThreadPoolSize, PrintStream logStream) {
+    public GameServer(String databasePath, int clientLimit, int handshakeThreadPoolSize, PrintStream logStream) {
         this.clientLimit = clientLimit;
         this.logStream = logStream;
         rng = new Random();
         waitingSocketMap = new HashMap<Integer, SocketWithTimeStamp>();
         
-        connectionQueue = new ThreadSafeQueue<Socket>(WAITING_CONNECTION_BUFFER_SIZE);
+        connectionQueue = new ThreadSafeQueue<Socket>(clientLimit * 2);
         waitingPlayerQueue = new ThreadSafeQueue<PlayerLogic>(clientLimit);
         activeGames = new HashMap<String, Game>();
         nameToWorkerMap = new HashMap<String, Worker>();
@@ -82,6 +90,18 @@ public class GameServer {
         clientsConnectedLock = new ReaderWriterLock();
         activeGamesLock = new ReaderWriterLock();
         clientsConnected = 0;
+        
+        try {
+			connection = new DatabaseConnection(databasePath);
+	        stateManager = new ServerStateManager(connection);
+	        authManager = new AuthenticationManager(connection, "cs162project3istasty");
+			unfinishedGames = stateManager.loadUnfinishedGames();
+		} catch (SQLException e) {
+			// Invalid sql connection, unrecoverable.
+			// log the error and terminate.
+			logStream.println("Database failure: " + e.getMessage());
+			System.exit(1);
+		}
         
         for (int i = 0; i < handshakeThreadPoolSize; i++) {
             //NOTE These worker threads will never be cleaned up.
@@ -107,15 +127,19 @@ public class GameServer {
      */
     public void waitForConnectionsOnPort(int portNumber, InetAddress localIP) {
         try {
-            ServerSocket server = new ServerSocket(portNumber, 100, localIP);
+            ServerSocket server = new ServerSocket(portNumber, clientLimit * 2, localIP);
             server.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
             ready = true;
             while (true) {
-                Socket incomingConnection = server.accept();
-                getLog().println("Found connection");
-                incomingConnection.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
-                connectionQueue.add(incomingConnection);
-                getLog().println("Added connection");
+            	try {
+            		Socket incomingConnection = server.accept();
+                    getLog().println("Found connection");
+                    incomingConnection.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
+                    connectionQueue.add(incomingConnection);
+                    getLog().println("Added connection");
+            	} catch (SocketTimeoutException e) {
+            		//socket timedout, no need to do anything
+            	}
             }
         } catch (IOException e) {
             e.printStackTrace(getLog());
@@ -231,7 +255,7 @@ public class GameServer {
         	System.out.println("Not enough arguments!\n\tjava GameServer <ip address> <port number>");
         	return;
         }
-    	GameServer server = new GameServer(100, 5, System.out);
+    	GameServer server = new GameServer("edu.berkeley.cs.cs162.Server.cs162-project3.db", 100, 5, System.out);
         
         try {
         	InetAddress serverAddr = InetAddress.getByName(args[0]) ;
@@ -292,7 +316,26 @@ public class GameServer {
 	public int getNumberOfActiveGames() {
 		return activeGames.size();
 	}
+	
+	/**
+	 * Checks for a partially completed game.
+	 * 
+	 * @param player
+	 * @return A partially completed game if one exists, otherwise, null.
+	 */
+	public Game checkForUnfinishedGame(PlayerLogic player) {
+		for (UnfinishedGame uGame : unfinishedGames) {
+			if (uGame.matchesPlayer(player)) {
+				return uGame.reconnectGame();
+			}
+		}
+		return null;
+	}
 
+	public AuthenticationManager getAuthenticationManager() {
+		return authManager;
+	}
+	
 	public boolean isReady() {
 		return ready;
 	}

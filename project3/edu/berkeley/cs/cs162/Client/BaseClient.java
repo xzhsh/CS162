@@ -1,7 +1,6 @@
 package edu.berkeley.cs.cs162.Client;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.Random;
 
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
@@ -54,13 +53,9 @@ abstract public class BaseClient implements Client {
     public boolean connectTo(String address, Integer port){
         try
         {
-            // Create the C2S and S2C sockets
-            Socket c1 = new Socket(address, port);
-            Socket c2 = new Socket(address, port);
-
             // Attempt to connect to the GameServer via 3-way Handshake
-            connection = new ServerConnection(c1, c2);
-            if (!getConnection().initiate3WayHandshake(rng))
+            connection = new ServerConnection();
+            if (!getConnection().initiate3WayHandshake(address, port, rng.nextInt()))
             {
             	return false;
             }

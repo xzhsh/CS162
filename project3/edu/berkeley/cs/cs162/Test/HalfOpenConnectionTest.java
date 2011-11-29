@@ -36,7 +36,7 @@ public class HalfOpenConnectionTest {
 		lock.acquire();
 		Thread t = new Thread() {
 			public void run() {
-				GameServer g = new GameServer(100, 5, new PrintStream(nullout));
+				GameServer g = new GameServer("edu.berkeley.cs.cs162.Test.half-open-test.db", 100, 5, new PrintStream(nullout));
 				try {
 					lock.release();
 					g.waitForConnectionsOnPort(TEST_PORT, InetAddress.getByName("localhost"));

@@ -2,22 +2,14 @@ package edu.berkeley.cs.cs162.Test;
 
 
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-
-import edu.berkeley.cs.cs162.Client.*;
-import edu.berkeley.cs.cs162.Server.*;
-import edu.berkeley.cs.cs162.Writable.*;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import edu.berkeley.cs.cs162.Server.GameServer;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
@@ -33,7 +25,7 @@ public class HumanPlayerTimeoutTest {
 		byte type = MessageProtocol.TYPE_HUMAN;
 		int pTimeout = 31000;
 		
-        final GameServer server =new GameServer(100, 5, new PrintStream(new NullOutputStream()));
+        final GameServer server =new GameServer("edu.berkeley.cs.cs162.Test.HumanPlayerTest.db",100, 5, new PrintStream(new NullOutputStream()));
         Thread serverThread = new Thread() {
 			public void run() {
 				try {

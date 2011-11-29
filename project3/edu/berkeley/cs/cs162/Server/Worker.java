@@ -51,12 +51,10 @@ public class Worker extends Thread {
         catch (SocketTimeoutException e)
         {
             server.getLog().println("Connection timed out.");
-            e.printStackTrace(getServer().getLog());
             closeAndCleanup();
         }
         catch (IOException e) {
-            server.getLog().println("Connection closed unexpectedly.");
-            e.printStackTrace(getServer().getLog());
+            server.getLog().println("Connection closed unexpectedly." + e.getMessage());
             closeAndCleanup();
         }
     }
