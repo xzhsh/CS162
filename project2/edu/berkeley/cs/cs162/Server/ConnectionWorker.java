@@ -41,7 +41,12 @@ public class ConnectionWorker implements Runnable {
             int SYN_ID = isStream.readInt();
             server.handleSYN(SYN_ID, connection);
         } catch (IOException e) {
+<<<<<<< HEAD
             e.printStackTrace(server.getLog());
+=======
+        	System.out.println(e.getMessage() + " was closed for socket " + connection);
+            e.printStackTrace();
+>>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
             try {
                 connection.close();
             } catch (IOException e1) {

@@ -23,7 +23,11 @@ public class ServerStressTest {
 
 	@Test
 	public void test() throws InterruptedException {
+<<<<<<< HEAD
 		final GameServer server = new GameServer(100, 5, new PrintStream(new NullOutputStream()));
+=======
+		final GameServer server = new GameServer(100, 5, new PrintStream(System.out));//new NullOutputStream()));
+>>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
 		
 		Thread t = new Thread() {
 			public void run() {
