@@ -1,38 +1,29 @@
 package edu.berkeley.cs.cs162.Client;
 
-import edu.berkeley.cs.cs162.Writable.ClientInfo;
+import java.io.IOException;
 
-abstract public class Observer implements Client {
-    String name;
-    byte type;
-    
+import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+
+abstract public class Observer extends BaseClient {
+
+    protected int joinedGames;
+
     public Observer() {
         this("");
     }
 
     public Observer(String name) {
-        this(name, (byte)-1);
+        this(name, MessageProtocol.TYPE_OBSERVER);
     }
-    
+
     public Observer(String name, byte type) {
-        this.name = name;
-        this.type = type;
+    	super(name,type);
+        joinedGames = 0;
     }
     
-    public void setName(String name) {
-        this.name = name;
+    protected void runExecutionLoop() throws IOException {
+        while (joinedGames > 0) {
+            handleMessage(getConnection().readFromServer());
+        }
     }
-    
-    public String getName() {
-        return this.name;
-    }
-    
-    public void setType(byte type) {
-        this.type = type;
-    }
-    
-    public byte getType() {
-        return this.type;
-    }
-    
 }
