@@ -143,6 +143,11 @@ public class MessageFactory {
 
     /* Client Messages */
 
+    // Register
+    public static Message createRegisterMessage(ClientInfo client, String passwordHash) {
+        return new ClientMessages.RegisterMessage(client, passwordHash);
+    }
+
     // Connect
     public static Message createConnectMessage(ClientInfo cInfo, String passwordHash) {
         return new ClientMessages.ConnectMessage(cInfo, passwordHash);

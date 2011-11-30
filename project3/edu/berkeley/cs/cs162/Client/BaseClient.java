@@ -1,7 +1,10 @@
 package edu.berkeley.cs.cs162.Client;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
+import java.security.MessageDigest;
+import java.nio.charset.Charset;
 
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.Message;
@@ -17,9 +20,11 @@ abstract public class BaseClient implements Client {
     private ServerConnection connection;
 	private String password;
     static Random rng = new Random();
+
+
     public BaseClient(String name, String password, byte type) {
         this.name = name;
-        this.password = password;
+        this.password = hashPassword(password);
         this.type = type;
         clientInfo = MessageFactory.createClientInfo(this.name, this.type);
     }
@@ -49,14 +54,20 @@ abstract public class BaseClient implements Client {
         {
             // Attempt to connect to the GameServer via 3-way Handshake
             connection = new ServerConnection();
-            if (!getConnection().initiate3WayHandshake(address, port, rng.nextInt()))
-            {
+            if (!connection.initiate3WayHandshake(address, port, rng.nextInt()))
             	return false;
-            }
-            Message connectMessage = MessageFactory.createConnectMessage(clientInfo, password);
-            Message serverResponse = getConnection().sendSyncToServer(connectMessage);
 
-            return (serverResponse.isOK());
+            // Register with the server
+            Message registerMessage = MessageFactory.createRegisterMessage(clientInfo, password);
+            Message registerResponse = connection.sendSyncToServer(registerMessage);
+
+            if(!registerResponse.isOK())
+                return false;
+
+            Message connectMessage = MessageFactory.createConnectMessage(clientInfo, password);
+            Message connectResponse = connection.sendSyncToServer(connectMessage);
+
+            return (connectResponse.isOK());
         }
         catch(IOException e) {
         	e.printStackTrace();
@@ -64,6 +75,16 @@ abstract public class BaseClient implements Client {
         	
         	return false;
     	}
+    }
+
+    private String hashPassword(String password){
+        try{
+            // TODO Ensure that the bytes are encoded in ASCII
+            return new String(MessageDigest.getInstance("SHA-256").digest(password.getBytes()));
+        }
+        catch(NoSuchAlgorithmException e){
+            return "";
+        }
     }
 
     protected void handleMessage(Message m) throws IOException {

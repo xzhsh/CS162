@@ -7,7 +7,11 @@ package edu.berkeley.cs.cs162.Writable;
  */
 public class ClientMessages {
 
+    /**
+     * Register
+     */
     public static class RegisterMessage extends GenericMessage {
+
     	// Used for receiving
         protected RegisterMessage() {
             this(new ClientInfo(), "");
@@ -26,7 +30,11 @@ public class ClientMessages {
         }
 	}
 
+    /**
+     * Change Password
+     */
 	public static class ChangePasswordMessage extends GenericMessage{
+
     	// Used for receiving
         protected ChangePasswordMessage() {
             this(new ClientInfo(), "");
@@ -40,6 +48,7 @@ public class ClientMessages {
         public ClientInfo getClientInfo() {
             return (ClientInfo) super.getWritable(0);
         }
+
         public String getPasswordHash() {
             return ((WritableString) super.getWritable(1)).getValue();
         }
@@ -63,6 +72,7 @@ public class ClientMessages {
         public ClientInfo getClientInfo() {
             return (ClientInfo) super.getWritable(0);
         }
+
         public String getPasswordHash() {
             return ((WritableString) super.getWritable(1)).getValue();
         }
