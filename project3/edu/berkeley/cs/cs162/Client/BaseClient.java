@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162.Client;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.security.MessageDigest;
@@ -88,10 +89,12 @@ abstract public class BaseClient implements Client {
 
     private String hashPassword(String password){
         try{
-            // TODO Ensure that the bytes are encoded in ASCII
-            return new String(MessageDigest.getInstance("SHA-256").digest(password.getBytes()));
+            return new String(MessageDigest.getInstance("SHA-256").digest(password.getBytes("US-ASCII")), "US-ASCII");
         }
-        catch(NoSuchAlgorithmException e){
+        catch(Exception e){
+            e.printStackTrace();
+            System.out.println(e.getLocalizedMessage());
+
             return "";
         }
     }
