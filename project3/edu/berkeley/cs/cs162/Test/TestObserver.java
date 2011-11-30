@@ -22,7 +22,7 @@ public class TestObserver extends Observer{
 	private int badMessages;
 	public TestObserver(String name, Set<String> gameOverMessages)
 	{
-		super(name);
+		super(name, name + "jaysucks");
 		this.gameOverMessages = new HashSet<String>(gameOverMessages);
 		goodGameOvers = 0;
 		setBadMessages(0);

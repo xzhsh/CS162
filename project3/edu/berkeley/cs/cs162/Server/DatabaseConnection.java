@@ -22,6 +22,7 @@ import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
 public class DatabaseConnection {
 	private Connection canonicalConnection;
 	ReaderWriterLock dataLock;
+	
 	public DatabaseConnection(String databasePath) throws SQLException
 	{
 		try {

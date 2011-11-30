@@ -19,20 +19,12 @@ abstract public class Player extends BaseClient {
     StoneColor opponentColor;
     String gameName;
 
-    public Player(String name, byte type) {
-        super(name, type);
+    public Player(String name, String password, byte type) {
+        super(name, password, type);
         board = new GoBoard(10);
         waitingForGames = true;
         sentWFGMessage = false;
         gameName = "";
-    }
-
-    public Player(String name) {
-        this(name, (byte) -1);
-    }
-
-    public Player() {
-        this("");
     }
 
     public void setBoard(GoBoard b) {

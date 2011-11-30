@@ -3,6 +3,7 @@ package edu.berkeley.cs.cs162.Server;
 import edu.berkeley.cs.cs162.Synchronization.Lock;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.ClientMessages;
+import edu.berkeley.cs.cs162.Writable.ClientMessages.ChangePasswordMessage;
 import edu.berkeley.cs.cs162.Writable.GameInfo;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
@@ -47,11 +48,25 @@ public abstract class ClientLogic {
             case MessageProtocol.OP_TYPE_DISCONNECT: {
                 return null;
             }
+            case MessageProtocol.OP_TYPE_CHANGEPW: {
+            	return handleChangePassword((ChangePasswordMessage) message);
+            }
         }
         throw new AssertionError("Unimplemented Method");
     }
     
-    public Message handleWaitForGame() {
+    public Message handleChangePassword(ClientMessages.ChangePasswordMessage message) {
+    	if (message.getClientInfo().equals(makeClientInfo())) {
+    		getServer().getAuthenticationManager().changePassword(message.getClientInfo(), message.getPasswordHash());
+    		return MessageFactory.createStatusOkMessage();
+    	}
+    	else {
+    		//TODO change if a different op code should be specified.
+    		return MessageFactory.createErrorBadAuthMessage();
+    	}
+	}
+    
+	public Message handleWaitForGame() {
 		return MessageFactory.createErrorRejectedMessage();
 	}
 

@@ -8,8 +8,8 @@ import java.io.InputStreamReader;
 
 public class PrintingObserver extends Observer {
 
-    public PrintingObserver(String name) {
-        super(name, MessageProtocol.TYPE_OBSERVER);
+    public PrintingObserver(String name, String password) {
+        super(name, password);
     }
 
     public static void main(String[] args) {
@@ -19,7 +19,8 @@ public class PrintingObserver extends Observer {
         Integer port;
 
         try {
-            observer = new PrintingObserver(args[2]);
+        	//TODO PASSWORD IS THE SAME AS THE NAME
+            observer = new PrintingObserver(args[2], args[2] + "jaysucks");
             address = args[0];
             port = Integer.valueOf(args[1]);
         }

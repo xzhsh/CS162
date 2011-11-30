@@ -194,7 +194,13 @@ public class GameServer {
 	        worker.start();
         } else {
         	logStream.println("Maximum number of connections reached. SYN_ID = " + SYN_ID + " rejected.");
-        	
+        	try {
+        		connection1.close();
+        		connection2.close();
+        	} catch (IOException e)
+        	{
+        		//ignore if they are already closed.
+        	}
         }
     }
 

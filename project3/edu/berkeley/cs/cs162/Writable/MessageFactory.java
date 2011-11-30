@@ -56,6 +56,12 @@ public class MessageFactory {
             case MessageProtocol.OP_TYPE_LEAVE:
                 msgContainer = new ClientMessages.LeaveMessage();
                 break;
+            case MessageProtocol.OP_TYPE_CHANGEPW:
+            	msgContainer = new ClientMessages.ChangePasswordMessage();
+            	break;
+            case MessageProtocol.OP_TYPE_REGISTER:
+            	msgContainer = new ClientMessages.RegisterMessage();
+            	break;
             default:
                 assert false : "Unimplemented method";
         }
@@ -138,8 +144,8 @@ public class MessageFactory {
     /* Client Messages */
 
     // Connect
-    public static Message createConnectMessage(ClientInfo cInfo) {
-        return new ClientMessages.ConnectMessage(cInfo);
+    public static Message createConnectMessage(ClientInfo cInfo, String passwordHash) {
+        return new ClientMessages.ConnectMessage(cInfo, passwordHash);
     }
 
     // Disconnect
@@ -322,6 +328,10 @@ public class MessageFactory {
     public static WritableString createWritableString(String s){
         return new WritableString(s);
     }
+
+	public static Message createErrorBadAuthMessage() {
+        return new OpCodeOnlyMessage(MessageProtocol.OP_ERROR_BAD_AUTH);
+	}
 
 
 

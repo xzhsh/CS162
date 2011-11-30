@@ -15,21 +15,15 @@ abstract public class BaseClient implements Client {
     byte type;
     ClientInfo clientInfo;
     private ServerConnection connection;
+	private String password;
     static Random rng = new Random();
-    public BaseClient(String name, byte type) {
+    public BaseClient(String name, String password, byte type) {
         this.name = name;
+        this.password = password;
         this.type = type;
         clientInfo = MessageFactory.createClientInfo(this.name, this.type);
     }
-
-    public BaseClient(String name) {
-        this(name, (byte) -1);
-    }
-
-    public BaseClient() {
-        this("");
-    }
-
+    
     public String getName() {
         return this.name;
     }
@@ -59,7 +53,7 @@ abstract public class BaseClient implements Client {
             {
             	return false;
             }
-            Message connectMessage = MessageFactory.createConnectMessage(clientInfo);
+            Message connectMessage = MessageFactory.createConnectMessage(clientInfo, password);
             Message serverResponse = getConnection().sendSyncToServer(connectMessage);
 
             return (serverResponse.isOK());
