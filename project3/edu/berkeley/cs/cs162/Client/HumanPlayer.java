@@ -15,8 +15,8 @@ public class HumanPlayer extends Player {
 
     final BufferedReader reader;
     
-    public HumanPlayer(String name) {
-        super(name, MessageProtocol.TYPE_HUMAN);
+    public HumanPlayer(String name, String password) {
+        super(name, password, MessageProtocol.TYPE_HUMAN);
         reader = new BufferedReader(new InputStreamReader(System.in));
     }
 
@@ -27,7 +27,7 @@ public class HumanPlayer extends Player {
         Integer port;
 
         try{
-            player = new HumanPlayer(args[2]);
+            player = new HumanPlayer(args[2], args[2] + "jaysucks");
             address = args[0];
             port = Integer.valueOf(args[1]);
         }

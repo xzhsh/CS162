@@ -8,17 +8,8 @@ abstract public class Observer extends BaseClient {
 
     protected int joinedGames;
 
-    public Observer() {
-        this("");
-    }
-
-    public Observer(String name) {
-        this(name, MessageProtocol.TYPE_OBSERVER);
-    }
-
-    public Observer(String name, byte type) {
-    	super(name,type);
-        joinedGames = 0;
+    public Observer(String name, String password) {
+        super(name, password, MessageProtocol.TYPE_OBSERVER);
     }
     
     protected void runExecutionLoop() throws IOException {

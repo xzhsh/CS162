@@ -13,7 +13,7 @@ public class TimeOutTestPlayer extends Player {
 	boolean success;
 	long timeout;
 	public TimeOutTestPlayer(String name, byte type, long timeout) {
-		super(name, type);
+		super(name, name + "jaysucks", type);
 		success = false;
 		this.timeout = timeout;
 	}

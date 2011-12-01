@@ -7,6 +7,7 @@ import java.util.Vector;
 
 public class ServerStateManager {
 	private DatabaseConnection connection;
+	
 	public ServerStateManager(DatabaseConnection connection) {
 		this.connection = connection;
 	}

@@ -14,8 +14,8 @@ public class MachinePlayer extends Player {
 	
 	private int chanceOfPass;
 	
-    public MachinePlayer(String name) {
-        super(name, MessageProtocol.TYPE_MACHINE);
+    public MachinePlayer(String name, String password) {
+        super(name, password, MessageProtocol.TYPE_MACHINE);
         chanceOfPass = 0;
     }
 
@@ -26,7 +26,7 @@ public class MachinePlayer extends Player {
         Integer port;
 
         try{
-            player = new MachinePlayer(args[2]);
+            player = new MachinePlayer(args[2], args[2] + "jaysucks");
             address = args[0];
             port = Integer.valueOf(args[1]);
         }
