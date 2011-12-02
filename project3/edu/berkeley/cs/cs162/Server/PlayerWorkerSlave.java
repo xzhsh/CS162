@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.concurrent.TimeoutException;
 
 import edu.berkeley.cs.cs162.Writable.Message;
@@ -58,6 +59,12 @@ public class PlayerWorkerSlave extends WorkerSlave{
     public void handleStartNewGame(final Game game)
     {
     	game.broadcastStartMessage();
+    	try {
+			getServer().getStateManager().createGameEntry(game);
+		} catch (SQLException e) {
+			//SQL Exception, generally unrecoverable. rewrap and throw.
+			throw new RuntimeException(e);
+		}
     	getMessageQueue().add(new Runnable() {
 			@Override
 			public void run() {

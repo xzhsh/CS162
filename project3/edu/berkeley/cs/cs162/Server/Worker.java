@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162.Server;
 
 import edu.berkeley.cs.cs162.Writable.*;
+import edu.berkeley.cs.cs162.Writable.ClientMessages.RegisterMessage;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -67,15 +68,49 @@ public class Worker extends Thread {
         }
         Message returnMessage;
 		try {
-			returnMessage = connection.readFromClient();
-	        if (returnMessage.getMsgType() != MessageProtocol.OP_TYPE_CONNECT) {
-	            //unexpected message, close and terminate.
-	        	connection.sendReplyToClient(MessageFactory.createErrorUnconnectedMessage());
-	            return null;
-	        }
-	        connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
-	
-	        return ((ClientMessages.ConnectMessage) returnMessage).getClientInfo();
+			while (true) {
+				returnMessage = connection.readFromClient();
+				if (returnMessage.getMsgType() == MessageProtocol.OP_TYPE_CONNECT) 
+				{
+					//connect
+					ClientMessages.ConnectMessage connectMsg = (ClientMessages.ConnectMessage) returnMessage;
+					if (getServer().getAuthenticationManager().authenticateClient(
+							connectMsg.getClientInfo(), connectMsg.getPasswordHash())) {
+						//authenticated, connected.
+						connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
+				        return connectMsg.getClientInfo();
+					} else {
+						//authentication failed. Can retry.
+						connection.sendReplyToClient(MessageFactory.createErrorBadAuthMessage());
+					}
+				}
+				else if (returnMessage.getMsgType() == MessageProtocol.OP_TYPE_REGISTER)
+				{
+					//register
+					ClientMessages.RegisterMessage regMsg = (RegisterMessage) returnMessage;
+					if (getServer().getAuthenticationManager().registerClient(
+							regMsg.getClientInfo(), regMsg.getPasswordHash()))
+					{
+						// success
+						connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
+					}
+					else 
+					{
+						// failed.
+						connection.sendReplyToClient(MessageFactory.createErrorRejectedMessage());
+					}
+				}
+				else if (returnMessage.getMsgType() != MessageProtocol.OP_TYPE_DISCONNECT)
+				{
+					//disconnect
+					return null;
+				}
+				else {
+		            //unexpected message, close and terminate.
+		        	connection.sendReplyToClient(MessageFactory.createErrorUnconnectedMessage());
+		            return null;
+		        }
+			}
 		} catch (IOException e) {
 			getServer().getLog().println("Error getting client info:\n" + e);
 			return null;

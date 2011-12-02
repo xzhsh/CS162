@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162.Server;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -118,6 +119,12 @@ public class Game {
 	}
 
 	public void makePassMove() {
+		try {
+			getCurrentPlayer().getServer().getStateManager().updateGameWithPass(this, getCurrentPlayer());
+		} catch (SQLException e) {
+			//unrecoverable, wrap and rethrow.
+			throw new RuntimeException(e);
+		}
 		final Message message = MessageFactory.createMakeMoveMessage(makeGameInfo(), getCurrentPlayer().makeClientInfo(), MessageProtocol.MOVE_PASS, new BoardLocation(0,0), Collections.<BoardLocation>emptyList());
 		broadcastMessage(message);
 		if(lastPassed)
@@ -145,6 +152,12 @@ public class Game {
 	public void doMakeMove(BoardLocation loc) {
 		try {
 			Vector<BoardLocation> captured = board.makeMove(loc, getActiveColor());
+			try {
+				getCurrentPlayer().getServer().getStateManager().updateGameWithMove(this, getCurrentPlayer(), loc, captured);
+			} catch (SQLException e) {
+				//unrecoverable, wrap and rethrow.
+				throw new RuntimeException(e);
+			}
 			Message message = MessageFactory.createMakeMoveMessage(makeGameInfo(), 
 					getCurrentPlayer().makeClientInfo(), MessageProtocol.MOVE_STONE, loc, captured);
 			broadcastMessage(message);
@@ -174,16 +187,28 @@ public class Game {
 		double blackScore = board.getScore(StoneColor.BLACK);
 		double whiteScore = board.getScore(StoneColor.WHITE);
 		PlayerLogic winner = blackScore > whiteScore ? blackPlayer : whitePlayer;
+		try {
+			getCurrentPlayer().getServer().getStateManager().finishGame(this, winner, blackScore, whiteScore, MessageProtocol.GAME_OK);
+		} catch (SQLException e) {
+			//unrecoverable, wrap and rethrow.
+			throw new RuntimeException(e);
+		}
 		final Message message = MessageFactory.createGameOverMessage(makeGameInfo(), blackScore, whiteScore, winner.makeClientInfo());
     	broadcastMessage(message);
 		broadcastTerminate();
 	}
 
-	void doGameOverError(IllegalMoveException e) {
+	void doGameOverError(IllegalMoveException reason) {
 		double blackScore = state == GameState.BLACK_MOVE ? 0 : 1;
 		double whiteScore = 1 - blackScore;
+		try {
+			getCurrentPlayer().getServer().getStateManager().finishGame(this, getInactivePlayer(), blackScore, whiteScore, reason.getReasonByte());
+		} catch (SQLException e) {
+			//unrecoverable, wrap and rethrow.
+			throw new RuntimeException(e);
+		}
 		Message err = MessageFactory.createGameOverErrorMessage(makeGameInfo(), blackScore, whiteScore, 
-				getInactivePlayer().makeClientInfo(), e.getReasonByte(), getCurrentPlayer().makeClientInfo(), e.getMessage());
+				getInactivePlayer().makeClientInfo(), reason.getReasonByte(), getCurrentPlayer().makeClientInfo(), reason.getMessage());
 		active = false;
 		broadcastMessage(err);
 		broadcastTerminate();

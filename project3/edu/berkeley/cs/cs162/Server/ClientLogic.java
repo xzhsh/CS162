@@ -51,6 +51,9 @@ public abstract class ClientLogic {
             case MessageProtocol.OP_TYPE_CHANGEPW: {
             	return handleChangePassword((ChangePasswordMessage) message);
             }
+            case MessageProtocol.OP_TYPE_REGISTER: {
+            	return MessageFactory.createErrorRejectedMessage();
+            }
         }
         throw new AssertionError("Unimplemented Method");
     }

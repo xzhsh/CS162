@@ -345,4 +345,8 @@ public class GameServer {
 	public boolean isReady() {
 		return ready;
 	}
+
+	public ServerStateManager getStateManager() {
+		return stateManager;
+	}
 }
