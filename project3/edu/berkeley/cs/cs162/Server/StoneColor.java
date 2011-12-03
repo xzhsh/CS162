@@ -32,5 +32,19 @@ public enum StoneColor {
                 return MessageProtocol.UNUSED;
         }
     }
+
+    public static StoneColor getStoneColor(byte b){
+        switch (b) {
+            case MessageProtocol.STONE_BLACK:
+                return BLACK;
+            case MessageProtocol.STONE_WHITE:
+                return WHITE;
+            case MessageProtocol.STONE_NONE:
+                return NONE;
+            default:
+                assert false : "Unimplemented Stone Color";
+                return NONE;
+        }
+    }
 }
 
