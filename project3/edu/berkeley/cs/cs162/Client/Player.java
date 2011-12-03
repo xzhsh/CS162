@@ -57,6 +57,10 @@ abstract public class Player extends BaseClient {
                 Message reply = getConnection().sendSyncToServer(MessageFactory.createWaitForGameMessage());
                 if (reply.isOK()) {
                     sentWFGMessage = true;
+                }
+                else if (reply.getMsgType() == MessageProtocol.OP_STATUS_RESUME){
+                    sentWFGMessage = true;
+
                 } else {
                     //terminate? what happens when reply is not okay?
                     break;
@@ -154,4 +158,5 @@ abstract public class Player extends BaseClient {
 	public void setSentWFGMessage(boolean sentWFGMessage) {
 		this.sentWFGMessage = sentWFGMessage;
 	}
+
 }

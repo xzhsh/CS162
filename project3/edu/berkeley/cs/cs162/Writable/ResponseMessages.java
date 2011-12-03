@@ -65,4 +65,33 @@ public class ResponseMessages {
             return (Location) getWritable(1);
         }
     }
+
+    public static class StatusResumeMessage extends GenericMessage {
+
+        // Used for receiving
+        protected StatusResumeMessage() {
+            super(MessageProtocol.OP_STATUS_RESUME, new GameInfo(), new BoardInfo(),  new ClientInfo(), new ClientInfo());
+        }
+
+        // Used for sending
+        protected StatusResumeMessage(GameInfo game, BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer) {
+            super(MessageProtocol.OP_STATUS_RESUME, game, board, blackPlayer, whitePlayer);
+        }
+
+        public GameInfo getGameInfo(){
+            return (GameInfo) getWritable(0);
+        }
+
+        public BoardInfo getBoardInfo(){
+            return (BoardInfo) getWritable(1);
+        }
+
+        public ClientInfo getBlackPlayer(){
+            return (ClientInfo) getWritable(2);
+        }
+
+        public ClientInfo getWhitePlayer(){
+            return (ClientInfo) getWritable(3);
+        }
+    }
 }
