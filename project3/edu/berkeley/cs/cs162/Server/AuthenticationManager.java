@@ -11,6 +11,11 @@ package edu.berkeley.cs.cs162.Server;
  */
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class AuthenticationManager {
 	@SuppressWarnings("unused")
 	private DatabaseConnection connection;
@@ -69,7 +74,38 @@ public class AuthenticationManager {
 	 * @param newPasswordHash
 	 */
 	public void changePassword(ClientInfo cInfo, String newPasswordHash) {
-		//a start
+        PreparedStatement updateStatement;
+
+        DatabaseConnection connection = null;
+        Connection con = null;
+
+        try {
+            connection = new DatabaseConnection("");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        String clientName = cInfo.getName();
+
+        String query = "";
+
+        con = connection.startTransaction();
+
+        try {
+            String cidQuery = "select clientID from dbname.clients where name=" + clientName;
+
+            ResultSet result = con.prepareStatement(cidQuery).getResultSet();
+
+            int clientID = result.getInt(1);
+
+            query = "update dbname.clients set passwordHash=" + Security.computeHashWithSalt(newPasswordHash, salt) + " where clientID=" + Integer.toString(clientID);
+
+            (con.prepareStatement(query)).execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        connection.finishTransaction();
 		
 //		String pName = cInfo.getName();
 //		int CID;
