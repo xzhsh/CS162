@@ -111,6 +111,9 @@ public class MessageFactory {
             case MessageProtocol.OP_ERROR_REJECTED:
             case MessageProtocol.OP_ERROR_UNCONNECTED:
                 return new OpCodeOnlyMessage(opCode);
+            case MessageProtocol.OP_STATUS_RESUME:
+                container = new ResponseMessages.StatusResumeMessage();
+                break;
             case MessageProtocol.OP_STATUS_OK:
                 switch (sentMessage.getMsgType())
                 {
@@ -146,6 +149,11 @@ public class MessageFactory {
     // Register
     public static Message createRegisterMessage(ClientInfo client, String passwordHash) {
         return new ClientMessages.RegisterMessage(client, passwordHash);
+    }
+
+    // Change Password
+    public static Message createChangePasswordMessage(ClientInfo player, String passwordHash){
+        return new ClientMessages.ChangePasswordMessage(player, passwordHash);
     }
 
     // Connect
@@ -235,6 +243,11 @@ public class MessageFactory {
     // Status OK, response to Get Move
     public static Message createGetMoveStatusOkMessage(byte moveType, Location loc) {
         return new ResponseMessages.GetMoveStatusOkMessage(moveType, loc);
+    }
+
+    // Status Resume
+    public static Message createStatusResumeMessage(GameInfo game, BoardInfo board, ClientInfo blackPlayer, ClientInfo whitePlayer){
+        return new ResponseMessages.StatusResumeMessage(game, board, blackPlayer, whitePlayer);
     }
 
     // Error (Rejected)

@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import edu.berkeley.cs.cs162.Server.BoardLocation;
 import edu.berkeley.cs.cs162.Server.GoBoard;
+import edu.berkeley.cs.cs162.Server.Board;
+import edu.berkeley.cs.cs162.Server.StoneColor;
 
 public class BoardInfo implements Writable {
 
@@ -49,7 +52,19 @@ public class BoardInfo implements Writable {
         }
     }
 
-    public GoBoard getBoard() {
+    public GoBoard getNewBoard() {
         return new GoBoard(board.length);
+    }
+
+    // TODO TEST ME
+    public GoBoard getBoard() {
+        Board b = new Board(board.length);
+        for(int i = 0; i < board.length; i++){
+            for(int j = 0; j < board[i].length; j++){
+                b.addStone(new BoardLocation(i, j), StoneColor.getStoneColor(board[i][j].getColor()));
+            }
+        }
+
+        return new GoBoard(b);
     }
 }
