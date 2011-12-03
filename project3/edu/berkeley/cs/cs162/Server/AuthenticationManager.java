@@ -69,6 +69,26 @@ public class AuthenticationManager {
 	 * @param newPasswordHash
 	 */
 	public void changePassword(ClientInfo cInfo, String newPasswordHash) {
+		//a start
+		
+//		String pName = cInfo.getName();
+//		int CID;
+//		PreparedStatement getCID = null;
+//		PreparedStatement setNewPW = null;
+//		ResultSet prs = null;
+//		Connection con = connection.startTransaction();
+//		try {
+//			String getCIDQuery= "select clientID from dbname.clients where name= " + pName;
+//			getCID = con.prepareStatement(getCIDQuery);
+//			prs = getCID.executeQuery();
+//			CID = prs.getInt(1);
+//			String newPWQuery = "update dbname.clients set passwordHash= " + newPasswordHash+salt + "where clientID= " + Integer.toString(CID);
+//			setNewPW = con.prepareStatement(newPWQuery);
+//			setNewPW.execute();
+//		} catch (SQLExeption e) {
+//			e.printStackTrace();
+//		}
+//		connection.finishTransaction();
 		throw new RuntimeException("Unimplemented Method");
 	}
 }
