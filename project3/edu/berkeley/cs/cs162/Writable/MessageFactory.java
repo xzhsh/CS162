@@ -148,6 +148,11 @@ public class MessageFactory {
         return new ClientMessages.RegisterMessage(client, passwordHash);
     }
 
+    // Change Password
+    public static Message createChangePasswordMessage(ClientInfo player, String passwordHash){
+        return new ClientMessages.ChangePasswordMessage(player, passwordHash);
+    }
+
     // Connect
     public static Message createConnectMessage(ClientInfo cInfo, String passwordHash) {
         return new ClientMessages.ConnectMessage(cInfo, passwordHash);
