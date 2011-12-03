@@ -49,6 +49,11 @@ public class BoardInfo implements Writable {
         }
     }
 
+    public GoBoard getNewBoard() {
+        return new GoBoard(board.length);
+    }
+
+    // TODO Return an actual GoBoard based on the data contained in this object
     public GoBoard getBoard() {
         return new GoBoard(board.length);
     }

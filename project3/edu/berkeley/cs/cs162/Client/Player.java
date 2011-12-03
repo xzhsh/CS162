@@ -3,10 +3,7 @@ package edu.berkeley.cs.cs162.Client;
 import edu.berkeley.cs.cs162.Server.BoardLocation;
 import edu.berkeley.cs.cs162.Server.GoBoard;
 import edu.berkeley.cs.cs162.Server.StoneColor;
-import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
-import edu.berkeley.cs.cs162.Writable.MessageProtocol;
-import edu.berkeley.cs.cs162.Writable.ServerMessages;
+import edu.berkeley.cs.cs162.Writable.*;
 
 import java.io.IOException;
 
@@ -59,6 +56,7 @@ abstract public class Player extends BaseClient {
                     sentWFGMessage = true;
                 }
                 else if (reply.getMsgType() == MessageProtocol.OP_STATUS_RESUME){
+                    loadStateFromResumedGame((ResponseMessages.StatusResumeMessage) reply);
                     sentWFGMessage = true;
 
                 } else {
@@ -76,7 +74,7 @@ abstract public class Player extends BaseClient {
         String whitePlayerName = m.getWhiteClientInfo().getName();
 
         this.gameName = m.getGameInfo().getName();
-        board = m.getBoardInfo().getBoard();
+        board = m.getBoardInfo().getNewBoard();
         waitingForGames = false;
 
         if (blackPlayerName.equals(name)) {
@@ -149,6 +147,20 @@ abstract public class Player extends BaseClient {
         }
 
         getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
+    }
+
+    private void loadStateFromResumedGame(ResponseMessages.StatusResumeMessage m){
+        gameName = m.getGameInfo().getName();
+        board = m.getBoardInfo().getBoard();
+
+        if(m.getBlackPlayer().equals(clientInfo)){
+            currentColor = StoneColor.BLACK;
+            opponentColor = StoneColor.WHITE;
+        }
+        else {
+            currentColor = StoneColor.WHITE;
+            opponentColor = StoneColor.BLACK;
+        }
     }
 
 	public boolean isSentWFGMessage() {
