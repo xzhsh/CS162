@@ -87,6 +87,7 @@ abstract public class BaseClient implements Client {
     	}
     }
 
+    // TODO Would the hashed array of bytes be ASCII encoded also? I've assumed that for now.
     private String hashPassword(String password){
         try{
             return new String(MessageDigest.getInstance("SHA-256").digest(password.getBytes("US-ASCII")), "US-ASCII");
