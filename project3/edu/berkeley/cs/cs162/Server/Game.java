@@ -28,7 +28,6 @@ public class Game {
     private PlayerLogic whitePlayer;
     private Set<ObserverLogic> observerList;
     private ReaderWriterLock observerLock;
-	private boolean lastPassed;
 	private GameServer server;
 	
 	private int gameID;
@@ -48,7 +47,6 @@ public class Game {
         observerList = new HashSet<ObserverLogic>();
         observerLock = new ReaderWriterLock();
         state = GameState.BLACK_MOVE;
-        lastPassed = false;
         active = true;
 	}
 
@@ -131,12 +129,11 @@ public class Game {
 		
 		broadcastMessage(message);
 		
-		if(lastPassed)
+		if(board.makePassMove(getActiveColor()))
 		{
 			doGameOver();
 		}
 		else {
-			lastPassed = true;
 			advanceTurns();
 		}
 	}
@@ -165,7 +162,6 @@ public class Game {
 			Message message = MessageFactory.createMakeMoveMessage(makeGameInfo(), 
 					getCurrentPlayer().makeClientInfo(), MessageProtocol.MOVE_STONE, loc, captured);
 			broadcastMessage(message);
-			lastPassed = false;
 			advanceTurns();
 		} catch (IllegalMoveException e) {
 			//illegal move, we need to send game over error.

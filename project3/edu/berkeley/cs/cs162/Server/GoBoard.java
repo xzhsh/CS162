@@ -13,6 +13,8 @@ public class GoBoard {
     Board board;
     Board prevBoard;
 
+    boolean blackMove;//true if black, false if white
+    boolean lastPassed;
     public Board getCurrentBoard() {
         return board;
     }
@@ -42,8 +44,7 @@ public class GoBoard {
      * @param size
      */
     public GoBoard(int size) {
-        board = new Board(size);
-        prevBoard = new Board(size);
+        this(new Board(size));
     }
 
     /**
@@ -54,11 +55,15 @@ public class GoBoard {
     public GoBoard(GoBoard goBoard) {
         board = goBoard.board.copy();
         prevBoard = goBoard.prevBoard.copy();
+        blackMove= goBoard.blackMove;
+        lastPassed = goBoard.lastPassed;
     }
 
     public GoBoard(Board initialBoard) {
         board = initialBoard.copy();
         prevBoard = initialBoard.copy();
+        blackMove = true;
+        lastPassed = false;
     }
 
     /**
@@ -75,10 +80,13 @@ public class GoBoard {
         Board tempBoard = board.copy();
         Vector<BoardLocation> captured = testMove(moveLoc, activeColor, tempBoard);
 
-        //propagate the changes.
+        assert (activeColor == StoneColor.BLACK && blackMove) || (activeColor != StoneColor.BLACK && !blackMove) : "Moved out of turn";
+        blackMove = !blackMove;
+    	lastPassed = false;
+		//propagate the changes.
         prevBoard = board.copy();
         board = tempBoard.copy();
-
+        
         return captured;
     }
 
@@ -135,4 +143,15 @@ public class GoBoard {
     public double getScore(StoneColor color) {
     	return Rules.countOwnedTerritory(getCurrentBoard(), color) + getCurrentBoard().getNumberOfColor(color);
     }
+
+	public boolean makePassMove(StoneColor activeColor) {
+        assert (activeColor == StoneColor.BLACK && blackMove) || (activeColor != StoneColor.BLACK && !blackMove) : "Moved out of turn";
+        blackMove = !blackMove;
+        if (lastPassed) {
+        	return true;
+        } else {
+        	lastPassed = true;
+        	return false;
+        }
+	}
 }

@@ -15,6 +15,7 @@ public class TestAuthenticationManager extends AuthenticationManager{
 		baos = new ByteArrayOutputStream();
 		ps = new PrintStream(baos);
 	}
+	
 	/**
 	 * Registers a client with the specified info and password hash. 
 	 * 
