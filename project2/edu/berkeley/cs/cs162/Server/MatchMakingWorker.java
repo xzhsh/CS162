@@ -16,12 +16,17 @@ public class MatchMakingWorker implements Runnable {
         		player1 = server.getNextWaitingPlayer();
         		if(player1.startGame()) {
         			break;
+        		} else 
+        		{
+        			System.out.println(player1.getWorker().getClientName() + " is still playing");
         		}
         	}
         	while (true) {
         		player2 = server.getNextWaitingPlayer();
         		if(player2.startGame()) {
         			break;
+        		} else {
+        			System.out.println(player2.getWorker().getClientName() + " is still playing");
         		}
         	}
             Game game = new Game(player1.getWorker().getClientName() + "VS" + player2.getWorker().getClientName(), player1.getWorker(), player2.getWorker(), 10);

@@ -8,11 +8,15 @@ import edu.berkeley.cs.cs162.Server.GoBoard;
 import edu.berkeley.cs.cs162.Writable.Location;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+import edu.berkeley.cs.cs162.Writable.ServerMessages;
 
 public class MachinePlayer extends Player {
-
+	
+	private int chanceOfPass;
+	
     public MachinePlayer(String name) {
         super(name, MessageProtocol.TYPE_MACHINE);
+        chanceOfPass = 0;
     }
 
     public static void main(String[] args) {
@@ -45,15 +49,14 @@ public class MachinePlayer extends Player {
         Random rng = new Random();
         int size = board.getCurrentBoard().getSize();
         BoardLocation loc = new BoardLocation(rng.nextInt(size), rng.nextInt(size));
-        int chanceOfPass = 0;
 
         boolean valid = false;
         while (!valid) {
-
-            //adds .5% of pass per try
-            chanceOfPass += 5;
-
-            if (chanceOfPass >= 10000 || rng.nextInt(10000 - chanceOfPass) == 0) {
+        	int rn = rng.nextInt(10000 - chanceOfPass);
+        	System.out.println("Chance of pass : " + chanceOfPass + " rng: " + rn);
+        	//adds .2% of pass per try
+            chanceOfPass = Math.min(9999, chanceOfPass + 2);
+            if (chanceOfPass >= 10000 || rn == 0) {
                 return null;
             }
 
@@ -83,7 +86,11 @@ public class MachinePlayer extends Player {
         } else {
             moveCode = MessageProtocol.MOVE_STONE;
         }
-
         getConnection().sendReplyToServer(MessageFactory.createGetMoveStatusOkMessage(moveCode, loc));
+    }
+    
+    protected void handleGameOver(ServerMessages.GameOverMessage m) throws IOException {
+    	super.handleGameOver(m);
+    	chanceOfPass = 0;
     }
 }

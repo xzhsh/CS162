@@ -15,7 +15,6 @@ public class SocketGarbageCollector implements Runnable {
     private ReaderWriterLock lock;
     private long timeoutInNs;
     private long sleepTime;
-	@SuppressWarnings("unused")
 	private PrintStream log;
 
     public SocketGarbageCollector(
@@ -45,6 +44,7 @@ public class SocketGarbageCollector implements Runnable {
                 for (Integer id : timedOutSockets) {
                     SocketWithTimeStamp s = socketMap.remove(id);
                     if (s != null) {
+                    	log.println(id + " closed because of time out.");
                         closingSockets.add(s.getConnection());
                     }
                 }

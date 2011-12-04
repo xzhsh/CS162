@@ -44,12 +44,12 @@ public class TestPlayer extends Player {
 			public void run() {
 				TestPlayer player = new TestPlayer(name, type, moves, shared);
 		        if (player.connectTo("localhost", port)) {
-					
 		        	Message reply;
 					try {
 						reply = player.getConnection().sendSyncToServer(MessageFactory.createWaitForGameMessage());
 					} catch (IOException e) {
 						reply = MessageFactory.createErrorRejectedMessage();
+    		        	System.out.println("Wait for game closed:" + e.getMessage());
 					}
 	                if (reply.isOK()) {
 	                    player.setSentWFGMessage(true);
@@ -57,10 +57,16 @@ public class TestPlayer extends Player {
 	                    try {
 	                    	player.runExecutionLoop();
 	                    }
-	                    catch (IOException e){}
+	                    catch (IOException e){
+	    		        	System.out.println("Connection Closed:" + e.getMessage());
+	                    }
 	                    //lock.readUnlock();
 	                }
 		        }
+		        else {
+		        	System.out.println("Connection Failed");
+		        }
+		        
 			}
 		};
 		t.start();

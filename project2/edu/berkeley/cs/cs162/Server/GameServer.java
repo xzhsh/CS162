@@ -13,8 +13,8 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 public class GameServer {
-    public static final int GLOBAL_TIMEOUT_IN_MS = 3000;
-    private static final int WAITING_CONNECTION_BUFFER_SIZE = 200;
+    public static final int GLOBAL_TIMEOUT_IN_MS = 300000;
+    private static final int WAITING_CONNECTION_BUFFER_SIZE = 100;
     /**
      * RNG for this game server.
      */
@@ -104,14 +104,15 @@ public class GameServer {
      */
     public void waitForConnectionsOnPort(int portNumber, InetAddress localIP) {
         try {
-            ServerSocket server = new ServerSocket(portNumber, 50, localIP);
+            ServerSocket server = new ServerSocket(portNumber, 100, localIP);
+            server.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
             ready = true;
             while (true) {
                 Socket incomingConnection = server.accept();
+                getLog().println("Found connection");
                 incomingConnection.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
-                getLog().println("Found conneciton");
                 connectionQueue.add(incomingConnection);
-                getLog().println("Added conneciton");
+                getLog().println("Added connection");
             }
         } catch (IOException e) {
             e.printStackTrace(getLog());

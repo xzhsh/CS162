@@ -164,6 +164,7 @@ public class Game {
 	
 	private void doGameOver() {
 		active = false;
+		System.out.println(board);
 		double blackScore = board.getScore(StoneColor.BLACK);
 		double whiteScore = board.getScore(StoneColor.WHITE);
 		Worker winner = blackScore > whiteScore ? blackPlayer : whitePlayer;
