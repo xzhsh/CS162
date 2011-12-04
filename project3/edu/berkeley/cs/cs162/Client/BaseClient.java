@@ -2,6 +2,7 @@ package edu.berkeley.cs.cs162.Client;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
@@ -89,7 +90,7 @@ abstract public class BaseClient implements Client {
     // TODO Would the hashed array of bytes be UTF-16 encoded also? I've assumed that for now.
     private String hashPassword(String password){
             try {
-				return new String(MessageDigest.getInstance("SHA-256").digest(password.getBytes("UTF-16")), "UTF-16");
+				return String.format("%064x", new BigInteger(MessageDigest.getInstance("SHA-256").digest(password.getBytes("UTF-16"))));
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			} catch (NoSuchAlgorithmException e) {
