@@ -64,8 +64,7 @@ public abstract class ClientLogic {
     		return MessageFactory.createStatusOkMessage();
     	}
     	else {
-    		//TODO change if a different op code should be specified.
-    		return MessageFactory.createErrorBadAuthMessage();
+    		return MessageFactory.createErrorRejectedMessage();
     	}
 	}
     

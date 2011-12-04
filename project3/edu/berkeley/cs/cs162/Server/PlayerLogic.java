@@ -9,6 +9,7 @@ public abstract class PlayerLogic extends ClientLogic {
     
 	private static final int HUMAN_PLAYER_TIMEOUT_IN_MS = 30000;
     private static final int MACHINE_PLAYER_TIMEOUT_IN_MS = 2000;
+    private static final int PLAYER_RECONNECT_TIMEOUT_IN_MS = 60000;
 
     public static class HumanPlayerLogic extends PlayerLogic {
         public HumanPlayerLogic(GameServer server, ClientConnection con, String name) {
@@ -36,6 +37,7 @@ public abstract class PlayerLogic extends ClientLogic {
     enum PlayerState {
     	CONNECTED,
     	WAITING,
+    	RECONNECT,
     	PLAYING,
     	DISCONNECTED
     }
@@ -43,7 +45,6 @@ public abstract class PlayerLogic extends ClientLogic {
     private PlayerState state;
     private Lock stateLock;
     private int playerTimeoutInMs;
-	private Game currentlyPlayingGame;
 	private PlayerWorkerSlave slave;
     
 	public PlayerLogic(GameServer server, ClientConnection connection, String name, int playerTimeoutInMs) {
@@ -51,7 +52,6 @@ public abstract class PlayerLogic extends ClientLogic {
         state = PlayerState.CONNECTED;
         stateLock = new Lock();
         this.playerTimeoutInMs = playerTimeoutInMs;
-        currentlyPlayingGame = null;
         slave = new PlayerWorkerSlave(connection, this, getTimeout());
         slave.start();
     }
@@ -60,13 +60,32 @@ public abstract class PlayerLogic extends ClientLogic {
 	public Message handleWaitForGame() {
 		stateLock.acquire();
 		if (state == PlayerState.CONNECTED) {
-			state = PlayerState.WAITING;
-			stateLock.release();
-			Game unfinishedGame = getServer().checkForUnfinishedGame(this);
+			UnfinishedGame unfinishedGame = getServer().checkForUnfinishedGame(this);
 			if (unfinishedGame != null) {
-				//TODO reconnect logic!
-				throw new AssertionError("Unimplemented method");
+				Game reconnectedGame = unfinishedGame.reconnectGame();
+				if (reconnectedGame != null) {
+					//other client has already reconnected. 
+					//just start the game again and return the reconnected board state.
+					state = PlayerState.PLAYING;
+					stateLock.release();
+					unfinishedGame.wakeOtherPlayer(this);
+					reconnectedGame.handleNextMove();
+				} else {
+					//other client hasn't connected yet
+					//start waiting for the other game.
+					state = PlayerState.RECONNECT;
+					stateLock.release();
+					slave.handleWaitForReconnect(unfinishedGame, this, 
+							PLAYER_RECONNECT_TIMEOUT_IN_MS);
+				}
+				return MessageFactory.createStatusResumeMessage(
+						unfinishedGame.makeGameInfo(), 
+						unfinishedGame.makeBoardInfo(), 
+						unfinishedGame.getBlackInfo(), 
+						unfinishedGame.getWhiteInfo());
 			} else {
+				state = PlayerState.WAITING;
+				stateLock.release();
 				getServer().addPlayerToWaitQueue(this);
 				return MessageFactory.createStatusOkMessage();
 			}
@@ -117,11 +136,10 @@ public abstract class PlayerLogic extends ClientLogic {
 
 	public void terminateGame() {
 		stateLock.acquire();
-    	if (state == PlayerState.PLAYING && currentlyPlayingGame != null)
+    	if (state == PlayerState.PLAYING || state == PlayerState.RECONNECT)
     	{
         	//assert state == PlayerState.PLAYING : "Terminated game when not playing";
     		state = PlayerState.CONNECTED;
-    		currentlyPlayingGame = null;
     	}
     	stateLock.release();
 	}
@@ -131,9 +149,6 @@ public abstract class PlayerLogic extends ClientLogic {
 		state = PlayerState.DISCONNECTED;
 		stateLock.release();
 	}
-	public void setGame(Game game) {
-		this.currentlyPlayingGame = game;
-	}
 	public void handleNextMove(Game game) {
 		getSlave().handleNextMove(game);
 	}
@@ -142,5 +157,19 @@ public abstract class PlayerLogic extends ClientLogic {
 	}
 	public void handleSendMessage(Message message) {
 		getSlave().handleSendMessage(message);
+	}
+
+	public boolean wakeReconnection() {
+		stateLock.acquire();
+		if (state == PlayerState.RECONNECT)
+		{
+			state = PlayerState.PLAYING;
+			stateLock.release();
+			getSlave().interrupt();
+			return true;
+		} else {
+			stateLock.release();
+			return false;
+		}
 	}
 }

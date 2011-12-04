@@ -2,22 +2,14 @@ package edu.berkeley.cs.cs162.Test;
 
 
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-
-import edu.berkeley.cs.cs162.Client.*;
-import edu.berkeley.cs.cs162.Server.*;
-import edu.berkeley.cs.cs162.Writable.*;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import edu.berkeley.cs.cs162.Server.GameServer;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;

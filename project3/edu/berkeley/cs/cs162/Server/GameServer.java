@@ -261,7 +261,7 @@ public class GameServer {
         	System.out.println("Not enough arguments!\n\tjava GameServer <ip address> <port number>");
         	return;
         }
-    	GameServer server = new GameServer("edu.berkeley.cs.cs162.Server.cs162-project3.db", 100, 5, System.out);
+    	GameServer server = new GameServer("cs162-project3.db", 100, 5, System.out);
         
         try {
         	InetAddress serverAddr = InetAddress.getByName(args[0]) ;
@@ -329,10 +329,10 @@ public class GameServer {
 	 * @param player
 	 * @return A partially completed game if one exists, otherwise, null.
 	 */
-	public Game checkForUnfinishedGame(PlayerLogic player) {
+	public UnfinishedGame checkForUnfinishedGame(PlayerLogic player) {
 		for (UnfinishedGame uGame : unfinishedGames) {
 			if (uGame.matchesPlayer(player)) {
-				return uGame.reconnectGame();
+				return uGame;
 			}
 		}
 		return null;

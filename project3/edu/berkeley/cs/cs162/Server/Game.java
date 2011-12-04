@@ -31,12 +31,15 @@ public class Game {
 	private boolean lastPassed;
 	private GameServer server;
 	
-    public Game(String name, PlayerLogic blackPlayer, PlayerLogic whitePlayer, int size) {
-    	this(name, blackPlayer, whitePlayer, new GoBoard(size));
+	private int gameID;
+	
+    public Game(String name, PlayerLogic blackPlayer, PlayerLogic whitePlayer, GoBoard board) {
+    	this(name, blackPlayer, whitePlayer, board, -1);
     }
 
     public Game(String name, PlayerLogic blackPlayer,
-			PlayerLogic whitePlayer, GoBoard board) {
+			PlayerLogic whitePlayer, GoBoard board, int gameID) {
+    	this.gameID = gameID;
     	this.blackPlayer = blackPlayer;
     	this.whitePlayer = whitePlayer;
     	server = blackPlayer.getServer();
@@ -114,8 +117,6 @@ public class Game {
 		observerLock.readUnlock();
 		blackPlayer.handleSendMessage(message);
 		whitePlayer.handleSendMessage(message);
-		blackPlayer.setGame(this);
-		whitePlayer.setGame(this);
 	}
 
 	public void makePassMove() {
@@ -125,8 +126,11 @@ public class Game {
 			//unrecoverable, wrap and rethrow.
 			throw new RuntimeException(e);
 		}
+		
 		final Message message = MessageFactory.createMakeMoveMessage(makeGameInfo(), getCurrentPlayer().makeClientInfo(), MessageProtocol.MOVE_PASS, new BoardLocation(0,0), Collections.<BoardLocation>emptyList());
+		
 		broadcastMessage(message);
+		
 		if(lastPassed)
 		{
 			doGameOver();
@@ -178,7 +182,7 @@ public class Game {
 		{
 			state = GameState.BLACK_MOVE;
 		}
-		getCurrentPlayer().handleNextMove(this);
+		handleNextMove();
 	}
 	
 	private void doGameOver() {
@@ -258,5 +262,13 @@ public class Game {
 
 	public void begin() {
 		getCurrentPlayer().beginGame(this);
+	}
+
+	public int setGameID(int createGameEntry) {
+		return gameID;
+	}
+
+	public void handleNextMove() {
+		getCurrentPlayer().handleNextMove(this);
 	}
 }

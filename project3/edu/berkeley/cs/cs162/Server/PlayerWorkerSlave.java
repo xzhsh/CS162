@@ -17,10 +17,9 @@ public class PlayerWorkerSlave extends WorkerSlave{
 	public PlayerWorkerSlave(ClientConnection connection, PlayerLogic logic, int moveTimeout) {
 		super(connection, logic.getServer());
 		this.master = logic;
-		game = null;
+		this.game = null;
 		this.moveTimeout = moveTimeout;
 	}
-	
 	/**
 	 * Should only be called from the handleTerminate function. This assumes that 
 	 */
@@ -60,7 +59,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
     {
     	game.broadcastStartMessage();
     	try {
-			getServer().getStateManager().createGameEntry(game);
+			game.setGameID(getServer().getStateManager().createGameEntry(game));
 		} catch (SQLException e) {
 			//SQL Exception, generally unrecoverable. rewrap and throw.
 			throw new RuntimeException(e);
@@ -82,7 +81,6 @@ public class PlayerWorkerSlave extends WorkerSlave{
 			}
     	});
     }
-    
     
     /**
      * Gets a move from the player
@@ -118,8 +116,37 @@ public class PlayerWorkerSlave extends WorkerSlave{
 			game.doGameOverError(new GoBoard.IllegalMoveException(master.makeClientInfo().getName() + " timed out.", MessageProtocol.PLAYER_FORFEIT));
 		}
     }
+    
+    public void handleWaitForReconnect(final UnfinishedGame unfinishedGame, final PlayerLogic logic, final long timeout) {
+    	getMessageQueue().add(new Runnable () {
+		    public void run() {
+    			try {
+		    		Thread.sleep(timeout);
+		    		logic.terminateGame();
+		        	try {
+		        		StoneColor color = unfinishedGame.getColorForInfo(logic.makeClientInfo());
+		        		double blackScore = color == StoneColor.BLACK ? 1 : 0;
+		        		double whiteScore = color == StoneColor.WHITE ? 0 : 1;
+		    			getServer().getStateManager().finishGame(unfinishedGame.getGameID(), logic, blackScore, whiteScore, MessageProtocol.PLAYER_FORFEIT);
+		    		} catch (SQLException e) {
+		    			//unrecoverable, wrap and rethrow.
+		    			throw new RuntimeException(e);
+		    		}
+		    	} 
+		    	catch(InterruptedException e)
+		    	{
+		    		//resume and reconnect
+		    	}
+    		}
+    	}
+    	);
+    }
 
 	public void setGame(Game game) {
 		this.game = game;
+	}
+	public void handleReconnect(Game reconnectedGame) {
+		// TODO Auto-generated method stub
+		
 	}
 }

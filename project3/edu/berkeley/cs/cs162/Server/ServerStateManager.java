@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Vector;
 
 public class ServerStateManager {
+	@SuppressWarnings("unused")
 	private DatabaseConnection connection;
 	
 	public ServerStateManager(DatabaseConnection connection) {
@@ -15,8 +16,9 @@ public class ServerStateManager {
 	/**
 	 * Creates an entry in the games table for this specific game.
 	 * @param game
+	 * @return the gameID of the entry created.
 	 */
-	public void createGameEntry (Game game) throws SQLException {
+	public int createGameEntry (Game game) throws SQLException {
 		throw new RuntimeException("Unimplemented Method");
 	}
 	
@@ -29,6 +31,10 @@ public class ServerStateManager {
 	}
 	
 	public void finishGame(Game game, ClientLogic winner, double blackScore, double whiteScore, int reason) throws SQLException {
+		throw new RuntimeException("Unimplemented Method");
+	}
+	
+	public void finishGame(int gameId, ClientLogic winner, double blackScore, double whiteScore, int reason) throws SQLException {
 		throw new RuntimeException("Unimplemented Method");
 	}
 	

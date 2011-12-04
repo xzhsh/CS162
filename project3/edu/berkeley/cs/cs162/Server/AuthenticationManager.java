@@ -9,17 +9,15 @@ package edu.berkeley.cs.cs162.Server;
  * NOTE: All of these methods should be synchronized the Database connection!
  * 		 do not lock the methods in the manager.
  */
-import edu.berkeley.cs.cs162.Writable.ClientInfo;
-
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import edu.berkeley.cs.cs162.Writable.ClientInfo;
 
 public class AuthenticationManager {
 	@SuppressWarnings("unused")
 	private DatabaseConnection connection;
-	@SuppressWarnings("unused")
 	private String salt;
 
 	/**
@@ -74,8 +72,6 @@ public class AuthenticationManager {
 	 * @param newPasswordHash
 	 */
 	public void changePassword(ClientInfo cInfo, String newPasswordHash) {
-        PreparedStatement updateStatement;
-
         DatabaseConnection connection = null;
         Connection con = null;
 
