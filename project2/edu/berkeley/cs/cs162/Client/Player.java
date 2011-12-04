@@ -41,7 +41,6 @@ abstract public class Player extends BaseClient {
 
     public GoBoard getBoard() {
         return board;
-<<<<<<< HEAD
     }
 
     public boolean getWaitingForGames() {

@@ -85,7 +85,5 @@ public class MachinePlayer extends Player {
         }
 
         getConnection().sendReplyToServer(MessageFactory.createGetMoveStatusOkMessage(moveCode, loc));
-=======
-        getConnection().sendReplyToServer(MessageFactory.createGetMoveStatusOkMessage(moveCode, loc));
     }
 }
