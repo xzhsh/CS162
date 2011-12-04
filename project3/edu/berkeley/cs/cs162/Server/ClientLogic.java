@@ -13,6 +13,7 @@ public abstract class ClientLogic {
     private String name;
     private GameServer server;
     Lock observingLock;
+	private int clientID;
     
     public ClientLogic(GameServer server, String name) {
         this.name = name;
@@ -96,4 +97,10 @@ public abstract class ClientLogic {
 
     public abstract void cleanup();
 	public abstract ClientInfo makeClientInfo();
+	public void setID(int clientID) {
+		this.clientID = clientID;
+	}
+	public int getID() {
+		return clientID;
+	}
 }

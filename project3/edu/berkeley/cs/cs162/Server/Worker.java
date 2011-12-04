@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162.Server;
 
+import edu.berkeley.cs.cs162.Server.AuthenticationManager.ServerAuthenticationException;
 import edu.berkeley.cs.cs162.Writable.*;
 import edu.berkeley.cs.cs162.Writable.ClientMessages.RegisterMessage;
 
@@ -12,6 +13,7 @@ public class Worker extends Thread {
     private String clientName;
     private ClientConnection connection;
     private ClientLogic clientLogic;
+	private int clientID;
     
     public Worker(GameServer server, ClientConnection connection) {
         this.server = server;
@@ -37,6 +39,7 @@ public class Worker extends Thread {
 
             //grab the client logic fo this type of worker.
             clientLogic = ClientLogic.getClientLogicForClientType(getServer(), getClientName(), cInfo.getPlayerType(), connection);
+            clientLogic.setID(clientID);
             server.addWorker(clientName, this);
             server.getLog().println("Client connected! " + cInfo);
             while (!done) {
@@ -74,15 +77,19 @@ public class Worker extends Thread {
 				{
 					//connect
 					ClientMessages.ConnectMessage connectMsg = (ClientMessages.ConnectMessage) returnMessage;
-					if (getServer().getAuthenticationManager().authenticateClient(
-							connectMsg.getClientInfo(), connectMsg.getPasswordHash())) {
+					try {
+						clientID = getServer().getAuthenticationManager().authenticateClient(
+							connectMsg.getClientInfo(), connectMsg.getPasswordHash());
 						//authenticated, connected.
 						connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
 				        return connectMsg.getClientInfo();
-					} else {
+					}
+					catch (ServerAuthenticationException e) {
 						//authentication failed. Can retry.
 						connection.sendReplyToClient(MessageFactory.createErrorBadAuthMessage());
 					}
+						
+					
 				}
 				else if (returnMessage.getMsgType() == MessageProtocol.OP_TYPE_REGISTER)
 				{

@@ -19,7 +19,13 @@ public class AuthenticationManager {
 	@SuppressWarnings("unused")
 	private DatabaseConnection connection;
 	private String salt;
-
+	
+	public static class ServerAuthenticationException extends Exception{
+		private static final long serialVersionUID = -1052874230279909816L;
+	}
+	//load this at the start and increment this to get client ids.
+	protected int clientIds;
+	
 	/**
 	 * Constructs an authentication manager with a connection to the database and a salt.
 	 * @param connection Connection to the database.
@@ -40,7 +46,7 @@ public class AuthenticationManager {
 	 * 
 	 * @param cInfo
 	 * @param passwordHash
-	 * @return success status of the registration.
+	 * @return success
 	 */
 	public boolean registerClient(ClientInfo cInfo, String passwordHash) {
 		throw new RuntimeException("Unimplemented Method");
@@ -55,9 +61,9 @@ public class AuthenticationManager {
 	 * 
 	 * @param cInfo
 	 * @param passwordHash
-	 * @return success
+	 * @return client id of the new client.
 	 */
-	public boolean authenticateClient(ClientInfo cInfo, String passwordHash) {
+	public int authenticateClient(ClientInfo cInfo, String passwordHash) throws ServerAuthenticationException{
 		throw new RuntimeException("Unimplemented Method");
 	}
 	

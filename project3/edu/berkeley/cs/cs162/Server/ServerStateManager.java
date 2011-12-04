@@ -9,6 +9,11 @@ public class ServerStateManager {
 	@SuppressWarnings("unused")
 	private DatabaseConnection connection;
 	
+	//Game id here. load these at the start and use them to populate updates/games.
+	protected int gameId;
+	protected int moveId;
+	protected int capturedId;
+	
 	public ServerStateManager(DatabaseConnection connection) {
 		this.connection = connection;
 	}
@@ -27,10 +32,6 @@ public class ServerStateManager {
 	}
 	
 	public void updateGameWithPass(Game game, ClientLogic client) throws SQLException {
-		throw new RuntimeException("Unimplemented Method");
-	}
-	
-	public void finishGame(Game game, ClientLogic winner, double blackScore, double whiteScore, int reason) throws SQLException {
 		throw new RuntimeException("Unimplemented Method");
 	}
 	

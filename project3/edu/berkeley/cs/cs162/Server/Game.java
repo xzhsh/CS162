@@ -191,12 +191,14 @@ public class Game {
 		double blackScore = board.getScore(StoneColor.BLACK);
 		double whiteScore = board.getScore(StoneColor.WHITE);
 		PlayerLogic winner = blackScore > whiteScore ? blackPlayer : whitePlayer;
+		
 		try {
-			getCurrentPlayer().getServer().getStateManager().finishGame(this, winner, blackScore, whiteScore, MessageProtocol.GAME_OK);
+			getCurrentPlayer().getServer().getStateManager().finishGame(gameID, winner, blackScore, whiteScore, MessageProtocol.GAME_OK);
 		} catch (SQLException e) {
 			//unrecoverable, wrap and rethrow.
 			throw new RuntimeException(e);
 		}
+		
 		final Message message = MessageFactory.createGameOverMessage(makeGameInfo(), blackScore, whiteScore, winner.makeClientInfo());
     	broadcastMessage(message);
 		broadcastTerminate();
@@ -206,7 +208,7 @@ public class Game {
 		double blackScore = state == GameState.BLACK_MOVE ? 0 : 1;
 		double whiteScore = 1 - blackScore;
 		try {
-			getCurrentPlayer().getServer().getStateManager().finishGame(this, getInactivePlayer(), blackScore, whiteScore, reason.getReasonByte());
+			getCurrentPlayer().getServer().getStateManager().finishGame(gameID, getInactivePlayer(), blackScore, whiteScore, reason.getReasonByte());
 		} catch (SQLException e) {
 			//unrecoverable, wrap and rethrow.
 			throw new RuntimeException(e);

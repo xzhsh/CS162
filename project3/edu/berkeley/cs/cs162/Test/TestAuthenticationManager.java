@@ -43,9 +43,9 @@ public class TestAuthenticationManager extends AuthenticationManager{
 	 * @param passwordHash
 	 * @return success
 	 */
-	public boolean authenticateClient(ClientInfo cInfo, String passwordHash) {
+	public int authenticateClient(ClientInfo cInfo, String passwordHash) {
 		ps.println("Authenticated client with cInfo: " + cInfo.toString() + " and password hash: " + passwordHash);
-		return true;
+		return clientIds++;
 	}
 	
 	/**
