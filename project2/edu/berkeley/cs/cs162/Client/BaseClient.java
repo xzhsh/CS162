@@ -69,16 +69,8 @@ abstract public class BaseClient implements Client {
 
             return (serverResponse.isOK());
         }
-<<<<<<< HEAD
         catch(IOException e) { 
         	return false; 
-=======
-        catch(IOException e) {
-        	e.printStackTrace();
-        	System.out.println(e.getLocalizedMessage() + " " + getName() + " @ address: " + address + " port :" + port);
-        	
-        	return false;
->>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
     	}
     }
 

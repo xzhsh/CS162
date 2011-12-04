@@ -55,10 +55,6 @@ public abstract class PlayerLogic extends ClientLogic {
 		if (state == PlayerState.CONNECTED) {
 		    state = PlayerState.WAITING;
 		    stateLock.release();
-<<<<<<< HEAD
-=======
-		    System.out.println("Wait for game message received for player " + getWorker().getName());
->>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
 		    getWorker().getServer().addPlayerToWaitQueue(this);
 		    return MessageFactory.createStatusOkMessage();
 		}
@@ -79,16 +75,8 @@ public abstract class PlayerLogic extends ClientLogic {
     	stateLock.acquire();
     	if (state == PlayerState.WAITING)
     	{
-<<<<<<< HEAD
     		state = PlayerState.PLAYING;
     		started = true;
-=======
-		    System.out.println("Game started for player " + getWorker().getName());
-    		state = PlayerState.PLAYING;
-    		started = true;
-    	} else {
-    		System.out.println("Tried to start game for player " + getWorker().getClientName() + " who was " + state);
->>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
     	}
     	stateLock.release();
     	return started;
@@ -112,29 +100,16 @@ public abstract class PlayerLogic extends ClientLogic {
 
 	public void terminateGame() {
 		stateLock.acquire();
-<<<<<<< HEAD
     	if (state != PlayerState.DISCONNECTED)
     	{
         	assert state == PlayerState.PLAYING : "Terminated game when not playing";
     		state = PlayerState.WAITING;
-=======
-    	if (state == PlayerState.PLAYING)
-    	{
-        	//assert state == PlayerState.PLAYING : "Terminated game when not playing";
-    		state = PlayerState.CONNECTED;
->>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
     	}
     	stateLock.release();
 	}
 
 	public void disconnectState() {
-<<<<<<< HEAD
 		state = PlayerState.DISCONNECTED;
-=======
-		stateLock.acquire();
-		state = PlayerState.DISCONNECTED;
-		stateLock.release();
->>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
 	}
 	
 	public WorkerSlave createSlaveThread(ClientConnection connection) {

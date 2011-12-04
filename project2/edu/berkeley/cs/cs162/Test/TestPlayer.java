@@ -44,19 +44,12 @@ public class TestPlayer extends Player {
 			public void run() {
 				TestPlayer player = new TestPlayer(name, type, moves, shared);
 		        if (player.connectTo("localhost", port)) {
-<<<<<<< HEAD
 					
-=======
->>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
 		        	Message reply;
 					try {
 						reply = player.getConnection().sendSyncToServer(MessageFactory.createWaitForGameMessage());
 					} catch (IOException e) {
 						reply = MessageFactory.createErrorRejectedMessage();
-<<<<<<< HEAD
-=======
-    		        	System.out.println("Wait for game closed:" + e.getMessage());
->>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
 					}
 	                if (reply.isOK()) {
 	                    player.setSentWFGMessage(true);
@@ -64,23 +57,10 @@ public class TestPlayer extends Player {
 	                    try {
 	                    	player.runExecutionLoop();
 	                    }
-<<<<<<< HEAD
 	                    catch (IOException e){}
 	                    //lock.readUnlock();
 	                }
 		        }
-=======
-	                    catch (IOException e){
-	    		        	System.out.println("Connection Closed:" + e.getMessage());
-	                    }
-	                    //lock.readUnlock();
-	                }
-		        }
-		        else {
-		        	System.out.println("Connection Failed");
-		        }
-		        
->>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
 			}
 		};
 		t.start();

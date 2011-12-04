@@ -133,10 +133,6 @@ public class GoBoard {
     }
     
     public double getScore(StoneColor color) {
-<<<<<<< HEAD
     	return Rules.countOwnedTerritory(getCurrentBoard(), color);
-=======
-    	return Rules.countOwnedTerritory(getCurrentBoard(), color) + getCurrentBoard().getNumberOfColor(color);
->>>>>>> b70978eefef586adb4b41ceaa2cc1fb5f06c2212
     }
 }
