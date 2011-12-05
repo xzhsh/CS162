@@ -54,12 +54,6 @@ public class AuthenticationManagerTest {
 
         // Second registration should be unsuccessful
         assertFalse("Kunal's second registration should be unsuccessful.", am.registerClient(kunal, password));
-
-        String newpassword = Security.computeHash("kunal2");
-
-        // Another Kunal should not be able to register
-        assertFalse(am.registerClient(kunal, newpassword));
-
     }
 
     @Test /* Test that a registered client can successfully authenticate, but an unregistered client cannot. */

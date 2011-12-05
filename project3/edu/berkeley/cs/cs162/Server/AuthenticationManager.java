@@ -97,16 +97,16 @@ public class AuthenticationManager {
         try {
             ResultSet results = connection.executeReadQuery("SELECT passwordHash, clientId FROM clients WHERE name='" + clientName + "'");
 
-            if(results == null){
+            if (results == null) {
                 System.out.println("ResultSet was null");
                 throw new ServerAuthenticationException();
             }
-            else if (!results.next()){
+            else if (!results.next()) {
                 System.out.println("ResultSet was empty");
                 results.getStatement().close();
                 throw new ServerAuthenticationException();
             }
-            else if (results.getString("passwordHash").equals(finalPass)){
+            else if (results.getString("passwordHash").equals(finalPass)) {
                 int cid = results.getInt("clientId");
                 results.getStatement().close();
                 return cid;
