@@ -11,7 +11,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
+import edu.berkeley.cs.cs162.Server.BoardLocation;
 import edu.berkeley.cs.cs162.Server.GameServer;
+import edu.berkeley.cs.cs162.Server.GoBoard;
+import edu.berkeley.cs.cs162.Server.StoneColor;
+import edu.berkeley.cs.cs162.Server.UnfinishedGame;
+import edu.berkeley.cs.cs162.Server.GoBoard.IllegalMoveException;
 import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
@@ -25,6 +30,20 @@ public class OneGameServerTest {
 	public void test() throws InterruptedException {
 		final TestAuthenticationManager am = new TestAuthenticationManager(null, null);
 		final TestServerStateManager sm = new TestServerStateManager(null);
+		
+		GoBoard board = new GoBoard(10);
+		try {
+			board.makeMove(new BoardLocation(1, 0), StoneColor.BLACK);
+			board.makeMove(new BoardLocation(2, 2), StoneColor.WHITE);
+		} catch (IllegalMoveException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		sm.addUnfinishedGame(new UnfinishedGame("TestGameReconnect", board, 
+				MessageFactory.createClientInfo("TestPlayer0", MessageProtocol.TYPE_MACHINE), 
+				MessageFactory.createClientInfo("TestPlayer1", MessageProtocol.TYPE_MACHINE), 0));
+		
 		
 		final GameServer server = new GameServer("edu.berkeley.cs.cs162.Test.one-game-server-test.db", 100, 5, new PrintStream(System.out), am, sm);
 		Thread t = new Thread() {

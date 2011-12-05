@@ -19,10 +19,12 @@ public class TestServerStateManager extends ServerStateManager {
 	public ByteArrayOutputStream baos;
 	private PrintStream ps;
 	int idCount = 0;
+	ArrayList<UnfinishedGame> l;
 	public TestServerStateManager(DatabaseConnection connection) {
 		super(connection);
 		baos = new ByteArrayOutputStream();
 		ps = new PrintStream(baos);
+		l = new ArrayList<UnfinishedGame>();
 	}
 	
 	/**
@@ -54,7 +56,11 @@ public class TestServerStateManager extends ServerStateManager {
 	 * @throws SQLException
 	 */
 	public List<UnfinishedGame> loadUnfinishedGames() throws SQLException{
-		//TODO fill in
-		return new ArrayList<UnfinishedGame>();
+		return l;
+	}
+	
+	public void addUnfinishedGame(UnfinishedGame newGame) {
+		l.add(newGame);
+		idCount++;
 	}
 }

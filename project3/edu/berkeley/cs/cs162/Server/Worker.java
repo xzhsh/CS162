@@ -44,7 +44,7 @@ public class Worker extends Thread {
             server.getLog().println("Client connected! " + cInfo);
             while (!done) {
                 //just read messages from input and let the client logic handle stuff.
-                Message returnMessage = clientLogic.handleMessage(connection.readFromClient());
+            	Message returnMessage = clientLogic.handleMessage(connection.readFromClient());
                 if (returnMessage != null) {
                     //if it is a synchronous message, write the return message to output.
                     connection.sendReplyToClient(returnMessage);
@@ -88,8 +88,6 @@ public class Worker extends Thread {
 						//authentication failed. Can retry.
 						connection.sendReplyToClient(MessageFactory.createErrorBadAuthMessage());
 					}
-						
-					
 				}
 				else if (returnMessage.getMsgType() == MessageProtocol.OP_TYPE_REGISTER)
 				{

@@ -147,10 +147,8 @@ public class GameServer {
             while (true) {
             	try {
             		Socket incomingConnection = server.accept();
-                    getLog().println("Found connection");
                     incomingConnection.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
                     connectionQueue.add(incomingConnection);
-                    getLog().println("Added connection");
             	} catch (SocketTimeoutException e) {
             		//socket timedout, no need to do anything
             	}

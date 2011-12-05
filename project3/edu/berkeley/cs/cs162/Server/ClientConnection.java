@@ -68,6 +68,7 @@ public class ClientConnection {
             int ackS2C = S2Cin.readInt();
             if (ackC2S == C2SackID + 1 && ackS2C == S2CackID + 1) {
                 //correct. break and finish
+            	C2S.setSoTimeout(0);
                 valid = true;
             } else {
                 //wrong ack... something went wrong.
