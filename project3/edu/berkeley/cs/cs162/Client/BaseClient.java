@@ -16,7 +16,7 @@ abstract public class BaseClient implements Client {
     byte type;
     ClientInfo clientInfo;
     private ServerConnection connection;
-	public String password;
+	private String password;
     static Random rng = new Random();
 
     public BaseClient(String name, String password, byte type) {
