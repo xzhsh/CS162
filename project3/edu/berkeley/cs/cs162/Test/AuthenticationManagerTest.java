@@ -2,6 +2,7 @@ package edu.berkeley.cs.cs162.Test;
 
 import edu.berkeley.cs.cs162.Server.AuthenticationManager;
 import edu.berkeley.cs.cs162.Server.AuthenticationManager.ServerAuthenticationException;
+import edu.berkeley.cs.cs162.Server.DatabaseConnection;
 import edu.berkeley.cs.cs162.Server.Security;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
@@ -9,6 +10,8 @@ import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.BeforeClass;
+
+import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 
@@ -24,8 +27,11 @@ public class AuthenticationManagerTest {
 
     @BeforeClass
     public static void setUp(){
-        // Initialize authentication manager
-        am = null;
+        // TODO Initialize authentication manager, database, and stuff
+        String db = "authmanager-test.db";
+
+        try{ am = new AuthenticationManager(new DatabaseConnection(db), "cs162project3istasty"); }
+        catch (SQLException e) { fail("SQL Exception in setup method."); }
 
         kunal = MessageFactory.createMachinePlayerClientInfo("kunal");
         password = Security.computeHash("kunal");
@@ -33,7 +39,7 @@ public class AuthenticationManagerTest {
 
     @AfterClass
     public static void tearDown(){
-        // Wipe dabase and shit
+        // TODO Wipe dabase and shit
     }
 
     @Test /* Test that a client can successfully register, and cannot register twice. */

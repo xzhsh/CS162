@@ -55,18 +55,17 @@ public class AuthenticationManager {
         String finalPass = Security.computeHashWithSalt(passwordHash, salt);
 
         try {
-            ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=" + clientName);
+            // Make sure the client isn't already in the database
+            try { ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=" + clientName); }
+            catch (SQLException e) { return false; }
 
-            if (results != null) {
-                return false;
-            } else {
-                connection.startTransaction();
-                connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "\'" + clientName + "\', " + Byte.toString(clientType) + ", \'" + finalPass + "\'" + ")");
-                connection.finishTransaction();
+            connection.startTransaction();
+            connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "\'" + clientName + "\', " + Byte.toString(clientType) + ", \'" + finalPass + "\'" + ")");
+            connection.finishTransaction();
 
-                return true;
-            }
-        } catch (SQLException e) {
+            return true;
+        }
+        catch (SQLException e) {
             e.printStackTrace();
         }
 

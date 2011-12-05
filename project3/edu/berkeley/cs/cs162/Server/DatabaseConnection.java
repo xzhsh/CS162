@@ -31,6 +31,7 @@ public class DatabaseConnection {
 			System.err.println("Could not find sqlite JDBC class. Did you include the correct jar in the build path?");
 		}
 	    canonicalConnection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
+        dataLock = new ReaderWriterLock();
 	}
 	
 	/**
@@ -71,12 +72,12 @@ public class DatabaseConnection {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ResultSet executeReadQuery(String query) throws SQLException{
+	public ResultSet executeReadQuery(String query) throws SQLException {
 		dataLock.readLock();
 		Statement readQuery = null;
 		ResultSet rs = null;
 		try {
-			readQuery = canonicalConnection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			readQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		      
 		      if (!readQuery.execute(query)) {
 		        System.err.println("Could not find entry");
