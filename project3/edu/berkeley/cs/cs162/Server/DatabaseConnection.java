@@ -32,18 +32,17 @@ public class DatabaseConnection {
 		}
 	    canonicalConnection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
         dataLock = new ReaderWriterLock();
-        initializeDatabase();
 	}
 
     /**
      * Initializes the database, creating the necessary tables
      */
-    private void initializeDatabase(){
+    public void initializeDatabase(){
 
         startTransaction();
         try{
             // TODO Create Clients table
-            executeWriteQuery("create table if not exists clients (clientId int primary key, name text unique not null, type int not null, passwordHash text not null)");
+            executeWriteQuery("create table if not exists clients (clientId integer primary key autoincrement, name text unique not null, type int not null, passwordHash text not null)");
             // TODO Create Games Table
             executeWriteQuery("create table if not exists games (gameId int primary key, blackPlayer int references clients (clientId) not null, whitePlayer int references clients (clientId) not null, boardSize int not null, blackScore real, whiteScore real, winner int references clients (clientId), moveNum int not null, reason int)");
             // TODO Create Moves Table
@@ -120,18 +119,12 @@ public class DatabaseConnection {
 
         try {
 			readQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-		      
-            if (!readQuery.execute(query))
-                System.err.println("Could not find entry");
-            else
-                rs = readQuery.getResultSet();
+            rs = readQuery.executeQuery(query);
 		}
         catch (SQLException e) {
 		    e.printStackTrace();
 		}
         finally {
-            try { if (readQuery != null) readQuery.close(); }
-            catch(SQLException e) { /* Do nothing... */ }
 			dataLock.readUnlock();
 		}
 

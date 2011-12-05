@@ -32,6 +32,7 @@ public class AuthenticationManagerTest {
 
         try{
             db = new DatabaseConnection(dbname);
+            db.initializeDatabase();
             am = new AuthenticationManager(db, "cs162project3istasty");
         }
         catch (SQLException e) { fail("SQL Exception in setup method."); }
