@@ -9,6 +9,8 @@ package edu.berkeley.cs.cs162.Server;
  * NOTE: All of these methods should be synchronized the Database connection!
  * 		 do not lock the methods in the manager.
  */
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -49,7 +51,10 @@ public class AuthenticationManager {
 	 * @return success
 	 */
 	public boolean registerClient(ClientInfo cInfo, String passwordHash) {
-		throw new RuntimeException("Unimplemented Method");
+
+        String rehashedPassword = Security.computeHashWithSalt(passwordHash, salt);
+
+        throw new RuntimeException("Unimplemented Method");
 	}
 	
 	/**
@@ -64,6 +69,9 @@ public class AuthenticationManager {
 	 * @return client id of the new client.
 	 */
 	public int authenticateClient(ClientInfo cInfo, String passwordHash) throws ServerAuthenticationException{
+
+        String rehashedPassword = Security.computeHashWithSalt(passwordHash, salt);
+
 		throw new RuntimeException("Unimplemented Method");
 	}
 	
