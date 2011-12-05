@@ -38,11 +38,11 @@ public class UnfinishedGame {
 	}
 	
 	public boolean matchesPlayer(PlayerLogic player) {
-		if (blackPlayer == null && blackPlayerInfo == player.makeClientInfo()) {
+		if (blackPlayer == null && blackPlayerInfo.equals(player.makeClientInfo())) {
 			blackPlayer = player;
 			return true;
 		}
-		if (whitePlayer == null && whitePlayerInfo == player.makeClientInfo()) {
+		if (whitePlayer == null && whitePlayerInfo.equals(player.makeClientInfo())) {
 			whitePlayer = player;
 			return true;
 		}

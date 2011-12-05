@@ -68,6 +68,7 @@ public abstract class PlayerLogic extends ClientLogic {
 					//just start the game again and return the reconnected board state.
 					state = PlayerState.PLAYING;
 					stateLock.release();
+					getServer().getLog().println(makeClientInfo() + " has resumed playing the game.");
 					unfinishedGame.wakeOtherPlayer(this);
 					reconnectedGame.handleNextMove();
 				} else {
@@ -75,6 +76,7 @@ public abstract class PlayerLogic extends ClientLogic {
 					//start waiting for the other game.
 					state = PlayerState.RECONNECT;
 					stateLock.release();
+					getServer().getLog().println(makeClientInfo() + " has is waiting to resume the game.");
 					slave.handleWaitForReconnect(unfinishedGame, this, 
 							PLAYER_RECONNECT_TIMEOUT_IN_MS);
 				}
@@ -165,10 +167,12 @@ public abstract class PlayerLogic extends ClientLogic {
 		{
 			state = PlayerState.PLAYING;
 			stateLock.release();
+			getServer().getLog().println(makeClientInfo() + " has woken up and is playing the game.");
 			getSlave().interrupt();
 			return true;
 		} else {
 			stateLock.release();
+			getServer().getLog().println(makeClientInfo() + " tried to wake up but wasn't reconnecting.");
 			return false;
 		}
 	}

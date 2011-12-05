@@ -136,6 +136,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
 		    	catch(InterruptedException e)
 		    	{
 		    		//resume and reconnect
+		    		getServer().getLog().println(master.makeClientInfo() + " has been interrupted.");
 		    	}
     		}
     	}

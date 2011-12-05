@@ -11,23 +11,20 @@ import edu.berkeley.cs.cs162.Server.BoardLocation;
 import edu.berkeley.cs.cs162.Server.ClientLogic;
 import edu.berkeley.cs.cs162.Server.DatabaseConnection;
 import edu.berkeley.cs.cs162.Server.Game;
-import edu.berkeley.cs.cs162.Server.GoBoard;
-import edu.berkeley.cs.cs162.Server.GoBoard.IllegalMoveException;
 import edu.berkeley.cs.cs162.Server.ServerStateManager;
-import edu.berkeley.cs.cs162.Server.StoneColor;
 import edu.berkeley.cs.cs162.Server.UnfinishedGame;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
-import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
 public class TestServerStateManager extends ServerStateManager {
 
 	public ByteArrayOutputStream baos;
 	private PrintStream ps;
 	int idCount = 0;
+	ArrayList<UnfinishedGame> l;
 	public TestServerStateManager(DatabaseConnection connection) {
 		super(connection);
 		baos = new ByteArrayOutputStream();
 		ps = new PrintStream(baos);
+		l = new ArrayList<UnfinishedGame>();
 	}
 	
 	/**
@@ -59,18 +56,11 @@ public class TestServerStateManager extends ServerStateManager {
 	 * @throws SQLException
 	 */
 	public List<UnfinishedGame> loadUnfinishedGames() throws SQLException{
-		ArrayList<UnfinishedGame> l = new ArrayList<UnfinishedGame>();
-		GoBoard board = new GoBoard(10);
-		try {
-			board.makeMove(new BoardLocation(1, 0), StoneColor.BLACK);
-			board.makeMove(new BoardLocation(2, 2), StoneColor.WHITE);
-		} catch (IllegalMoveException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		l.add(new UnfinishedGame("TestGameReconnect", board, MessageFactory.createClientInfo("TestPlayer0", MessageProtocol.TYPE_MACHINE), MessageFactory.createClientInfo("TestPlayer0", MessageProtocol.TYPE_MACHINE), 1));
-		idCount = 2;
 		return l;
+	}
+	
+	public void addUnfinishedGame(UnfinishedGame newGame) {
+		l.add(newGame);
+		idCount++;
 	}
 }
