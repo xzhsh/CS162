@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Vector;
 
 public class ServerStateManager {
-	@SuppressWarnings("unused")
 	private DatabaseConnection connection;
 	
 	//Game id here. load these at the start and use them to populate updates/games.

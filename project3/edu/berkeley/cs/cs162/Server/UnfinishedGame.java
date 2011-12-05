@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162.Server;
 
+import edu.berkeley.cs.cs162.Synchronization.Lock;
 import edu.berkeley.cs.cs162.Writable.BoardInfo;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.GameInfo;
@@ -13,7 +14,8 @@ public class UnfinishedGame {
 	private int gameID;
 	private GoBoard board;
 	private String name;
-
+	Lock reconnectionLock;
+	private boolean reconnected;
 	enum ReconnectionStatus {
 		NONE_CONNECTED,
 		ONE_CONNECTED,
@@ -28,13 +30,24 @@ public class UnfinishedGame {
 		this.whitePlayer = null;
 		this.gameID = gameID;
 		this.name = name;
+		this.reconnected = false;
+		this.reconnectionLock = new Lock();
 	}
 	
 	public Game reconnectGame() {
-		if (blackPlayer == null || whitePlayer == null) {
-			return null;
+		reconnectionLock.acquire();
+		try {
+			if (blackPlayer == null || whitePlayer == null || reconnected) {
+				return null;
+			} else {
+				reconnected = true;
+				return new Game(name, blackPlayer, whitePlayer, board, gameID);
+			}
+		} 
+		finally 
+		{
+			reconnectionLock.release();
 		}
-		return new Game(name, whitePlayer, whitePlayer, board, gameID);
 	}
 	
 	public boolean matchesPlayer(PlayerLogic player) {

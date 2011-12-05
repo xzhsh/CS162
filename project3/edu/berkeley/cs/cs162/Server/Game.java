@@ -46,7 +46,7 @@ public class Game {
         this.board = board;
         observerList = new HashSet<ObserverLogic>();
         observerLock = new ReaderWriterLock();
-        state = GameState.BLACK_MOVE;
+        state = board.getBlackMove() ? GameState.BLACK_MOVE : GameState.WHITE_MOVE;
         active = true;
 	}
 

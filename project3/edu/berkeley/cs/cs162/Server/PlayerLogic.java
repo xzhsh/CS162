@@ -38,6 +38,7 @@ public abstract class PlayerLogic extends ClientLogic {
     	CONNECTED,
     	WAITING,
     	RECONNECT,
+    	RECONNECTING,
     	PLAYING,
     	DISCONNECTED
     }
@@ -138,7 +139,7 @@ public abstract class PlayerLogic extends ClientLogic {
 
 	public void terminateGame() {
 		stateLock.acquire();
-    	if (state == PlayerState.PLAYING || state == PlayerState.RECONNECT)
+    	if (state == PlayerState.PLAYING || state == PlayerState.RECONNECT || state == PlayerState.RECONNECTING)
     	{
         	//assert state == PlayerState.PLAYING : "Terminated game when not playing";
     		state = PlayerState.CONNECTED;
@@ -163,17 +164,24 @@ public abstract class PlayerLogic extends ClientLogic {
 
 	public boolean wakeReconnection() {
 		stateLock.acquire();
-		if (state == PlayerState.RECONNECT)
-		{
-			state = PlayerState.PLAYING;
-			stateLock.release();
-			getServer().getLog().println(makeClientInfo() + " has woken up and is playing the game.");
-			getSlave().interrupt();
-			return true;
-		} else {
-			stateLock.release();
-			getServer().getLog().println(makeClientInfo() + " tried to wake up but wasn't reconnecting.");
-			return false;
+		while (state != PlayerState.RECONNECTING) { 
+			try {
+				Thread.sleep(5);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		
+		state = PlayerState.PLAYING;
+		stateLock.release();
+		getServer().getLog().println(makeClientInfo() + " has woken up and is playing the game.");
+		getSlave().interrupt();
+		return true;
+	}
+
+	public void startReconnecting() {
+		assert state == PlayerState.RECONNECT : "Error, not reconnecting right now";
+		state = PlayerState.RECONNECTING;
 	}
 }

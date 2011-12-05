@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 
 public class AuthenticationManager {
-	@SuppressWarnings("unused")
 	private DatabaseConnection connection;
 	private String salt;
 	

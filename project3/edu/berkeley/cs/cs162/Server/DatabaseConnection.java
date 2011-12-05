@@ -7,8 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
-import edu.berkeley.cs.cs162.Writable.ClientInfo;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
 /**
  * DatabaseConnection abstracts a connection to a remote database.

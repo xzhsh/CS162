@@ -121,6 +121,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
     	getMessageQueue().add(new Runnable () {
 		    public void run() {
     			try {
+    				logic.startReconnecting();
 		    		Thread.sleep(timeout);
 		    		logic.terminateGame();
 		        	try {
