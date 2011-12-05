@@ -6,8 +6,9 @@ package edu.berkeley.cs.cs162.Server;
  * This should be able to handle registering clients, authenticating clients, 
  * and changing client's passwords.
  * 
- * NOTE: All of these methods should be synchronized the Database connection!
- * 		 do not lock the methods in the manager.
+ * NOTES:
+ * - All of these methods should be synchronized the Database connection! Do not lock the methods in the manager.
+ * - If you call executeReadQuery(), remember to ALWAYS call closeReadQuery() on the result when you're done!
  */
 
 import java.sql.ResultSet;
@@ -57,6 +58,7 @@ public class AuthenticationManager {
         ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name='" + clientName + "'");
 
         try {
+            // If the ResultSet is not empty (i.e. the user already exists)
             if(results.next()){
                 connection.closeReadQuery(results);
                 return false;

@@ -36,6 +36,7 @@ public class DatabaseConnection {
 	    canonicalConnection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
         //canonicalConnection.setAutoCommit(false);
         dataLock = new ReaderWriterLock();
+        initializeDatabase();
 	}
 
     /**
@@ -45,21 +46,16 @@ public class DatabaseConnection {
 
         startTransaction();
         try{
-            // TODO Create Clients table
             executeWriteQuery("create table if not exists clients (clientId integer primary key autoincrement, name text unique not null, type int not null, passwordHash text not null)");
-            // TODO Create Games Table
-            executeWriteQuery("create table if not exists games (gameId int primary key, blackPlayer int references clients (clientId) not null, whitePlayer int references clients (clientId) not null, boardSize int not null, blackScore real, whiteScore real, winner int references clients (clientId), moveNum int not null, reason int)");
-            // TODO Create Moves Table
-            executeWriteQuery("create table if not exists moves (moveId int primary key, clientId int references clients (clientId) not null, gameId int references games (gameId) not null, moveType int not null, x int, y int, moveNum int not null)");
-            // TODO Create Captured Stones table
-            executeWriteQuery("create table if not exists captured_stones(stoneId int primary key, moveId int references moves (moveId), x int, y int)");
+            executeWriteQuery("create table if not exists games (gameId integer primary key autoincrement, blackPlayer int references clients (clientId) not null, whitePlayer int references clients (clientId) not null, boardSize int not null, blackScore real, whiteScore real, winner int references clients (clientId), moveNum int not null, reason int)");
+            executeWriteQuery("create table if not exists moves (moveId integer primary key autoincrement, clientId int references clients (clientId) not null, gameId int references games (gameId) not null, moveType int not null, x int, y int, moveNum int not null)");
+            executeWriteQuery("create table if not exists captured_stones(stoneId integer primary key autoincrement, moveId int references moves (moveId), x int, y int)");
+            finishTransaction();
         }
         catch(SQLException e){
             e.printStackTrace();
             abortTransaction();
-            return;
         }
-        finishTransaction();
     }
 	
 	/**
@@ -111,7 +107,9 @@ public class DatabaseConnection {
     }
 
 	/**
-	 * executes a single read
+	 * Executes a single read.
+     * Remember to call closeReadQuery() on the result when you're done!
+     *
 	 * @param query
 	 * @return
 	 * @throws SQLException

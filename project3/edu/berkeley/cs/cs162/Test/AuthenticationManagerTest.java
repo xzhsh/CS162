@@ -27,12 +27,10 @@ public class AuthenticationManagerTest {
     static DatabaseConnection db;
 
     @BeforeClass
-    public static void setUp(){
-        String dbname = "authmanager-test.db";
-
+    public static void setup(){
         try{
-            db = new DatabaseConnection(dbname);
-            db.initializeDatabase();
+            db = new DatabaseConnection("authmanager-test.db");
+            //db.initializeDatabase();
             am = new AuthenticationManager(db, "cs162project3istasty");
         }
         catch (SQLException e) { fail("SQL Exception in setup method."); }
@@ -42,7 +40,7 @@ public class AuthenticationManagerTest {
     }
 
     @AfterClass
-    public static void tearDown(){
+    public static void teardown(){
         db.wipeDatabase();
     }
 
