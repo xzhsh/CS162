@@ -139,7 +139,7 @@ public abstract class PlayerLogic extends ClientLogic {
 
 	public void terminateGame() {
 		stateLock.acquire();
-    	if (state == PlayerState.PLAYING || state == PlayerState.RECONNECT || state == PlayerState.RECONNECTING)
+    	if (state == PlayerState.PLAYING || state == PlayerState.RECONNECT)
     	{
         	//assert state == PlayerState.PLAYING : "Terminated game when not playing";
     		state = PlayerState.CONNECTED;
@@ -162,26 +162,11 @@ public abstract class PlayerLogic extends ClientLogic {
 		getSlave().handleSendMessage(message);
 	}
 
-	public boolean wakeReconnection() {
+	public boolean reconnected() {
 		stateLock.acquire();
-		while (state != PlayerState.RECONNECTING) { 
-			try {
-				Thread.sleep(5);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
 		state = PlayerState.PLAYING;
 		stateLock.release();
 		getServer().getLog().println(makeClientInfo() + " has woken up and is playing the game.");
-		getSlave().interrupt();
 		return true;
-	}
-
-	public void startReconnecting() {
-		assert state == PlayerState.RECONNECT : "Error, not reconnecting right now";
-		state = PlayerState.RECONNECTING;
 	}
 }

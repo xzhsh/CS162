@@ -24,7 +24,7 @@ import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
 public class OneGameServerTest {
 	private static final int TEST_PORT = 1234;
-	private static final int NUM_PLAYERS = 20;
+	private static final int NUM_PLAYERS = 2;
 
 	@Test
 	public void test() throws InterruptedException {
@@ -35,6 +35,7 @@ public class OneGameServerTest {
 		try {
 			board.makeMove(new BoardLocation(1, 0), StoneColor.BLACK);
 			board.makeMove(new BoardLocation(2, 2), StoneColor.WHITE);
+			board.makeMove(new BoardLocation(1, 1), StoneColor.BLACK);
 		} catch (IllegalMoveException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

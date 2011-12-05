@@ -1,6 +1,9 @@
 package edu.berkeley.cs.cs162.Server;
 
+import java.util.concurrent.TimeoutException;
+
 import edu.berkeley.cs.cs162.Synchronization.Lock;
+import edu.berkeley.cs.cs162.Synchronization.Semaphore;
 import edu.berkeley.cs.cs162.Writable.BoardInfo;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.GameInfo;
@@ -14,8 +17,9 @@ public class UnfinishedGame {
 	private int gameID;
 	private GoBoard board;
 	private String name;
-	Lock reconnectionLock;
+	private Lock reconnectionLock;
 	private boolean reconnected;
+	private Semaphore reconnectionSemaphore;
 	enum ReconnectionStatus {
 		NONE_CONNECTED,
 		ONE_CONNECTED,
@@ -32,6 +36,7 @@ public class UnfinishedGame {
 		this.name = name;
 		this.reconnected = false;
 		this.reconnectionLock = new Lock();
+		this.reconnectionSemaphore = new Semaphore(0);
 	}
 	
 	public Game reconnectGame() {
@@ -90,15 +95,10 @@ public class UnfinishedGame {
 	}
 
 	public void wakeOtherPlayer(PlayerLogic playerLogic) {
-		PlayerLogic other = null;
-		if (playerLogic == blackPlayer) {
-			other = whitePlayer;
-		} else if (playerLogic == whitePlayer)
-		{
-			other = blackPlayer;
-		} else {
-			assert false : "Programmer error, player logic not in the unfinished game";
-		}
-		other.wakeReconnection();
+		reconnectionSemaphore.v();
+	}
+
+	public void waitForReconnect() throws TimeoutException {
+		reconnectionSemaphore.p(60000);
 	}
 }
