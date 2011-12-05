@@ -62,10 +62,16 @@ public class AuthenticationManager {
                 return false;
             }
 
+            boolean success;
             connection.startTransaction();
-            boolean success = connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "\'" + clientName + "\', " + Byte.toString(clientType) + ", \'" + finalPass + "\'" + ")");
+            try{
+                success = connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "\'" + clientName + "\', " + Byte.toString(clientType) + ", \'" + finalPass + "\'" + ")");
+            }
+            catch(SQLException e){
+                connection.abortTransaction();
+                return false;
+            }
             connection.finishTransaction();
-
             return success;
         }
         catch (SQLException e) {

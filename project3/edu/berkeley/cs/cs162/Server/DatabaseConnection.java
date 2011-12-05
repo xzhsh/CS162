@@ -53,10 +53,10 @@ public class DatabaseConnection {
         }
         catch(SQLException e){
             e.printStackTrace();
+            abortTransaction();
+            return;
         }
-        finally{
-            finishTransaction();
-        }
+        finishTransaction();
     }
 	
 	/**
@@ -90,6 +90,22 @@ public class DatabaseConnection {
 			dataLock.writeUnlock();
 		}
 	}
+
+    /**
+     * Aborts the current transaction. Used in the case of an SQLException while writing.
+     */
+    public void abortTransaction() {
+        try {
+            canonicalConnection.rollback();
+            canonicalConnection.setAutoCommit(true);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            dataLock.writeUnlock();
+        }
+    }
 
 	/**
 	 * executes a single read
@@ -156,9 +172,10 @@ public class DatabaseConnection {
         }
         catch(SQLException e){
             e.printStackTrace();
+            abortTransaction();
+            return;
         }
-        finally {
-            finishTransaction();
-        }
+
+        finishTransaction();
     }
 }
