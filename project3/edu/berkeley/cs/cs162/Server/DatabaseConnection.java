@@ -113,25 +113,28 @@ public class DatabaseConnection {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ResultSet executeReadQuery(String query) throws SQLException {
+	public ResultSet executeReadQuery(String query) {
 		dataLock.readLock();
 		Statement readQuery = null;
 		ResultSet rs = null;
-		try {
+
+        try {
 			readQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		      
-            if (!readQuery.execute(query)) {
+            if (!readQuery.execute(query))
                 System.err.println("Could not find entry");
-            }
-            else {
+            else
                 rs = readQuery.getResultSet();
-            }
-		} catch (SQLException e) {
-		      e.printStackTrace();
-		} finally {
-            if (readQuery != null) readQuery.close();
+		}
+        catch (SQLException e) {
+		    e.printStackTrace();
+		}
+        finally {
+            try { if (readQuery != null) readQuery.close(); }
+            catch(SQLException e) { /* Do nothing... */ }
 			dataLock.readUnlock();
 		}
+
 		return rs;
 	}
 	
@@ -157,22 +160,21 @@ public class DatabaseConnection {
         }
 	}
 
-    // TESTING PURPOSES ONLY
+    /**
+     * TESTING PURPOSES ONLY. This wipes the database clean; used by the AuthenticationManagerTest.
+     */
     public void wipeDatabase(){
         startTransaction();
-
         try{
             executeWriteQuery("drop table if exists clients");
             executeWriteQuery("drop table if exists games");
             executeWriteQuery("drop table if exists moves");
             executeWriteQuery("drop table if exists captured_stones");
+            finishTransaction();
         }
         catch(SQLException e){
             e.printStackTrace();
             abortTransaction();
-            return;
         }
-
-        finishTransaction();
     }
 }

@@ -54,32 +54,21 @@ public class AuthenticationManager {
         byte clientType = cInfo.getPlayerType();
         String finalPass = Security.computeHashWithSalt(passwordHash, salt);
 
+        ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=" + clientName);
+        if(results != null) {
+            return false; // Client already exists in database.
+        }
+
+        connection.startTransaction();
         try {
-            // Make sure the client isn't already in the database
-            ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=" + clientName);
-
-            if(results != null) {
-                System.out.println("Client already exists in database");
-                return false;
-            }
-
-            connection.startTransaction();
-            try {
-                connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "\'" + clientName + "\', " + Byte.toString(clientType) + ", \'" + finalPass + "\'" + ")");
-            }
-            catch(SQLException e){
-                connection.abortTransaction();
-                return false;
-            }
+            connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "\'" + clientName + "\', " + Byte.toString(clientType) + ", \'" + finalPass + "\'" + ")");
             connection.finishTransaction();
             return true;
         }
-
-        catch (SQLException e) {
-            e.printStackTrace();
+        catch(SQLException e){
+            connection.abortTransaction();
+            return false;
         }
-
-        return false;
 	}
 	
 	/**
