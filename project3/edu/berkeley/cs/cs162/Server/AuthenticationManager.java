@@ -55,20 +55,14 @@ public class AuthenticationManager {
         byte clientType = cInfo.getPlayerType();
         String finalPass = Security.computeHashWithSalt(passwordHash, salt);
 
-        DatabaseConnection connection = null;
-        ResultSet results = null;
-
         try {
-            results =  connection.executeReadQuery("select clientID from clients where name=" + clientName);
+            ResultSet results = connection.executeReadQuery("SELECT clientID FROM clients WHERE name=" + clientName);
 
             if (results != null) {
-                return false; //client already exists
+                return false;
             } else {
-                //client does not exist, do a write
                 connection.startTransaction();
-
-                connection.executeWriteQuery(""); //create new client entry
-
+                connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "\'" + clientName + "\', " + Byte.toString(clientType) + ", \'" + finalPass + "\'" + ")");
                 connection.finishTransaction();
 
                 return true;
@@ -107,17 +101,13 @@ public class AuthenticationManager {
 	 * @param newPasswordHash
 	 */
 	public void changePassword(ClientInfo cInfo, String newPasswordHash) {
-        Connection con = null;
-
         String clientName = cInfo.getName();
 
-        connection.startTransaction();
-
         try {
-            String cidQuery = "select clientID from clients where name=" + clientName;
+            String cidQuery = "SELECT clientID FROM clients WHERE name=" + clientName;
             ResultSet result = connection.executeReadQuery(cidQuery);
             int clientID = result.getInt(1);
-            String query = "update clients set passwordHash=" + Security.computeHashWithSalt(newPasswordHash, salt) + " where clientID=" + Integer.toString(clientID);
+            String query = "UPDATE clients SET passwordHash=" + Security.computeHashWithSalt(newPasswordHash, salt) + " WHERE clientID=" + Integer.toString(clientID);
 
             connection.startTransaction();
 
@@ -128,26 +118,6 @@ public class AuthenticationManager {
             e.printStackTrace();
         }
 
-        connection.finishTransaction();
-		
-//		String pName = cInfo.getName();
-//		int CID;
-//		PreparedStatement getCID = null;
-//		PreparedStatement setNewPW = null;
-//		ResultSet prs = null;
-//		Connection con = connection.startTransaction();
-//		try {
-//			String getCIDQuery= "select clientID from dbname.clients where name= " + pName;
-//			getCID = con.prepareStatement(getCIDQuery);
-//			prs = getCID.executeQuery();
-//			CID = prs.getInt(1);
-//			String newPWQuery = "update dbname.clients set passwordHash= " + newPasswordHash+salt + "where clientID= " + Integer.toString(CID);
-//			setNewPW = con.prepareStatement(newPWQuery);
-//			setNewPW.execute();
-//		} catch (SQLExeption e) {
-//			e.printStackTrace();
-//		}
-//		connection.finishTransaction();
 		throw new RuntimeException("Unimplemented Method");
 	}
 }
