@@ -19,11 +19,16 @@ import static org.junit.Assert.*;
 public class AuthenticationManagerTest {
 
     static AuthenticationManager am;
+    static ClientInfo kunal;
+    static String password;
 
     @BeforeClass
     public static void setUp(){
         // Initialize authentication manager
         am = null;
+
+        kunal = MessageFactory.createMachinePlayerClientInfo("kunal");
+        password = Security.computeHash("kunal");
     }
 
     @AfterClass
@@ -34,22 +39,21 @@ public class AuthenticationManagerTest {
     @Test /* Test that a client can successfully register, and cannot register twice. */
     public void testRegisterClient(){
 
-        ClientInfo kunal = MessageFactory.createMachinePlayerClientInfo("kunal");
-        String password = Security.computeHash("kunal");
-
         // First registration should be successful
         assertTrue(am.registerClient(kunal, password));
 
         // Second registration should be unsuccessful
         assertFalse(am.registerClient(kunal, password));
 
+        String newpassword = Security.computeHash("kunal2");
+
+        // Another Kunal should not be able to register
+        assertFalse(am.registerClient(kunal, newpassword));
+
     }
 
     @Test /* Test that a registered client can successfully authenticate, but an unregistered client cannot. */
     public void testAuthenticateClient(){
-
-        ClientInfo kunal = MessageFactory.createMachinePlayerClientInfo("kunal");
-        String password = Security.computeHash("kunal");
 
         ClientInfo jay = MessageFactory.createMachinePlayerClientInfo("jay");
         String password2 = Security.computeHash("jay");
@@ -66,9 +70,6 @@ public class AuthenticationManagerTest {
 
     @Test /* Test that the AuthenticationManager can correctly change passwords. */
     public void testChangePassword(){
-
-        ClientInfo kunal = MessageFactory.createMachinePlayerClientInfo("kunal");
-        String password = Security.computeHash("kunal");
 
         // Kunal should be able to authenticate
         try { am.authenticateClient(kunal, password); }
