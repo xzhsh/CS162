@@ -144,4 +144,21 @@ public class DatabaseConnection {
 
         return success;
 	}
+
+    // TESTING PURPOSES ONLY
+    public void wipeDatabase(){
+        startTransaction();
+        try{
+            executeWriteQuery("drop table if exists clients");
+            executeWriteQuery("drop table if exists games");
+            executeWriteQuery("drop table if exists moves");
+            executeWriteQuery("drop table if exists captured_stones");
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        finally {
+            finishTransaction();
+        }
+    }
 }

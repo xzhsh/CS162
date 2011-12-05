@@ -24,13 +24,16 @@ public class AuthenticationManagerTest {
     static AuthenticationManager am;
     static ClientInfo kunal;
     static String password;
+    static DatabaseConnection db;
 
     @BeforeClass
     public static void setUp(){
-        // TODO Initialize authentication manager, database, and stuff
-        String db = "authmanager-test.db";
+        String dbname = "authmanager-test.db";
 
-        try{ am = new AuthenticationManager(new DatabaseConnection(db), "cs162project3istasty"); }
+        try{
+            db = new DatabaseConnection(dbname);
+            am = new AuthenticationManager(db, "cs162project3istasty");
+        }
         catch (SQLException e) { fail("SQL Exception in setup method."); }
 
         kunal = MessageFactory.createMachinePlayerClientInfo("kunal");
@@ -39,7 +42,7 @@ public class AuthenticationManagerTest {
 
     @AfterClass
     public static void tearDown(){
-        // TODO Wipe dabase and shit
+        db.wipeDatabase();
     }
 
     @Test /* Test that a client can successfully register, and cannot register twice. */
