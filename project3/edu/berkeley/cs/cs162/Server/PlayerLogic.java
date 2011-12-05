@@ -38,7 +38,6 @@ public abstract class PlayerLogic extends ClientLogic {
     	CONNECTED,
     	WAITING,
     	RECONNECT,
-    	RECONNECTING,
     	PLAYING,
     	DISCONNECTED
     }
@@ -70,8 +69,9 @@ public abstract class PlayerLogic extends ClientLogic {
 					state = PlayerState.PLAYING;
 					stateLock.release();
 					getServer().getLog().println(makeClientInfo() + " has resumed playing the game.");
-					unfinishedGame.wakeOtherPlayer(this);
+					unfinishedGame.wakePlayer();
 					getServer().addGame(reconnectedGame);
+					getServer().removeUnfinishedGame(unfinishedGame);
 					reconnectedGame.handleNextMove();
 				} else {
 					//other client hasn't connected yet
@@ -138,14 +138,19 @@ public abstract class PlayerLogic extends ClientLogic {
 		return playerTimeoutInMs;
 	}
 
-	public void terminateGame() {
+	public boolean terminateGame() {
 		stateLock.acquire();
-    	if (state == PlayerState.PLAYING || state == PlayerState.RECONNECT)
-    	{
-        	//assert state == PlayerState.PLAYING : "Terminated game when not playing";
-    		state = PlayerState.CONNECTED;
-    	}
-    	stateLock.release();
+		try {
+	    	if (state == PlayerState.PLAYING || state == PlayerState.RECONNECT)
+	    	{
+	        	//assert state == PlayerState.PLAYING : "Terminated game when not playing";
+	    		state = PlayerState.CONNECTED;
+	    		return true;
+	    	}
+	    	return false;
+		} finally {
+			stateLock.release();
+		}
 	}
 
 	public void disconnectState() {
@@ -162,12 +167,21 @@ public abstract class PlayerLogic extends ClientLogic {
 	public void handleSendMessage(Message message) {
 		getSlave().handleSendMessage(message);
 	}
-
 	public boolean reconnected() {
 		stateLock.acquire();
-		state = PlayerState.PLAYING;
-		stateLock.release();
-		getServer().getLog().println(makeClientInfo() + " has woken up and is playing the game.");
-		return true;
+		if (state == PlayerState.RECONNECT) {
+			state = PlayerState.PLAYING;
+			stateLock.release();
+			getServer().getLog().println(makeClientInfo() + " has woken up and is playing the game.");
+			return true;
+		} else {
+			stateLock.release();
+			return false;
+		}
+	}
+
+	public boolean isDisconnected() {
+		// TODO Auto-generated method stub
+		return state == PlayerState.DISCONNECTED;
 	}
 }

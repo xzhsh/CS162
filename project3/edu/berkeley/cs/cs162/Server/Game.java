@@ -169,6 +169,12 @@ public class Game {
 			advanceTurns();
 		} catch (IllegalMoveException e) {
 			//illegal move, we need to send game over error.
+			try {
+				getCurrentPlayer().getServer().getStateManager().updateGameWithMove(this, getCurrentPlayer(), loc, new Vector<BoardLocation>());
+			} catch (SQLException sqle) {
+				//unrecoverable, wrap and rethrow.
+				throw new RuntimeException(sqle);
+			}
 			doGameOverError(e);
 		}
 	}

@@ -22,7 +22,7 @@ import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
-public class OneGameServerTest {
+public class ReconnectionServerTest {
 	private static final int TEST_PORT = 1234;
 	private static final int NUM_PLAYERS = 2;
 
@@ -81,7 +81,7 @@ public class OneGameServerTest {
 		System.out.println("Auth:");
 		System.out.println(am.baos.toString());
 		System.out.println("State:");
+		//String stateString = sm.baos.toString();
 		System.out.println(sm.baos.toString());
-		
 	}
 }

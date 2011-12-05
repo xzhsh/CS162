@@ -67,12 +67,10 @@ public class AuthenticationManagerTest {
         // Jay should NOT be able to authenticate
         try { am.authenticateClient(jay, password2); fail("Jay should NOT have been able to authenticate.");}
         catch (ServerAuthenticationException e) { /* Nothing... */ }
-
     }
 
     @Test /* Test that the AuthenticationManager can correctly change passwords. */
     public void testChangePassword(){
-
         // Kunal should be able to authenticate
         try { am.authenticateClient(kunal, password); }
         catch (ServerAuthenticationException e) { fail("Kunal should have been able to authenticate."); }

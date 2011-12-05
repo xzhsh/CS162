@@ -42,7 +42,7 @@ public class UnfinishedGame {
 	public Game reconnectGame() {
 		reconnectionLock.acquire();
 		try {
-			if (blackPlayer == null || whitePlayer == null || reconnected) {
+			if (checkPlayerInvalid(blackPlayer) || checkPlayerInvalid(whitePlayer) || reconnected) {
 				return null;
 			} else {
 				reconnected = true;
@@ -56,15 +56,19 @@ public class UnfinishedGame {
 	}
 	
 	public boolean matchesPlayer(PlayerLogic player) {
-		if (blackPlayer == null && blackPlayerInfo.equals(player.makeClientInfo())) {
+		if (checkPlayerInvalid(blackPlayer) && blackPlayerInfo.equals(player.makeClientInfo())) {
 			blackPlayer = player;
 			return true;
 		}
-		if (whitePlayer == null && whitePlayerInfo.equals(player.makeClientInfo())) {
+		if (checkPlayerInvalid(whitePlayer) && whitePlayerInfo.equals(player.makeClientInfo())) {
 			whitePlayer = player;
 			return true;
 		}
 		return false;
+	}
+	
+	private boolean checkPlayerInvalid(PlayerLogic logic) {
+		return logic == null || logic.isDisconnected();
 	}
 
 	public int getGameID() {
@@ -94,7 +98,7 @@ public class UnfinishedGame {
 		return blackPlayerInfo;
 	}
 
-	public void wakeOtherPlayer(PlayerLogic playerLogic) {
+	public void wakePlayer() {
 		reconnectionSemaphore.v();
 	}
 

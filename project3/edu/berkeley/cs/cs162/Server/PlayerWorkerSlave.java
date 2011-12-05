@@ -123,19 +123,22 @@ public class PlayerWorkerSlave extends WorkerSlave{
     			try {
     				unfinishedGame.waitForReconnect();
     				logic.reconnected();
-		        	
 		    	} 
 		    	catch(TimeoutException e)
 		    	{
-		    		logic.terminateGame();
-		    		try {
-		        		StoneColor color = unfinishedGame.getColorForInfo(logic.makeClientInfo());
-		        		double blackScore = color == StoneColor.BLACK ? 1 : 0;
-		        		double whiteScore = color == StoneColor.WHITE ? 0 : 1;
-		    			getServer().getStateManager().finishGame(unfinishedGame.getGameID(), logic, blackScore, whiteScore, MessageProtocol.PLAYER_FORFEIT);
-		    		} catch (SQLException sqlE) {
-		    			//unrecoverable, wrap and rethrow.
-		    			throw new RuntimeException(sqlE);
+		    		if (logic.terminateGame()) {
+		    			//game has been terminated. write the end game messages.
+			    		try {
+			        		StoneColor color = unfinishedGame.getColorForInfo(logic.makeClientInfo());
+			        		double blackScore = color == StoneColor.BLACK ? 1 : 0;
+			        		double whiteScore = color == StoneColor.WHITE ? 0 : 1;
+			    			getServer().getStateManager().finishGame(unfinishedGame.getGameID(), logic, blackScore, whiteScore, MessageProtocol.PLAYER_FORFEIT);
+			    		} catch (SQLException sqlE) {
+			    			//unrecoverable, wrap and rethrow.
+			    			throw new RuntimeException(sqlE);
+			    		}
+		    		} else {
+		    			//we have already been disconnected. just end.
 		    		}
 		    	}
     		}
