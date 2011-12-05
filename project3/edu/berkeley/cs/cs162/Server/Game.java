@@ -105,6 +105,10 @@ public class Game {
 		return this.name;
 	}
 
+    public int getBoardSize(){
+        return board.getSize();
+    }
+
 	public void broadcastStartMessage() {
 		Message message = MessageFactory.createGameStartMessage(this);
 		observerLock.readLock();

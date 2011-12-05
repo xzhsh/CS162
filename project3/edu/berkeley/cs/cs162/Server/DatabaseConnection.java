@@ -43,13 +43,12 @@ public class DatabaseConnection {
      * Initializes the database, creating the necessary tables
      */
     public void initializeDatabase(){
-
         startTransaction();
         try{
             executeWriteQuery("create table if not exists clients (clientId integer primary key autoincrement, name text unique not null, type int not null, passwordHash text not null)");
             executeWriteQuery("create table if not exists games (gameId integer primary key autoincrement, blackPlayer int references clients (clientId) not null, whitePlayer int references clients (clientId) not null, boardSize int not null, blackScore real, whiteScore real, winner int references clients (clientId), moveNum int not null, reason int)");
             executeWriteQuery("create table if not exists moves (moveId integer primary key autoincrement, clientId int references clients (clientId) not null, gameId int references games (gameId) not null, moveType int not null, x int, y int, moveNum int not null)");
-            executeWriteQuery("create table if not exists captured_stones(stoneId integer primary key autoincrement, moveId int references moves (moveId), x int, y int)");
+            executeWriteQuery("create table if not exists captured_stones (stoneId integer primary key autoincrement, moveId int references moves (moveId), x int, y int)");
             finishTransaction();
         }
         catch(SQLException e){
@@ -146,6 +145,21 @@ public class DatabaseConnection {
         dataLock.readUnlock();
     }
 
+    public int getPlayerID(String name) throws SQLException {
+        ResultSet result = executeReadQuery("select clientId from clients where name='" + name + "'");
+        result.next();
+        int id = result.getInt("clientId");
+        closeReadQuery(result);
+        return id;
+    }
+
+    public int getGameID(int black, int white) throws SQLException {
+        ResultSet result = executeReadQuery("select gameId from games where blackPlayer=" + black + ", whitePlayer=" + white);
+        result.next();
+        int id = result.getInt("gameId");
+        closeReadQuery(result);
+        return id;
+    }
 
 	/**
 	 * Executes a single write

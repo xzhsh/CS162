@@ -24,7 +24,21 @@ public class ServerStateManager {
 	 * @return the gameID of the entry created.
 	 */
 	public int createGameEntry (Game game) throws SQLException {
-		throw new RuntimeException("Unimplemented Method");
+        int whiteID = connection.getPlayerID(game.getWhitePlayer().getName());
+        int blackID = connection.getPlayerID(game.getBlackPlayer().getName());
+        int boardSize = game.getBoardSize();
+
+        connection.startTransaction();
+        try {
+            connection.executeWriteQuery("insert into games (blackPlayer, whitePlayer, boardSize, moveNum) values (" + blackID + ", " + whiteID + ", " + boardSize + ", 0)");
+            connection.finishTransaction();
+        }
+        catch(SQLException e){
+            connection.abortTransaction();
+            throw e;
+        }
+
+        return connection.getGameID(blackID, whiteID);
 	}
 	
 	public void updateGameWithMove(Game game, ClientLogic client, BoardLocation loc, Vector<BoardLocation> capturedStones) throws SQLException {
