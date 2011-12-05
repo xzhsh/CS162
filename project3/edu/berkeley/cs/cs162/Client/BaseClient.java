@@ -1,11 +1,9 @@
 package edu.berkeley.cs.cs162.Client;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
+import edu.berkeley.cs.cs162.Server.Security;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
@@ -18,13 +16,12 @@ abstract public class BaseClient implements Client {
     byte type;
     ClientInfo clientInfo;
     private ServerConnection connection;
-	private String password;
+	public String password;
     static Random rng = new Random();
-
 
     public BaseClient(String name, String password, byte type) {
         this.name = name;
-        this.password = hashPassword(password);
+        this.password = Security.computeHash(password);
         this.type = type;
         clientInfo = MessageFactory.createClientInfo(this.name, this.type);
     }
@@ -84,18 +81,6 @@ abstract public class BaseClient implements Client {
         	
         	return false;
     	}
-    }
-
-    // TODO Would the hashed array of bytes be UTF-16 encoded also? I've assumed that for now.
-    private String hashPassword(String password){
-            try {
-				return new String(MessageDigest.getInstance("SHA-256").digest(password.getBytes("UTF-16")), "UTF-16");
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			} catch (NoSuchAlgorithmException e) {
-				e.printStackTrace();
-			}
-            return "";
     }
 
     protected void handleMessage(Message m) throws IOException {

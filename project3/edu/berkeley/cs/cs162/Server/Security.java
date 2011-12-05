@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162.Server;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -11,33 +12,32 @@ import java.security.NoSuchAlgorithmException;
  * To change this template use File | Settings | File Templates.
  */
 public class Security {
-    public static String computeHash(String original) {
-        MessageDigest md = null;
-
-        try {
-            md = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-
+    public static String toHexString(byte[] bytes) {
+        char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+        char[] hexChars = new char[bytes.length * 2];
+        int v;
+        for ( int j = 0; j < bytes.length; j++ ) {
+            v = bytes[j] & 0xFF;
+            hexChars[j*2] = hexArray[v/16];
+            hexChars[j*2 + 1] = hexArray[v%16];
         }
-
-        byte[] result = md.digest(original.getBytes());
-
-        return new String(result);
+        return new String(hexChars);
+    }
+    
+    public static String computeHash(String original) {
+    	try {
+			return toHexString(MessageDigest.getInstance("SHA-256").digest(original.getBytes("UTF-16")));
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return null;
     }
 
     public static String computeHashWithSalt(String hash, String salt) {
-        MessageDigest md = null;
-
-        try {
-            md = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-
-        }
-
-        String intermediate = hash.concat(salt);
-
-        byte[] result = md.digest(intermediate.getBytes());
-
-        return new String(result);
+        return computeHash(hash+salt);
     }
 }

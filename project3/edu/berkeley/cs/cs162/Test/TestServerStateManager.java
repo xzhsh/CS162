@@ -16,7 +16,7 @@ import edu.berkeley.cs.cs162.Server.UnfinishedGame;
 
 public class TestServerStateManager extends ServerStateManager {
 
-	private ByteArrayOutputStream baos;
+	public ByteArrayOutputStream baos;
 	private PrintStream ps;
 	int idCount = 0;
 	public TestServerStateManager(DatabaseConnection connection) {
@@ -36,15 +36,15 @@ public class TestServerStateManager extends ServerStateManager {
 	}
 	
 	public void updateGameWithMove(Game game, ClientLogic client, BoardLocation loc, Vector<BoardLocation> capturedStones) throws SQLException {
-		ps.println("Updated game " + game.getName() + " with move by " +client + " at "  + loc);
+		ps.println("Updated game " + game.getName() + " with move by " +client.makeClientInfo() + " at "  + loc);
 	}
 	
 	public void updateGameWithPass(Game game, ClientLogic client) throws SQLException {
-		ps.println("Updated game " + game.getName() + " with pass by " + client);
+		ps.println("Updated game " + game.getName() + " with pass by " + client.makeClientInfo());
 	}
 	
 	public void finishGame(int gameId, ClientLogic winner, double blackScore, double whiteScore, int reason) throws SQLException {
-		ps.println("Finished game with id " + gameId + " with " + winner+ " as winner. Final score "  + blackScore + " - " + whiteScore + " with reason byte: " + reason);
+		ps.println("Finished game with id " + gameId + " with " + winner.makeClientInfo() + " as winner. Final score "  + blackScore + " - " + whiteScore + " with reason byte: " + reason);
 	}
 	
 	/**

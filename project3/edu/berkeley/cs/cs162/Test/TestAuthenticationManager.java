@@ -8,7 +8,7 @@ import edu.berkeley.cs.cs162.Server.DatabaseConnection;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 
 public class TestAuthenticationManager extends AuthenticationManager{
-	private ByteArrayOutputStream baos;
+	public ByteArrayOutputStream baos;
 	private PrintStream ps;
 	public TestAuthenticationManager(DatabaseConnection connection, String salt) {
 		super(connection, salt);

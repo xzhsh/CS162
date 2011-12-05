@@ -65,17 +65,21 @@ public class GameServer {
 
 	
 	////PROJECT THREE FIELDS:
-	private DatabaseConnection connection;
 	private List<UnfinishedGame> unfinishedGames;
 	private ServerStateManager stateManager;
 	private AuthenticationManager authManager;
-    /**
+    
+	public GameServer(String databasePath, int clientLimit, int handshakeThreadPoolSize, PrintStream logStream) {
+		this(databasePath, handshakeThreadPoolSize, handshakeThreadPoolSize, logStream, null, null);
+	}
+	
+	/**
      * Constructor for gameServer
      *
      * @param clientLimit             how many max clients can be connected
      * @param handshakeThreadPoolSize How many {@link ConnectionWorker} threads there will be.
      */
-    public GameServer(String databasePath, int clientLimit, int handshakeThreadPoolSize, PrintStream logStream) {
+    public GameServer(String databasePath, int clientLimit, int handshakeThreadPoolSize, PrintStream logStream, AuthenticationManager authManager, ServerStateManager stateManager) {
         this.clientLimit = clientLimit;
         this.logStream = logStream;
         rng = new Random();
@@ -91,11 +95,20 @@ public class GameServer {
         activeGamesLock = new ReaderWriterLock();
         clientsConnected = 0;
         
+        
         try {
-			connection = new DatabaseConnection(databasePath);
-	        stateManager = new ServerStateManager(connection);
-	        authManager = new AuthenticationManager(connection, "cs162project3istasty");
-			unfinishedGames = stateManager.loadUnfinishedGames();
+        	DatabaseConnection connection = new DatabaseConnection(databasePath);
+        	if (stateManager == null) {
+        		this.stateManager = new ServerStateManager(connection);
+        	} else {
+        		this.stateManager = stateManager;
+        	}
+        	if (authManager == null) {
+        		this.authManager = new AuthenticationManager(connection, "cs162project3istasty");
+        	} else {
+        		this.authManager = authManager;
+        	}
+        	unfinishedGames = stateManager.loadUnfinishedGames();
 		} catch (SQLException e) {
 			// Invalid sql connection, unrecoverable.
 			// log the error and terminate.
@@ -111,6 +124,7 @@ public class GameServer {
             Thread hsThread = new Thread(hsWorker);
             hsThread.start();
         }
+        
         //NOTE the garbage collector thread will never be cleaned up either.
         //However the same logic holds for HandshakeWorker threads.
         SocketGarbageCollector collector = new SocketGarbageCollector(waitingSocketMap, waitingSocketMapLock, GLOBAL_TIMEOUT_IN_MS, 10, getLog());
