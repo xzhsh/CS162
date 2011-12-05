@@ -98,11 +98,9 @@ public class AuthenticationManager {
             ResultSet results = connection.executeReadQuery("SELECT passwordHash, clientId FROM clients WHERE name='" + clientName + "'");
 
             if(results == null){
-                System.out.println("ResultSet was null");
                 throw new ServerAuthenticationException();
             }
             else if (!results.next()){
-                System.out.println("ResultSet was empty");
                 results.getStatement().close();
                 throw new ServerAuthenticationException();
             }
@@ -111,8 +109,10 @@ public class AuthenticationManager {
                 results.getStatement().close();
                 return cid;
             }
-            else
+            else{
+                results.getStatement().close();
                 throw new ServerAuthenticationException();
+            }
         }
         catch (SQLException e) {
             e.printStackTrace();

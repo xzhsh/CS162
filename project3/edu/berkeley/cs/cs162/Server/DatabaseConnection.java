@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
+import edu.berkeley.cs.cs162.Writable.ClientInfo;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
+
 /**
  * DatabaseConnection abstracts a connection to a remote database.
  * 
@@ -31,6 +34,7 @@ public class DatabaseConnection {
 			System.err.println("Could not find sqlite JDBC class. Did you include the correct jar in the build path?");
 		}
 	    canonicalConnection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
+        //canonicalConnection.setAutoCommit(false);
         dataLock = new ReaderWriterLock();
 	}
 
