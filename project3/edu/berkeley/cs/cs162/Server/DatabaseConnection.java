@@ -33,6 +33,13 @@ public class DatabaseConnection {
 	    canonicalConnection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
         dataLock = new ReaderWriterLock();
 	}
+
+    /**
+     * Initializes the database, creating the necessary tables
+     */
+    private void initializeDatabase(){
+
+    }
 	
 	/**
 	 * Starts a transaction. It will not be committed or be interrupted until finish transaction is called.
@@ -101,7 +108,7 @@ public class DatabaseConnection {
      * @return true if the write operation was successful, false otherwise.
 	 */
 	public boolean executeWriteQuery(String query) throws SQLException{
-        startTransaction();
+
 		Statement writeQuery = null;
         boolean success = false;
 
@@ -115,7 +122,6 @@ public class DatabaseConnection {
 		}
         finally {
 			if (writeQuery != null) {writeQuery.close();}
-            finishTransaction();
 		}
 
         return success;
