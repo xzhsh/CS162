@@ -128,13 +128,26 @@ public class DatabaseConnection {
         catch (SQLException e) {
 		    e.printStackTrace();
 		}
-        finally {
-			dataLock.readUnlock();
-		}
 
 		return rs;
 	}
-	
+
+    /**
+     * Used to close a ResultSet and its corresponding Statement after using its data.
+     * It also unlocks the readLock, to prevent another thread from writing to the database
+     * while the Statement is open.
+     *
+     * USE THIS EVERY TIME YOU EXECUTE A READ QUERY!
+     *
+     * @param rs - The currently open ResultSet
+     */
+    public void closeStatement(ResultSet rs){
+        try { rs.getStatement().close(); }
+        catch (SQLException e) { /* Do nothing... */ }
+        dataLock.readUnlock();
+    }
+
+
 	/**
 	 * Executes a single write
 	 * @param query

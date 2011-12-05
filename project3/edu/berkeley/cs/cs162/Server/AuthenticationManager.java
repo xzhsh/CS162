@@ -59,13 +59,14 @@ public class AuthenticationManager {
 
         try {
             if(results.next()){
-                results.getStatement().close();
+                connection.closeStatement(results);
                 return false;
             }
         }
         catch (SQLException e) { /* Do nothing... */ }
         catch (NullPointerException e) { /* Do nothing... */ }
 
+        connection.closeStatement(results);
         connection.startTransaction();
         try {
             connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "'" + clientName + "', " + Byte.toString(clientType) + ", '" + finalPass + "'" + ")");
@@ -101,16 +102,16 @@ public class AuthenticationManager {
                 throw new ServerAuthenticationException();
             }
             else if (!results.next()) {
-                results.getStatement().close();
+                connection.closeStatement(results);
                 throw new ServerAuthenticationException();
             }
             else if (results.getString("passwordHash").equals(finalPass)) {
                 int cid = results.getInt("clientId");
-                results.getStatement().close();
+                connection.closeStatement(results);
                 return cid;
             }
             else{
-                results.getStatement().close();
+                connection.closeStatement(results);
                 throw new ServerAuthenticationException();
             }
         }
@@ -143,7 +144,7 @@ public class AuthenticationManager {
 
             int clientID = result.getInt("clientId");
 
-            result.getStatement().close();
+            connection.closeStatement(result);
             String query = "UPDATE clients SET passwordHash='" + Security.computeHashWithSalt(newPasswordHash, salt) + "' WHERE clientId=" + Integer.toString(clientID);
 
             connection.startTransaction();
