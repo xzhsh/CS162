@@ -71,6 +71,7 @@ public abstract class PlayerLogic extends ClientLogic {
 					stateLock.release();
 					getServer().getLog().println(makeClientInfo() + " has resumed playing the game.");
 					unfinishedGame.wakeOtherPlayer(this);
+					getServer().addGame(reconnectedGame);
 					reconnectedGame.handleNextMove();
 				} else {
 					//other client hasn't connected yet
