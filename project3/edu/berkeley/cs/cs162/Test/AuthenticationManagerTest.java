@@ -46,10 +46,10 @@ public class AuthenticationManagerTest {
     public void testRegisterClient(){
 
         // First registration should be successful
-        assertTrue(am.registerClient(kunal, password));
+        assertTrue("Kunal's first registration should be successful.", am.registerClient(kunal, password));
 
         // Second registration should be unsuccessful
-        assertFalse(am.registerClient(kunal, password));
+        assertFalse("Kunal's second registration should be unsuccessful.", am.registerClient(kunal, password));
 
         String newpassword = Security.computeHash("kunal2");
 

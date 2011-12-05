@@ -79,15 +79,16 @@ public class DatabaseConnection {
 		try {
 			readQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		      
-		      if (!readQuery.execute(query)) {
-		        System.err.println("Could not find entry");
-		      } else {
-		        rs = readQuery.getResultSet();
-		      }
+            if (!readQuery.execute(query)) {
+                System.err.println("Could not find entry");
+            }
+            else {
+                rs = readQuery.getResultSet();
+            }
 		} catch (SQLException e) {
 		      e.printStackTrace();
 		} finally {
-			if (readQuery != null) {readQuery.close();}
+            if (readQuery != null) readQuery.close();
 			dataLock.readUnlock();
 		}
 		return rs;
@@ -98,17 +99,24 @@ public class DatabaseConnection {
 	 * @param query
 	 * @throws SQLException
 	 */
-	public void executeWriteQuery(String query) throws SQLException{
-		dataLock.writeLock();
+	public boolean executeWriteQuery(String query) throws SQLException{
+        //dataLock.writeLock();
+        startTransaction();
 		Statement writeQuery = null;
+        boolean success = false;
+
 		try {
-			writeQuery = canonicalConnection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			writeQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		    writeQuery.execute(query);
+            success = true;
 		} catch (SQLException e) {
 		      e.printStackTrace();
 		} finally {
 			if (writeQuery != null) {writeQuery.close();}
-			dataLock.writeUnlock();
+			//dataLock.writeUnlock();
+            finishTransaction();
 		}
+
+        return success;
 	}
 }

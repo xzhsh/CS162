@@ -56,14 +56,17 @@ public class AuthenticationManager {
 
         try {
             // Make sure the client isn't already in the database
-            try { ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=" + clientName); }
-            catch (SQLException e) { return false; }
+            ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=" + clientName);
+            if(results != null){
+                System.out.println("Client already exists in database");
+                return false;
+            }
 
-            connection.startTransaction();
-            connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "\'" + clientName + "\', " + Byte.toString(clientType) + ", \'" + finalPass + "\'" + ")");
-            connection.finishTransaction();
+            //connection.startTransaction();
+            return connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "\'" + clientName + "\', " + Byte.toString(clientType) + ", \'" + finalPass + "\'" + ")");
+            //connection.finishTransaction();
 
-            return true;
+            //return true;
         }
         catch (SQLException e) {
             e.printStackTrace();
