@@ -105,6 +105,9 @@ public class Game {
 		return this.name;
 	}
 
+	public GoBoard getBoard() {
+		return this.board;
+	}
 	public void broadcastStartMessage() {
 		Message message = MessageFactory.createGameStartMessage(this);
 		observerLock.readLock();
