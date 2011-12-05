@@ -20,7 +20,7 @@ public class TestPlayer extends Player {
 	AtomicInteger goodCount;
 	public TestPlayer(String name, byte type, List<Message> moves, AtomicInteger shared)
 	{
-		super(name, name + "jaysucks", type);
+		super(name, "plainTextPassword", type);
 		this.moves = new ArrayList<Message>(moves);
 		it = this.moves.iterator(); 
 		goodCount = shared;

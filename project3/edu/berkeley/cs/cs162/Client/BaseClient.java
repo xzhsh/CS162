@@ -1,10 +1,6 @@
 package edu.berkeley.cs.cs162.Client;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 import edu.berkeley.cs.cs162.Server.Security;
@@ -22,7 +18,6 @@ abstract public class BaseClient implements Client {
     private ServerConnection connection;
 	private String password;
     static Random rng = new Random();
-
 
     public BaseClient(String name, String password, byte type) {
         this.name = name;
