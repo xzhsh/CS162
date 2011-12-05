@@ -9,9 +9,7 @@ package edu.berkeley.cs.cs162.Server;
  * NOTE: All of these methods should be synchronized the Database connection!
  * 		 do not lock the methods in the manager.
  */
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.sql.Connection;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -25,6 +23,7 @@ public class AuthenticationManager {
 	public static class ServerAuthenticationException extends Exception{
 		private static final long serialVersionUID = -1052874230279909816L;
 	}
+
 	//load this at the start and increment this to get client ids.
 	protected int clientIds;
 	
@@ -56,7 +55,7 @@ public class AuthenticationManager {
         String finalPass = Security.computeHashWithSalt(passwordHash, salt);
 
         try {
-            ResultSet results = connection.executeReadQuery("SELECT clientID FROM clients WHERE name=" + clientName);
+            ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=" + clientName);
 
             if (results != null) {
                 return false;
@@ -68,10 +67,10 @@ public class AuthenticationManager {
                 return true;
             }
         } catch (SQLException e) {
-
+            e.printStackTrace();
         }
 
-		throw new RuntimeException("Unimplemented Method");
+        return false;
 	}
 	
 	/**
@@ -86,6 +85,25 @@ public class AuthenticationManager {
 	 * @return client id of the new client.
 	 */
 	public int authenticateClient(ClientInfo cInfo, String passwordHash) throws ServerAuthenticationException {
+        String clientName = cInfo.getName();
+        String finalPass = Security.computeHashWithSalt(passwordHash, salt);
+
+        try {
+            ResultSet results = connection.executeReadQuery("SELECT passwordHash, clientId FROM clients WHERE name=" + clientName);
+
+            //how to check ResultSet?
+
+            String pwdHashInDb = results.getString(1);
+
+            if (pwdHashInDb.equals(finalPass)) {
+                return results.getInt(2);
+            } else {
+                throw new ServerAuthenticationException();
+            }
+
+        } catch (SQLException e) {
+
+        }
 
 		throw new RuntimeException("Unimplemented Method");
 	}
@@ -104,10 +122,10 @@ public class AuthenticationManager {
         String clientName = cInfo.getName();
 
         try {
-            String cidQuery = "SELECT clientID FROM clients WHERE name=" + clientName;
+            String cidQuery = "SELECT clientId FROM clients WHERE name=" + clientName;
             ResultSet result = connection.executeReadQuery(cidQuery);
             int clientID = result.getInt(1);
-            String query = "UPDATE clients SET passwordHash=" + Security.computeHashWithSalt(newPasswordHash, salt) + " WHERE clientID=" + Integer.toString(clientID);
+            String query = "UPDATE clients SET passwordHash=" + Security.computeHashWithSalt(newPasswordHash, salt) + " WHERE clientId=" + Integer.toString(clientID);
 
             connection.startTransaction();
 
@@ -117,7 +135,5 @@ public class AuthenticationManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-		throw new RuntimeException("Unimplemented Method");
 	}
 }
