@@ -98,9 +98,9 @@ public class DatabaseConnection {
 	 * Executes a single write
 	 * @param query
 	 * @throws SQLException
+     * @return true if the write operation was successful, false otherwise.
 	 */
 	public boolean executeWriteQuery(String query) throws SQLException{
-        //dataLock.writeLock();
         startTransaction();
 		Statement writeQuery = null;
         boolean success = false;
@@ -109,11 +109,12 @@ public class DatabaseConnection {
 			writeQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		    writeQuery.execute(query);
             success = true;
-		} catch (SQLException e) {
+		}
+        catch (SQLException e) {
 		      e.printStackTrace();
-		} finally {
+		}
+        finally {
 			if (writeQuery != null) {writeQuery.close();}
-			//dataLock.writeUnlock();
             finishTransaction();
 		}
 
