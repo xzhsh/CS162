@@ -4,14 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Jay
- * Date: 11/28/11
- * Time: 4:32 PM
- * To change this template use File | Settings | File Templates.
- */
 public class Security {
+
     public static String toHexString(byte[] bytes) {
         char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
         char[] hexChars = new char[bytes.length * 2];

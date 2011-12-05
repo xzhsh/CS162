@@ -9,7 +9,7 @@ package edu.berkeley.cs.cs162.Server;
  * NOTE: All of these methods should be synchronized the Database connection!
  * 		 do not lock the methods in the manager.
  */
-import java.sql.Connection;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -23,6 +23,7 @@ public class AuthenticationManager {
 	public static class ServerAuthenticationException extends Exception{
 		private static final long serialVersionUID = -1052874230279909816L;
 	}
+
 	//load this at the start and increment this to get client ids.
 	protected int clientIds;
 	
@@ -49,7 +50,27 @@ public class AuthenticationManager {
 	 * @return success
 	 */
 	public boolean registerClient(ClientInfo cInfo, String passwordHash) {
-		throw new RuntimeException("Unimplemented Method");
+        String clientName = cInfo.getName();
+        byte clientType = cInfo.getPlayerType();
+        String finalPass = Security.computeHashWithSalt(passwordHash, salt);
+
+        try {
+            ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=" + clientName);
+
+            if (results != null) {
+                return false;
+            } else {
+                connection.startTransaction();
+                connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "\'" + clientName + "\', " + Byte.toString(clientType) + ", \'" + finalPass + "\'" + ")");
+                connection.finishTransaction();
+
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
 	}
 	
 	/**
@@ -63,7 +84,27 @@ public class AuthenticationManager {
 	 * @param passwordHash
 	 * @return client id of the new client.
 	 */
-	public int authenticateClient(ClientInfo cInfo, String passwordHash) throws ServerAuthenticationException{
+	public int authenticateClient(ClientInfo cInfo, String passwordHash) throws ServerAuthenticationException {
+        String clientName = cInfo.getName();
+        String finalPass = Security.computeHashWithSalt(passwordHash, salt);
+
+        try {
+            ResultSet results = connection.executeReadQuery("SELECT passwordHash, clientId FROM clients WHERE name=" + clientName);
+
+            //how to check ResultSet?
+
+            String pwdHashInDb = results.getString(1);
+
+            if (pwdHashInDb.equals(finalPass)) {
+                return results.getInt(2);
+            } else {
+                throw new ServerAuthenticationException();
+            }
+
+        } catch (SQLException e) {
+
+        }
+
 		throw new RuntimeException("Unimplemented Method");
 	}
 	
@@ -78,55 +119,21 @@ public class AuthenticationManager {
 	 * @param newPasswordHash
 	 */
 	public void changePassword(ClientInfo cInfo, String newPasswordHash) {
-        DatabaseConnection connection = null;
-        Connection con = null;
-
-        try {
-            connection = new DatabaseConnection("");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
         String clientName = cInfo.getName();
 
-        String query = "";
-
-        con = connection.startTransaction();
-
         try {
-            String cidQuery = "select clientID from dbname.clients where name=" + clientName;
-
-            ResultSet result = con.prepareStatement(cidQuery).getResultSet();
-
+            String cidQuery = "SELECT clientId FROM clients WHERE name=" + clientName;
+            ResultSet result = connection.executeReadQuery(cidQuery);
             int clientID = result.getInt(1);
+            String query = "UPDATE clients SET passwordHash=" + Security.computeHashWithSalt(newPasswordHash, salt) + " WHERE clientId=" + Integer.toString(clientID);
 
-            query = "update dbname.clients set passwordHash=" + Security.computeHashWithSalt(newPasswordHash, salt) + " where clientID=" + Integer.toString(clientID);
+            connection.startTransaction();
 
-            (con.prepareStatement(query)).execute();
+            connection.executeWriteQuery(query);
+
+            connection.finishTransaction();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        connection.finishTransaction();
-		
-//		String pName = cInfo.getName();
-//		int CID;
-//		PreparedStatement getCID = null;
-//		PreparedStatement setNewPW = null;
-//		ResultSet prs = null;
-//		Connection con = connection.startTransaction();
-//		try {
-//			String getCIDQuery= "select clientID from dbname.clients where name= " + pName;
-//			getCID = con.prepareStatement(getCIDQuery);
-//			prs = getCID.executeQuery();
-//			CID = prs.getInt(1);
-//			String newPWQuery = "update dbname.clients set passwordHash= " + newPasswordHash+salt + "where clientID= " + Integer.toString(CID);
-//			setNewPW = con.prepareStatement(newPWQuery);
-//			setNewPW.execute();
-//		} catch (SQLExeption e) {
-//			e.printStackTrace();
-//		}
-//		connection.finishTransaction();
-		throw new RuntimeException("Unimplemented Method");
 	}
 }
