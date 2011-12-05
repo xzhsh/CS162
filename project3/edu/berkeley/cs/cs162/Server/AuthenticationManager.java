@@ -13,6 +13,7 @@ package edu.berkeley.cs.cs162.Server;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.sun.corba.se.spi.activation.ServerAlreadyActive;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 
 public class AuthenticationManager {
@@ -81,6 +82,7 @@ public class AuthenticationManager {
 	 * @param cInfo
 	 * @param passwordHash
 	 * @return client id of the new client.
+     * @throws ServerAuthenticationException in the case of authentication failure
 	 */
 	public int authenticateClient(ClientInfo cInfo, String passwordHash) throws ServerAuthenticationException {
         String clientName = cInfo.getName();
@@ -89,20 +91,17 @@ public class AuthenticationManager {
         try {
             ResultSet results = connection.executeReadQuery("SELECT passwordHash, clientId FROM clients WHERE name=" + clientName);
 
-            boolean isResultSetEmpty = !results.first();
-
-            if (isResultSetEmpty) {
+            if(results == null)
                 throw new ServerAuthenticationException();
-            } else {
-                String pwdHashAndSaltInDb = results.getString(1);
-
-                if (pwdHashAndSaltInDb.equals(finalPass)) {
-                    return results.getInt(2);
-                }
-            }
-        } catch (SQLException e) {
+            else if (!results.next())
+                throw new ServerAuthenticationException();
+            else if (results.getString("passwordHash").equals(finalPass))
+                return results.getInt("clientId");
+            else
+                throw new ServerAuthenticationException();
+        }
+        catch (SQLException e) {
             e.printStackTrace();
-        } finally {
             throw new ServerAuthenticationException();
         }
 	}
