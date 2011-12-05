@@ -141,29 +141,26 @@ public class DatabaseConnection {
 	 * @throws SQLException
      * @return true if the write operation was successful, false otherwise.
 	 */
-	public boolean executeWriteQuery(String query) throws SQLException{
+	public void executeWriteQuery(String query) throws SQLException{
 
 		Statement writeQuery = null;
-        boolean success = false;
 
 		try {
 			writeQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		    writeQuery.execute(query);
-            success = true;
+            writeQuery.close();
 		}
         catch (SQLException e) {
-		      e.printStackTrace();
-		}
-        finally {
-			if (writeQuery != null) {writeQuery.close();}
-		}
-
-        return success;
+		    e.printStackTrace();
+            if (writeQuery != null) writeQuery.close();
+            throw e; // This needs to be caught upstream so that the transaction can be aborted.
+        }
 	}
 
     // TESTING PURPOSES ONLY
     public void wipeDatabase(){
         startTransaction();
+
         try{
             executeWriteQuery("drop table if exists clients");
             executeWriteQuery("drop table if exists games");
