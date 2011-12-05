@@ -57,7 +57,8 @@ public class AuthenticationManager {
         try {
             // Make sure the client isn't already in the database
             ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=" + clientName);
-            if(results != null){
+
+            if(results != null) {
                 System.out.println("Client already exists in database");
                 return false;
             }
@@ -68,6 +69,7 @@ public class AuthenticationManager {
 
             return success;
         }
+
         catch (SQLException e) {
             e.printStackTrace();
         }
@@ -93,21 +95,22 @@ public class AuthenticationManager {
         try {
             ResultSet results = connection.executeReadQuery("SELECT passwordHash, clientId FROM clients WHERE name=" + clientName);
 
-            //how to check ResultSet?
+            boolean isResultSetEmpty = !results.first();
 
-            String pwdHashInDb = results.getString(1);
-
-            if (pwdHashInDb.equals(finalPass)) {
-                return results.getInt(2);
-            } else {
+            if (isResultSetEmpty) {
                 throw new ServerAuthenticationException();
+            } else {
+                String pwdHashAndSaltInDb = results.getString(1);
+
+                if (pwdHashAndSaltInDb.equals(finalPass)) {
+                    return results.getInt(2);
+                }
             }
-
         } catch (SQLException e) {
-
+            e.printStackTrace();
+        } finally {
+            throw new ServerAuthenticationException();
         }
-
-		throw new RuntimeException("Unimplemented Method");
 	}
 	
 	/**
@@ -130,9 +133,7 @@ public class AuthenticationManager {
             String query = "UPDATE clients SET passwordHash=" + Security.computeHashWithSalt(newPasswordHash, salt) + " WHERE clientId=" + Integer.toString(clientID);
 
             connection.startTransaction();
-
             connection.executeWriteQuery(query);
-
             connection.finishTransaction();
         } catch (SQLException e) {
             e.printStackTrace();
