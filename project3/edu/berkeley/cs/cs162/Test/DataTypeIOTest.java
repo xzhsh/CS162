@@ -53,5 +53,8 @@ public class DataTypeIOTest {
         DataTypeIO.writeString(out, "Yo dawg, I heard you like data");
         String lolstring = DataTypeIO.readString(in);
         assertEquals("Yo dawg, I heard you like data", lolstring);
+
+        sock1.close();
+        sock2.close();
     }
 }

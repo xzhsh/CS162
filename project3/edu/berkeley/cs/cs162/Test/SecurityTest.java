@@ -12,9 +12,7 @@ public class SecurityTest {
 
     @Test
     public void testHash(){
-        String plaintext = "plainTextPassword";
-
-        assertEquals("01faa5e19c568a4a322c8a1ee53d747c64e9e960f68bad74b5235425fe799029", Security.computeHash(plaintext));
+        assertEquals("01faa5e19c568a4a322c8a1ee53d747c64e9e960f68bad74b5235425fe799029", Security.computeHash("plainTextPassword"));
     }
 
     @Test

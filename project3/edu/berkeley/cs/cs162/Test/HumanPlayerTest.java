@@ -66,6 +66,11 @@ public class HumanPlayerTest {
 		}
 		
 		connection.receive3WayHandshake(new Random());
+
+        Message registerMessage = connection.readFromClient();
+        assertEquals(registerMessage.getMsgType(), MessageProtocol.OP_TYPE_REGISTER);
+        connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
+
 		Message connectMsg = connection.readFromClient();
 		assertEquals(connectMsg.getMsgType(), MessageProtocol.OP_TYPE_CONNECT);
 		

@@ -26,13 +26,6 @@ import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 import edu.berkeley.cs.cs162.Writable.ResponseMessages;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Jay
- * Date: 11/7/11
- * Time: 7:21 PM
- * To change this template use File | Settings | File Templates.
- */
 public class MachinePlayerTest {
 
     @Test
@@ -66,6 +59,11 @@ public class MachinePlayerTest {
 
         // CONNECTION TEST
         con.receive3WayHandshake(new Random());
+
+        Message registerMessage = con.readFromClient();
+        assertEquals(registerMessage.getMsgType(), MessageProtocol.OP_TYPE_REGISTER);
+        con.sendReplyToClient(MessageFactory.createStatusOkMessage());
+
         Message connectMsg = con.readFromClient();
         assertEquals(connectMsg.getMsgType(), MessageProtocol.OP_TYPE_CONNECT);
 
