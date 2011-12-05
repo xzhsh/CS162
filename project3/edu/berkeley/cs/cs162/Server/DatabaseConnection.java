@@ -137,11 +137,12 @@ public class DatabaseConnection {
      * It also unlocks the readLock, to prevent another thread from writing to the database
      * while the Statement is open.
      *
-     * USE THIS EVERY TIME YOU EXECUTE A READ QUERY!
+     * USE THIS -EVERY- TIME YOU EXECUTE A READ QUERY!
+     * (ESPECIALLY BEFORE EXECUTING A WRITE QUERY!)
      *
      * @param rs - The currently open ResultSet
      */
-    public void closeStatement(ResultSet rs){
+    public void closeReadQuery(ResultSet rs){
         try { rs.getStatement().close(); }
         catch (SQLException e) { /* Do nothing... */ }
         dataLock.readUnlock();

@@ -13,7 +13,6 @@ package edu.berkeley.cs.cs162.Server;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.sun.corba.se.spi.activation.ServerAlreadyActive;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 
 public class AuthenticationManager {
@@ -59,14 +58,14 @@ public class AuthenticationManager {
 
         try {
             if(results.next()){
-                connection.closeStatement(results);
+                connection.closeReadQuery(results);
                 return false;
             }
         }
         catch (SQLException e) { /* Do nothing... */ }
         catch (NullPointerException e) { /* Do nothing... */ }
+        connection.closeReadQuery(results);
 
-        connection.closeStatement(results);
         connection.startTransaction();
         try {
             connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "'" + clientName + "', " + Byte.toString(clientType) + ", '" + finalPass + "'" + ")");
@@ -102,16 +101,16 @@ public class AuthenticationManager {
                 throw new ServerAuthenticationException();
             }
             else if (!results.next()) {
-                connection.closeStatement(results);
+                connection.closeReadQuery(results);
                 throw new ServerAuthenticationException();
             }
             else if (results.getString("passwordHash").equals(finalPass)) {
                 int cid = results.getInt("clientId");
-                connection.closeStatement(results);
+                connection.closeReadQuery(results);
                 return cid;
             }
             else{
-                connection.closeStatement(results);
+                connection.closeReadQuery(results);
                 throw new ServerAuthenticationException();
             }
         }
@@ -144,7 +143,7 @@ public class AuthenticationManager {
 
             int clientID = result.getInt("clientId");
 
-            connection.closeStatement(result);
+            connection.closeReadQuery(result);
             String query = "UPDATE clients SET passwordHash='" + Security.computeHashWithSalt(newPasswordHash, salt) + "' WHERE clientId=" + Integer.toString(clientID);
 
             connection.startTransaction();
