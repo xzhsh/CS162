@@ -161,6 +161,20 @@ public class DatabaseConnection {
         return id;
     }
 
+    public int getGameID(Game game) throws SQLException {
+        int white = getPlayerID(game.getWhitePlayer().getName());
+        int black = getPlayerID(game.getBlackPlayer().getName());
+        return getGameID(black, white);
+    }
+
+    public int getMoveNum(int gameID) throws SQLException {
+        ResultSet result = executeReadQuery("select moveNum from games where gameId=" + gameID);
+        result.next();
+        int moveNum = result.getInt("moveNum");
+        closeReadQuery(result);
+        return moveNum;
+    }
+
 	/**
 	 * Executes a single write
 	 * @param query
