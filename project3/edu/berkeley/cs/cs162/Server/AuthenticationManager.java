@@ -55,10 +55,11 @@ public class AuthenticationManager {
         byte clientType = cInfo.getPlayerType();
         String finalPass = Security.computeHashWithSalt(passwordHash, salt);
 
-        ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=" + clientName);
-        if(results != null) {
-            return false; // Client already exists in database.
-        }
+        ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name=\"" + clientName + "\"");
+
+        try { if(results.next()) return false; }
+        catch (SQLException e) { /* Do nothing */ }
+        catch (NullPointerException e) { /* Do nothing */ }
 
         connection.startTransaction();
         try {
@@ -89,7 +90,7 @@ public class AuthenticationManager {
         String finalPass = Security.computeHashWithSalt(passwordHash, salt);
 
         try {
-            ResultSet results = connection.executeReadQuery("SELECT passwordHash, clientId FROM clients WHERE name=" + clientName);
+            ResultSet results = connection.executeReadQuery("SELECT passwordHash, clientId FROM clients WHERE name=\'" + clientName + "\'");
 
             if(results == null)
                 throw new ServerAuthenticationException();
