@@ -51,10 +51,33 @@ public class AuthenticationManager {
 	 * @return success
 	 */
 	public boolean registerClient(ClientInfo cInfo, String passwordHash) {
+        String clientName = cInfo.getName();
+        byte clientType = cInfo.getPlayerType();
+        String finalPass = Security.computeHashWithSalt(passwordHash, salt);
 
-        String rehashedPassword = Security.computeHashWithSalt(passwordHash, salt);
+        DatabaseConnection connection = null;
+        ResultSet results = null;
 
-        throw new RuntimeException("Unimplemented Method");
+        try {
+            results =  connection.executeReadQuery("select clientID from clients where name=" + clientName);
+
+            if (results != null) {
+                return false; //client already exists
+            } else {
+                //client does not exist, do a write
+                connection.startTransaction();
+
+                connection.executeWriteQuery(""); //create new client entry
+
+                connection.finishTransaction();
+
+                return true;
+            }
+        } catch (SQLException e) {
+
+        }
+
+		throw new RuntimeException("Unimplemented Method");
 	}
 	
 	/**
@@ -68,9 +91,7 @@ public class AuthenticationManager {
 	 * @param passwordHash
 	 * @return client id of the new client.
 	 */
-	public int authenticateClient(ClientInfo cInfo, String passwordHash) throws ServerAuthenticationException{
-
-        String rehashedPassword = Security.computeHashWithSalt(passwordHash, salt);
+	public int authenticateClient(ClientInfo cInfo, String passwordHash) throws ServerAuthenticationException {
 
 		throw new RuntimeException("Unimplemented Method");
 	}
@@ -86,31 +107,23 @@ public class AuthenticationManager {
 	 * @param newPasswordHash
 	 */
 	public void changePassword(ClientInfo cInfo, String newPasswordHash) {
-        DatabaseConnection connection = null;
         Connection con = null;
-
-        try {
-            connection = new DatabaseConnection("");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
         String clientName = cInfo.getName();
 
-        String query = "";
-
-        con = connection.startTransaction();
+        connection.startTransaction();
 
         try {
-            String cidQuery = "select clientID from dbname.clients where name=" + clientName;
-
-            ResultSet result = con.prepareStatement(cidQuery).getResultSet();
-
+            String cidQuery = "select clientID from clients where name=" + clientName;
+            ResultSet result = connection.executeReadQuery(cidQuery);
             int clientID = result.getInt(1);
+            String query = "update clients set passwordHash=" + Security.computeHashWithSalt(newPasswordHash, salt) + " where clientID=" + Integer.toString(clientID);
 
-            query = "update dbname.clients set passwordHash=" + Security.computeHashWithSalt(newPasswordHash, salt) + " where clientID=" + Integer.toString(clientID);
+            connection.startTransaction();
 
-            (con.prepareStatement(query)).execute();
+            connection.executeWriteQuery(query);
+
+            connection.finishTransaction();
         } catch (SQLException e) {
             e.printStackTrace();
         }
