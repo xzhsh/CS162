@@ -32,6 +32,7 @@ public class DatabaseConnection {
 		}
 	    canonicalConnection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
         dataLock = new ReaderWriterLock();
+        initializeDatabase();
 	}
 
     /**
@@ -39,6 +40,23 @@ public class DatabaseConnection {
      */
     private void initializeDatabase(){
 
+        startTransaction();
+        try{
+            // TODO Create Clients table
+            executeWriteQuery("create table if not exists clients (clientId int primary key, name text unique not null, type int not null, passwordHash text not null)");
+            // TODO Create Games Table
+            executeWriteQuery("create table if not exists games (gameId int primary key, blackPlayer int references clients (clientId) not null, whitePlayer int references clients (clientId) not null, boardSize int not null, blackScore real, whiteScore real, winner int references clients (clientId), moveNum int not null, reason int)");
+            // TODO Create Moves Table
+            executeWriteQuery("create table if not exists moves (moveId int primary key, clientId int references clients (clientId) not null, gameId int references games (gameId) not null, moveType int not null, x int, y int, moveNum int not null)");
+            // TODO Create Captured Stones table
+            executeWriteQuery("create table if not exists captured_stones(stoneId int primary key, moveId int references moves (moveId), x int, y int)");
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        finally{
+            finishTransaction();
+        }
     }
 	
 	/**
