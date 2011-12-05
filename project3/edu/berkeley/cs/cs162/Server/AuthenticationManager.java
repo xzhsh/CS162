@@ -100,11 +100,11 @@ public class AuthenticationManager {
             if(results == null){
                 throw new ServerAuthenticationException();
             }
-            else if (!results.next()){
+            else if (!results.next()) {
                 results.getStatement().close();
                 throw new ServerAuthenticationException();
             }
-            else if (results.getString("passwordHash").equals(finalPass)){
+            else if (results.getString("passwordHash").equals(finalPass)) {
                 int cid = results.getInt("clientId");
                 results.getStatement().close();
                 return cid;
