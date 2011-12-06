@@ -1,9 +1,13 @@
 package edu.berkeley.cs.cs162.Server;
 
+import edu.berkeley.cs.cs162.Writable.ClientInfo;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
@@ -33,15 +37,16 @@ public class ServerStateManager {
 
         connection.startTransaction();
         try {
-            connection.executeWriteQuery("insert into games (blackPlayer, whitePlayer, boardSize, moveNum) values (" + blackID + ", " + whiteID + ", " + boardSize + ", 0)");
+            int gID = connection.executeWriteQuery("insert into games (blackPlayer, whitePlayer, boardSize, moveNum) values (" + blackID + ", " + whiteID + ", " + boardSize + ", 0)");
             connection.finishTransaction();
+            return gID;
         }
         catch(SQLException e){
             connection.abortTransaction();
             throw e;
         }
 
-        return connection.getGameID(game);
+       
 	}
 	
 	public void updateGameWithMove(Game game, ClientLogic client, BoardLocation loc, Vector<BoardLocation> capturedStones) throws SQLException {
@@ -54,10 +59,12 @@ public class ServerStateManager {
 
         connection.startTransaction();
         try {
-            connection.executeWriteQuery("insert into moves (clientId, gameId, moveType, x, y, moveNum) values (" + playerID + ", " + gameID + ", " + moveType + ", " + x + ", " + y + ", " + moveNum + ")");
+            int mID = connection.executeWriteQuery("insert into moves (clientId, gameId, moveType, x, y, moveNum) values (" + playerID + ", " + gameID + ", " + moveType + ", " + x + ", " + y + ", " + moveNum + ")");
             connection.executeWriteQuery("update games set moveNum=" + moveNum + " where gameId=" + gameID);
             for(BoardLocation location : capturedStones){
                 // TODO Write the captured stones to the database
+            	String addCapDBQuery = "INSERT INTO captured_stones (moveID, x ,y) VALUES (" + mID + ", " + location.getX() + ", " + location.getY() + ") WHERE not exists (SELECT * FROM captured_stones WHERE moveID=" + mID + " AND x=" + location.getX() + " AND y=" + location.getY() + ")";
+            	connection.executeWriteQuery(addCapDBQuery);
             }
             connection.finishTransaction();
         }
@@ -109,6 +116,69 @@ public class ServerStateManager {
 		ArrayList<UnfinishedGame> unfinishedGames = new ArrayList<UnfinishedGame>();
 
         String getUnfinishedGamesQuery = "SELECT * FROM games WHERE winner IS NULL";
+
+        ResultSet results = connection.executeReadQuery(getUnfinishedGamesQuery);
+        ArrayList<Hashtable<String, Integer>> unfinishedGamesFromDB = new ArrayList<Hashtable<String, Integer>>();
+
+        while (results.next()) {
+            Hashtable<String, Integer> currentUnfinishedGameValues = new Hashtable<String, Integer>();
+            currentUnfinishedGameValues.put("gameId", results.getInt("gameId"));
+            currentUnfinishedGameValues.put("blackPlayer", results.getInt("blackPlayer"));
+            currentUnfinishedGameValues.put("whitePlayer", results.getInt("whitePlayer"));
+            currentUnfinishedGameValues.put("boardSize", results.getInt("boardSize"));
+
+            unfinishedGamesFromDB.add(currentUnfinishedGameValues);
+        }
+
+        connection.closeReadQuery(results);
+
+        for (Hashtable<String, Integer> info : unfinishedGamesFromDB) {
+            int gameId = info.get("gameId");
+            int blackPlayerId = info.get("blackPlayer");
+            int whitePlayerId = info.get("whitePlayer");
+            int boardSize = info.get("boardSize");
+
+            ResultSet blackPlayerResult = connection.executeReadQuery("SELECT name, type FROM clients WHERE clientId=" + blackPlayerId);
+            ClientInfo blackPlayer = MessageFactory.createClientInfo(blackPlayerResult.getString("name"), (byte) blackPlayerResult.getInt("type"));
+            connection.closeReadQuery(blackPlayerResult);
+
+            ResultSet whitePlayerResult = connection.executeReadQuery("SELECT name, type FROM clients WHERE clientId=" + whitePlayerId);
+            ClientInfo whitePlayer = MessageFactory.createClientInfo(whitePlayerResult.getString("name"), (byte) whitePlayerResult.getInt("type"));
+            connection.closeReadQuery(whitePlayerResult);
+
+            //get game's moves
+            ResultSet moves = connection.executeReadQuery("SELECT * FROM moves WHERE gameId=" + gameId + " ORDER BY moveNum ASCENDING");
+
+            //TODO create a list of the moves to be successively applied to board
+            ArrayList<Hashtable<String, Integer>> moveList = new ArrayList<Hashtable<String, Integer>>();
+
+            while (moves.next()) {
+                Hashtable<String, Integer> move = new Hashtable<String, Integer>();
+
+                move.put("clientId", moves.getInt("clientId"));
+                move.put("moveType", moves.getInt("moveType"));
+                move.put("x", moves.getInt("x"));
+                move.put("y", moves.getInt("y"));
+
+                moveList.add(move);
+            }
+
+            connection.closeReadQuery(moves);
+
+            String gameName = blackPlayer.getName() + " vs " + whitePlayer.getName();
+            GoBoard board = new GoBoard(boardSize);
+
+            //TODO make moves on board
+            for (Hashtable<String, Integer> move : moveList) {
+
+                BoardLocation loc = new BoardLocation(move.get("x"), move.get("y"));
+                //if move.get("moveType")
+                //board.makeMove(BoardLocation moveLoc, StoneColor activeColor)
+            }
+
+            UnfinishedGame unfinishedGame = new UnfinishedGame(gameName, board, blackPlayer, whitePlayer, gameId);
+            unfinishedGames.add(unfinishedGame);
+        }
 
         return unfinishedGames;
 	}
