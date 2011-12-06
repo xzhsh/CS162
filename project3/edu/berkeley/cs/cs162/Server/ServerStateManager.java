@@ -46,7 +46,7 @@ public class ServerStateManager {
             throw e;
         }
 
-        return connection.getGameID(game);
+       
 	}
 	
 	public void updateGameWithMove(Game game, ClientLogic client, BoardLocation loc, Vector<BoardLocation> capturedStones) throws SQLException {
