@@ -1,9 +1,13 @@
 package edu.berkeley.cs.cs162.Server;
 
+import edu.berkeley.cs.cs162.Writable.ClientInfo;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
@@ -109,6 +113,53 @@ public class ServerStateManager {
 		ArrayList<UnfinishedGame> unfinishedGames = new ArrayList<UnfinishedGame>();
 
         String getUnfinishedGamesQuery = "SELECT * FROM games WHERE winner IS NULL";
+
+        ResultSet results = connection.executeReadQuery(getUnfinishedGamesQuery);
+        ArrayList<Hashtable<String, Integer>> unfinishedGamesFromDB = new ArrayList<Hashtable<String, Integer>>();
+
+        while (results.next()) {
+            Hashtable<String, Integer> currentUnfinishedGameValues = new Hashtable<String, Integer>();
+            currentUnfinishedGameValues.put("gameId", results.getInt("gameId"));
+            currentUnfinishedGameValues.put("blackPlayer", results.getInt("blackPlayer"));
+            currentUnfinishedGameValues.put("whitePlayer", results.getInt("whitePlayer"));
+            currentUnfinishedGameValues.put("boardSize", results.getInt("boardSize"));
+
+            unfinishedGamesFromDB.add(currentUnfinishedGameValues);
+        }
+
+        connection.closeReadQuery(results);
+
+        for (Hashtable<String, Integer> info : unfinishedGamesFromDB) {
+            int gameId = info.get("gameId");
+            int blackPlayerId = info.get("blackPlayer");
+            int whitePlayerId = info.get("whitePlayer");
+            int boardSize = info.get("boardSize");
+
+            ResultSet blackPlayerResult = connection.executeReadQuery("SELECT name, type FROM clients WHERE clientId=" + blackPlayerId);
+            ClientInfo blackPlayer = MessageFactory.createClientInfo(blackPlayerResult.getString("name"), (byte) blackPlayerResult.getInt("type"));
+            connection.closeReadQuery(blackPlayerResult);
+
+            ResultSet whitePlayerResult = connection.executeReadQuery("SELECT name, type FROM clients WHERE clientId=" + whitePlayerId);
+            ClientInfo whitePlayer = MessageFactory.createClientInfo(whitePlayerResult.getString("name"), (byte) whitePlayerResult.getInt("type"));
+            connection.closeReadQuery(whitePlayerResult);
+
+            //get game's moves
+            ResultSet moves = connection.executeReadQuery("SELECT * FROM moves WHERE gameId=" + gameId + " ORDER BY moveNum ASCENDING");
+
+            //TODO create a list of the moves to be successively applied to board
+
+
+            connection.closeReadQuery(moves);
+
+            String gameName = blackPlayer.getName() + " vs " + whitePlayer.getName();
+            GoBoard board = new GoBoard(boardSize);
+
+            //TODO make moves on board
+
+
+            UnfinishedGame unfinishedGame = new UnfinishedGame(gameName, board, blackPlayer, whitePlayer, gameId);
+            unfinishedGames.add(unfinishedGame);
+        }
 
         return unfinishedGames;
 	}
