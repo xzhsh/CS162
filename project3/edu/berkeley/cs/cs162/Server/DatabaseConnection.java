@@ -41,22 +41,17 @@ public class DatabaseConnection {
      * Initializes the database, creating the necessary tables
      */
     public void initializeDatabase(){
-    	dataLock.writeLock();
+    	startTransaction();
         try{
-        	Statement writeQuery = canonicalConnection.createStatement();
-            writeQuery.execute("create table if not exists clients (clientId integer primary key autoincrement, name text unique not null, type int not null, passwordHash text not null)");
-            writeQuery.execute("create table if not exists games (gameId integer primary key autoincrement, blackPlayer int references clients (clientId) not null, whitePlayer int references clients (clientId) not null, boardSize int not null, blackScore real, whiteScore real, winner int references clients (clientId), moveNum int not null, reason int)");
-            writeQuery.execute("create table if not exists moves (moveId integer primary key autoincrement, clientId int references clients (clientId) not null, gameId int references games (gameId) not null, moveType int not null, x int, y int, moveNum int not null)");
-            writeQuery.execute("create table if not exists captured_stones (stoneId integer primary key autoincrement, moveId int references moves (moveId), x int, y int)");
-            writeQuery.close();
-            canonicalConnection.commit();
+            executeWriteQuery("create table if not exists clients (clientId integer primary key autoincrement, name text unique not null, type int not null, passwordHash text not null)");
+            executeWriteQuery("create table if not exists games (gameId integer primary key autoincrement, blackPlayer int references clients (clientId) not null, whitePlayer int references clients (clientId) not null, boardSize int not null, blackScore real, whiteScore real, winner int references clients (clientId), moveNum int not null, reason int)");
+            executeWriteQuery("create table if not exists moves (moveId integer primary key autoincrement, clientId int references clients (clientId) not null, gameId int references games (gameId) not null, moveType int not null, x int, y int, moveNum int not null)");
+            executeWriteQuery("create table if not exists captured_stones (stoneId integer primary key autoincrement, moveId int references moves (moveId), x int, y int)");
+            finishTransaction();
         }
         catch(SQLException e){
             e.printStackTrace();
             abortTransaction();
-        }
-        finally {
-        	dataLock.writeUnlock();
         }
     }
 	
@@ -161,7 +156,7 @@ public class DatabaseConnection {
      * TESTING PURPOSES ONLY. This wipes the database clean; used by the AuthenticationManagerTest.
      */
     public void wipeDatabase(){
-    	dataLock.writeLock();
+    	startTransaction();
         try{
         	Statement writeQuery = canonicalConnection.createStatement();
         	writeQuery.addBatch("drop table if exists clients");
@@ -170,14 +165,11 @@ public class DatabaseConnection {
         	writeQuery.addBatch("drop table if exists moves");
         	writeQuery.executeBatch();
         	writeQuery.close();
-            canonicalConnection.commit();
+            finishTransaction();
         }
         catch(SQLException e){
         	e.printStackTrace();
-            //abortTransaction();
-            throw new RuntimeException(e);
-        }finally {
-        	dataLock.writeUnlock();
+            abortTransaction();
         }
     }
 
