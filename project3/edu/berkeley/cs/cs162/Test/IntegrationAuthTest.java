@@ -76,7 +76,6 @@ public class IntegrationAuthTest {
         assertTrue("Client info should already be registered in the database", registerResponse.getMsgType() == MessageProtocol.OP_ERROR_REJECTED);
         
         ClientInfo cinfo_2 = MessageFactory.createClientInfo("TestPlayer2", MessageProtocol.TYPE_MACHINE);
-		String password = "plainTextPassword";
 		
         Message connectMessage = MessageFactory.createConnectMessage(cinfo_2, hash);
         Message connectResponse = connection.sendSyncToServer(connectMessage);
@@ -93,8 +92,11 @@ public class IntegrationAuthTest {
         Message connectResponse2 = connection.sendSyncToServer(connectMessage2);
         assertTrue("The connection should go thorugh.", connectResponse2.getMsgType() == MessageProtocol.OP_STATUS_OK);
         
-        Message cpResponse2 = connection.sendSyncToServer(cpMessage);
-        assertTrue("The change should go through.", cpResponse2.getMsgType() == MessageProtocol.OP_STATUS_OK);
+        Message cpResponse2 = connection.sendSyncToServer(MessageFactory.createChangePasswordMessage(cinfo_2, hash2));
+        assertTrue("The change should fail.", cpResponse2.getMsgType() == MessageProtocol.OP_ERROR_REJECTED);
+        
+        Message cpResponse4 = connection.sendSyncToServer(cpMessage);
+        assertTrue("The change should go through.", cpResponse4.getMsgType() == MessageProtocol.OP_STATUS_OK);
         
         try {
 			//create the database and entries.
