@@ -119,6 +119,7 @@ public class DatabaseConnection {
         dataLock.readUnlock();
     }
 
+
     public int getPlayerID(String name) throws SQLException {
         ResultSet result = executeReadQuery("select clientId from clients where name='" + name + "'");
         result.next();
