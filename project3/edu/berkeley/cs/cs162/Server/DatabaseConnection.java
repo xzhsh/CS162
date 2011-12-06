@@ -158,13 +158,10 @@ public class DatabaseConnection {
     public void wipeDatabase(){
     	startTransaction();
         try{
-        	Statement writeQuery = canonicalConnection.createStatement();
-        	writeQuery.addBatch("drop table if exists clients");
-        	writeQuery.addBatch("drop table if exists captured_stones");
-        	writeQuery.addBatch("drop table if exists games");
-        	writeQuery.addBatch("drop table if exists moves");
-        	writeQuery.executeBatch();
-        	writeQuery.close();
+        	executeWriteQuery("drop table if exists clients");
+        	executeWriteQuery("drop table if exists captured_stones");
+        	executeWriteQuery("drop table if exists games");
+        	executeWriteQuery("drop table if exists moves");
             finishTransaction();
         }
         catch(SQLException e){

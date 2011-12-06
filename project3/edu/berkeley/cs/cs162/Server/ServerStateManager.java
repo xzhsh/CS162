@@ -79,39 +79,8 @@ public class ServerStateManager {
         try {
             int mID = connection.executeWriteQuery("insert into moves (clientId, gameId, moveType, x, y, moveNum) values (" + playerID + ", " + gameID + ", " + moveType + ", " + x + ", " + y + ", " + moveNum + ")");
             connection.executeWriteQuery("update games set moveNum=" + moveNum + " where gameId=" + gameID);
-            for(BoardLocation location : capturedStones){
-                // TODO Write the captured stones to the database
-            	
-              	
-            	/* if location is in the DB and location's game is the same as current game don't insert
-            	 * else insert
-            	 */
-            	
-            	boolean addCapFlag = true;
-            	String xLoc = Integer.toString(location.getX()); 
-            	String yLoc = Integer.toString(location.getY());
-            	
-            	// get all the gameID corresponding to captured stones
-            	
-            	String getGIDQuery = "SELECT gameID FROM moves RIGHT JOIN (SELECT moveID AS mIDs FROM captured_stones WHERE x=" + xLoc + " AND y=" + yLoc + ") ON moves.moveID=mIDs.moveID";
-            	ResultSet allGamesForlocation = connection.executeReadQuery(getGIDQuery);
-            	while (allGamesForlocation.next()) {
-            		if (allGamesForlocation.getInt("gameID") == gameID) { //this piece has already been recorded as captured this game,so don't record again
-            			addCapFlag = false;
-            			
-            		}
-            	}
-            	connection.closeReadQuery(allGamesForlocation);
-            	if (addCapFlag) {
-            		connection.executeWriteQuery("INSERT INTO captured_stones (moveID, x ,y) VALUES (" + mID + ", " + location.getX() + ", " + location.getY() + ")");
-            	}
-//            	String addCapDBQuery = "IF NOT EXISTS (SELECT * FROM captured_stones WHERE moveID=" + mID + 
-//            			" AND x=" + location.getX() + " AND y=" + location.getY() + 
-//            			") INSERT INTO captured_stones (moveID, x ,y) VALUES (" + mID + 
-//            			", " + location.getX() + ", " + location.getY() + ")";
-//
-//            	connection.executeWriteQuery(addCapDBQuery);
-            }
+            for(BoardLocation location : capturedStones)
+                connection.executeWriteQuery("INSERT INTO captured_stones (moveID, x ,y) VALUES (" + mID + ", " + location.getX() + ", " + location.getY() + ")");
             connection.finishTransaction();
         }
         catch (SQLException e){
