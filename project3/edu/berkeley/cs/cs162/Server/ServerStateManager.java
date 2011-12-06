@@ -1,5 +1,6 @@
 package edu.berkeley.cs.cs162.Server;
 
+import edu.berkeley.cs.cs162.Server.GoBoard.IllegalMoveException;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
@@ -133,8 +134,8 @@ public class ServerStateManager {
 
         for (Hashtable<String, Integer> info : unfinishedGamesFromDB) {
             int gameId = info.get("gameId");
-            int blackPlayerId = info.get("blackPlayer");
-            int whitePlayerId = info.get("whitePlayer");
+            final int blackPlayerId = info.get("blackPlayer");
+            final int whitePlayerId = info.get("whitePlayer");
             int boardSize = info.get("boardSize");
 
             ResultSet blackPlayerResult = connection.executeReadQuery("SELECT name, type FROM clients WHERE clientId=" + blackPlayerId);
@@ -147,18 +148,28 @@ public class ServerStateManager {
 
             //get game's moves
             ResultSet moves = connection.executeReadQuery("SELECT * FROM moves WHERE gameId=" + gameId + " ORDER BY moveNum ASCENDING");
-
-            ArrayList<Hashtable<String, Integer>> moveList = new ArrayList<Hashtable<String, Integer>>();
-
+            
+            class Move {
+            	StoneColor color;
+            	byte moveType;
+            	int x;
+            	int y;
+            	public Move(int clientId, byte moveType, int x, int y) {
+            		this.color = clientId == whitePlayerId ? StoneColor.WHITE : StoneColor.BLACK;
+            		this.moveType = moveType;
+            		this.x = x;
+            		this.y = y;
+            	}
+            }
+            
+            ArrayList<Move> moveList = new ArrayList<Move>();
+            
             while (moves.next()) {
-                Hashtable<String, Integer> move = new Hashtable<String, Integer>();
-
-                move.put("clientId", moves.getInt("clientId"));
-                move.put("moveType", moves.getInt("moveType"));
-                move.put("x", moves.getInt("x"));
-                move.put("y", moves.getInt("y"));
-
-                moveList.add(move);
+                moveList.add(new Move(
+                		moves.getInt("clientId"), 
+                		(byte) moves.getInt("moveType"), 
+                		moves.getInt("x"), 
+                		moves.getInt("y")));
             }
 
             connection.closeReadQuery(moves);
@@ -166,12 +177,20 @@ public class ServerStateManager {
             String gameName = blackPlayer.getName() + " vs " + whitePlayer.getName();
             GoBoard board = new GoBoard(boardSize);
 
-            //TODO make moves on board
-            for (Hashtable<String, Integer> move : moveList) {
-                BoardLocation loc = new BoardLocation(move.get("x"), move.get("y"));
-                //if move.get("moveType")
-                //board.makeMove(loc, StoneColor)
-                //board.makePass(StoneColor)
+            for (Move move : moveList) {
+                if (move.moveType == MessageProtocol.MOVE_PASS) {
+                	board.makePassMove(move.color);
+                } else if (move.moveType == MessageProtocol.MOVE_STONE)
+                {
+                	try {
+						board.makeMove(new BoardLocation(move.x, move.y), move.color);
+					} catch (IllegalMoveException e) {
+						//should not be an illegal move, rewrap and throw.
+						throw new RuntimeException(e);
+					}
+                } else {
+                	assert false : "Programmer error, should not be a forfeit move in an unfinished game";
+                }
             }
 
             UnfinishedGame unfinishedGame = new UnfinishedGame(gameName, board, blackPlayer, whitePlayer, gameId);
