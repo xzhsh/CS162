@@ -37,8 +37,9 @@ public class ServerStateManager {
 
         connection.startTransaction();
         try {
-            connection.executeWriteQuery("insert into games (blackPlayer, whitePlayer, boardSize, moveNum) values (" + blackID + ", " + whiteID + ", " + boardSize + ", 0)");
+            int gID = connection.executeWriteQuery("insert into games (blackPlayer, whitePlayer, boardSize, moveNum) values (" + blackID + ", " + whiteID + ", " + boardSize + ", 0)");
             connection.finishTransaction();
+            return gID;
         }
         catch(SQLException e){
             connection.abortTransaction();
