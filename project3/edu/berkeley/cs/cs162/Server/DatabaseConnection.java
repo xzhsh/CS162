@@ -167,7 +167,7 @@ public class DatabaseConnection {
 		    writeQuery.execute(query);
             ResultSet keys = writeQuery.getGeneratedKeys();
             if(keys.next())
-                generatedKey = keys.getInt(0);
+                generatedKey = keys.getInt(1);
             writeQuery.close();
 		}
         catch (SQLException e) {
