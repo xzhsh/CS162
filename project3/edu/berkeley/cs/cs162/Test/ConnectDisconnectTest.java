@@ -1,0 +1,41 @@
+package edu.berkeley.cs.cs162.Test;
+
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import org.junit.Test;
+
+import edu.berkeley.cs.cs162.Client.ServerConnection;
+import edu.berkeley.cs.cs162.Server.GameServer;
+
+public class ConnectDisconnectTest {
+	private static final int TEST_PORT = 1234;
+	
+	@Test(timeout=5000)
+	public void testConnectDisconnect() throws InterruptedException, IOException {
+		final GameServer server = new GameServer("Connect-disconnect-test.db", 100, 5, new PrintStream(System.out));
+		
+		Thread t = new Thread() {
+			public void run() {
+				try {
+					server.waitForConnectionsOnPort(TEST_PORT, InetAddress.getByName("localhost"));
+				} catch (UnknownHostException e) {
+					throw new AssertionError(e);
+				}
+			}
+		};
+		
+		t.start();
+		while (!server.isReady()) {
+			Thread.sleep(10);
+		}
+		ServerConnection connection = new ServerConnection();
+		assertTrue("Client should be able to connect", connection.initiate3WayHandshake("localhost", 1234, 42));
+		Thread.sleep(1000);
+		connection.close();
+	}
+}

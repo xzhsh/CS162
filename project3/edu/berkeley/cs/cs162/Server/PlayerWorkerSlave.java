@@ -104,6 +104,12 @@ public class PlayerWorkerSlave extends WorkerSlave{
 			}
 			else if (moveMsg.getMoveType() == MessageProtocol.MOVE_FORFEIT)
 			{
+				try {
+					getServer().getStateManager().updateGameWithForfeitMove(game, master);
+				} catch (SQLException sqlE) {
+	    			//unrecoverable, wrap and rethrow.
+	    			throw new RuntimeException(sqlE);
+				}
 				game.doGameOverError(new GoBoard.IllegalMoveException(master.makeClientInfo().getName() + " timed out.", MessageProtocol.PLAYER_FORFEIT));
 			}
 			else if (moveMsg.getMoveType() == MessageProtocol.MOVE_STONE)
