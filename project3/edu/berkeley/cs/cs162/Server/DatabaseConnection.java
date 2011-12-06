@@ -179,13 +179,16 @@ public class DatabaseConnection {
 	 * @throws SQLException
      * @return true if the write operation was successful, false otherwise.
 	 */
-	public void executeWriteQuery(String query) throws SQLException{
+	public int executeWriteQuery(String query) throws SQLException{
 
 		Statement writeQuery = null;
+        int generatedKey = -1;
 
 		try {
 			writeQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		    writeQuery.execute(query);
+            ResultSet keys = writeQuery.getGeneratedKeys();
+            generatedKey = keys.getInt(0);
             writeQuery.close();
 		}
         catch (SQLException e) {
@@ -193,6 +196,9 @@ public class DatabaseConnection {
             if (writeQuery != null) writeQuery.close();
             throw e; // This needs to be caught upstream so that the transaction can be aborted.
         }
+
+        assert generatedKey != -1;
+        return generatedKey;
 	}
 
     /**
