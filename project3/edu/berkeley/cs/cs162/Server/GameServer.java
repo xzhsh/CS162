@@ -68,6 +68,7 @@ public class GameServer {
 	private List<UnfinishedGame> unfinishedGames;
 	private ServerStateManager stateManager;
 	private AuthenticationManager authManager;
+	private ReaderWriterLock unfinishedGameLock;
     
 	public GameServer(String databasePath, int clientLimit, int handshakeThreadPoolSize, PrintStream logStream) {
 		this(databasePath, handshakeThreadPoolSize, handshakeThreadPoolSize, logStream, null, null);
@@ -93,8 +94,8 @@ public class GameServer {
         nameToWorkerMapLock = new ReaderWriterLock();
         clientsConnectedLock = new ReaderWriterLock();
         activeGamesLock = new ReaderWriterLock();
+        unfinishedGameLock = new ReaderWriterLock();
         clientsConnected = 0;
-        
         
         try {
         	DatabaseConnection connection = new DatabaseConnection(databasePath);
@@ -342,12 +343,18 @@ public class GameServer {
 	 * @return A partially completed game if one exists, otherwise, null.
 	 */
 	public UnfinishedGame checkForUnfinishedGame(PlayerLogic player) {
+		unfinishedGameLock.readLock();
+		try {
 		for (UnfinishedGame uGame : unfinishedGames) {
 			if (uGame.matchesPlayer(player)) {
 				return uGame;
 			}
 		}
 		return null;
+		}
+		finally {
+			unfinishedGameLock.readUnlock();
+		}
 	}
 
 	public AuthenticationManager getAuthenticationManager() {
@@ -360,5 +367,11 @@ public class GameServer {
 
 	public ServerStateManager getStateManager() {
 		return stateManager;
+	}
+
+	public void removeUnfinishedGame(UnfinishedGame unfinishedGame) {
+		unfinishedGameLock.writeLock();
+		unfinishedGames.remove(unfinishedGame);
+		unfinishedGameLock.writeUnlock();
 	}
 }

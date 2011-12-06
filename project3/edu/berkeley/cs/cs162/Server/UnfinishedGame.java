@@ -1,5 +1,9 @@
 package edu.berkeley.cs.cs162.Server;
 
+import java.util.concurrent.TimeoutException;
+
+import edu.berkeley.cs.cs162.Synchronization.Lock;
+import edu.berkeley.cs.cs162.Synchronization.Semaphore;
 import edu.berkeley.cs.cs162.Writable.BoardInfo;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.GameInfo;
@@ -13,7 +17,9 @@ public class UnfinishedGame {
 	private int gameID;
 	private GoBoard board;
 	private String name;
-
+	private Lock reconnectionLock;
+	private boolean reconnected;
+	private Semaphore reconnectionSemaphore;
 	enum ReconnectionStatus {
 		NONE_CONNECTED,
 		ONE_CONNECTED,
@@ -28,25 +34,41 @@ public class UnfinishedGame {
 		this.whitePlayer = null;
 		this.gameID = gameID;
 		this.name = name;
+		this.reconnected = false;
+		this.reconnectionLock = new Lock();
+		this.reconnectionSemaphore = new Semaphore(0);
 	}
 	
 	public Game reconnectGame() {
-		if (blackPlayer == null || whitePlayer == null) {
-			return null;
+		reconnectionLock.acquire();
+		try {
+			if (checkPlayerInvalid(blackPlayer) || checkPlayerInvalid(whitePlayer) || reconnected) {
+				return null;
+			} else {
+				reconnected = true;
+				return new Game(name, blackPlayer, whitePlayer, board, gameID);
+			}
+		} 
+		finally 
+		{
+			reconnectionLock.release();
 		}
-		return new Game(name, whitePlayer, whitePlayer, board, gameID);
 	}
 	
 	public boolean matchesPlayer(PlayerLogic player) {
-		if (blackPlayer == null && blackPlayerInfo.equals(player.makeClientInfo())) {
+		if (checkPlayerInvalid(blackPlayer) && blackPlayerInfo.equals(player.makeClientInfo())) {
 			blackPlayer = player;
 			return true;
 		}
-		if (whitePlayer == null && whitePlayerInfo.equals(player.makeClientInfo())) {
+		if (checkPlayerInvalid(whitePlayer) && whitePlayerInfo.equals(player.makeClientInfo())) {
 			whitePlayer = player;
 			return true;
 		}
 		return false;
+	}
+	
+	private boolean checkPlayerInvalid(PlayerLogic logic) {
+		return logic == null || logic.isDisconnected();
 	}
 
 	public int getGameID() {
@@ -76,16 +98,11 @@ public class UnfinishedGame {
 		return blackPlayerInfo;
 	}
 
-	public void wakeOtherPlayer(PlayerLogic playerLogic) {
-		PlayerLogic other = null;
-		if (playerLogic == blackPlayer) {
-			other = whitePlayer;
-		} else if (playerLogic == whitePlayer)
-		{
-			other = blackPlayer;
-		} else {
-			assert false : "Programmer error, player logic not in the unfinished game";
-		}
-		other.wakeReconnection();
+	public void wakePlayer() {
+		reconnectionSemaphore.v();
+	}
+
+	public void waitForReconnect() throws TimeoutException {
+		reconnectionSemaphore.p(60000);
 	}
 }

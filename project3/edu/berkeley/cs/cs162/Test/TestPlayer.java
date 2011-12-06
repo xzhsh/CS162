@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import edu.berkeley.cs.cs162.Client.Player;
 import edu.berkeley.cs.cs162.Synchronization.ReaderWriterLock;
 import edu.berkeley.cs.cs162.Writable.Message;
-import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 import edu.berkeley.cs.cs162.Writable.ServerMessages;
 
@@ -44,29 +43,16 @@ public class TestPlayer extends Player {
 			public void run() {
 				TestPlayer player = new TestPlayer(name, type, moves, shared);
 		        if (player.connectTo("localhost", port)) {
-		        	Message reply;
 					try {
-						reply = player.getConnection().sendSyncToServer(MessageFactory.createWaitForGameMessage());
+						player.runExecutionLoop();
 					} catch (IOException e) {
-						reply = MessageFactory.createErrorRejectedMessage();
-    		        	System.out.println("Wait for game closed:" + e.getMessage());
+						
 					}
-	                if (reply.isOK()) {
-	                    player.setSentWFGMessage(true);
-	                    //lock.readLock();
-	                    try {
-	                    	player.runExecutionLoop();
-	                    }
-	                    catch (IOException e){
-	    		        	System.out.println("Connection Closed:" + e.getMessage());
-	                    }
-	                    //lock.readUnlock();
-	                }
 		        }
 		        else {
 		        	System.out.println("Connection Failed");
 		        }
-		        
+		        System.out.println("Test Client closed");
 			}
 		};
 		t.start();

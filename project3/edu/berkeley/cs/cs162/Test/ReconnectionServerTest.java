@@ -22,7 +22,7 @@ import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
-public class OneGameServerTest {
+public class ReconnectionServerTest {
 	private static final int TEST_PORT = 1234;
 	private static final int NUM_PLAYERS = 2;
 
@@ -35,6 +35,7 @@ public class OneGameServerTest {
 		try {
 			board.makeMove(new BoardLocation(1, 0), StoneColor.BLACK);
 			board.makeMove(new BoardLocation(2, 2), StoneColor.WHITE);
+			board.makeMove(new BoardLocation(1, 1), StoneColor.BLACK);
 		} catch (IllegalMoveException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -43,7 +44,6 @@ public class OneGameServerTest {
 		sm.addUnfinishedGame(new UnfinishedGame("TestGameReconnect", board, 
 				MessageFactory.createClientInfo("TestPlayer0", MessageProtocol.TYPE_MACHINE), 
 				MessageFactory.createClientInfo("TestPlayer1", MessageProtocol.TYPE_MACHINE), 0));
-		
 		
 		final GameServer server = new GameServer("edu.berkeley.cs.cs162.Test.one-game-server-test.db", 100, 5, new PrintStream(System.out), am, sm);
 		Thread t = new Thread() {
@@ -81,7 +81,7 @@ public class OneGameServerTest {
 		System.out.println("Auth:");
 		System.out.println(am.baos.toString());
 		System.out.println("State:");
+		//String stateString = sm.baos.toString();
 		System.out.println(sm.baos.toString());
-		
 	}
 }

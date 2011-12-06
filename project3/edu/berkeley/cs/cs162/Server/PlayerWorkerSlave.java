@@ -121,22 +121,25 @@ public class PlayerWorkerSlave extends WorkerSlave{
     	getMessageQueue().add(new Runnable () {
 		    public void run() {
     			try {
-		    		Thread.sleep(timeout);
-		    		logic.terminateGame();
-		        	try {
-		        		StoneColor color = unfinishedGame.getColorForInfo(logic.makeClientInfo());
-		        		double blackScore = color == StoneColor.BLACK ? 1 : 0;
-		        		double whiteScore = color == StoneColor.WHITE ? 0 : 1;
-		    			getServer().getStateManager().finishGame(unfinishedGame.getGameID(), logic, blackScore, whiteScore, MessageProtocol.PLAYER_FORFEIT);
-		    		} catch (SQLException e) {
-		    			//unrecoverable, wrap and rethrow.
-		    			throw new RuntimeException(e);
-		    		}
+    				unfinishedGame.waitForReconnect();
+    				logic.reconnected();
 		    	} 
-		    	catch(InterruptedException e)
+		    	catch(TimeoutException e)
 		    	{
-		    		//resume and reconnect
-		    		getServer().getLog().println(master.makeClientInfo() + " has been interrupted.");
+		    		if (logic.terminateGame()) {
+		    			//game has been terminated. write the end game messages.
+			    		try {
+			        		StoneColor color = unfinishedGame.getColorForInfo(logic.makeClientInfo());
+			        		double blackScore = color == StoneColor.BLACK ? 1 : 0;
+			        		double whiteScore = color == StoneColor.WHITE ? 0 : 1;
+			    			getServer().getStateManager().finishGame(unfinishedGame.getGameID(), logic, blackScore, whiteScore, MessageProtocol.PLAYER_FORFEIT);
+			    		} catch (SQLException sqlE) {
+			    			//unrecoverable, wrap and rethrow.
+			    			throw new RuntimeException(sqlE);
+			    		}
+		    		} else {
+		    			//we have already been disconnected. just end.
+		    		}
 		    	}
     		}
     	}

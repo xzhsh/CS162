@@ -1,12 +1,10 @@
 package edu.berkeley.cs.cs162.Test;
 
-import edu.berkeley.cs.cs162.Server.Security;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-
-import static org.junit.Assert.*;
+import edu.berkeley.cs.cs162.Server.Security;
 
 public class SecurityTest {
 

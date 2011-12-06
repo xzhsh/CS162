@@ -46,7 +46,7 @@ public class Game {
         this.board = board;
         observerList = new HashSet<ObserverLogic>();
         observerLock = new ReaderWriterLock();
-        state = GameState.BLACK_MOVE;
+        state = board.getBlackMove() ? GameState.BLACK_MOVE : GameState.WHITE_MOVE;
         active = true;
 	}
 
@@ -105,9 +105,16 @@ public class Game {
 		return this.name;
 	}
 
+<<<<<<< HEAD
 	public GoBoard getBoard() {
 		return this.board;
 	}
+=======
+    public int getBoardSize(){
+        return board.getSize();
+    }
+
+>>>>>>> f072ed04f3ac3a3bd0431b2743df2d43785c8d07
 	public void broadcastStartMessage() {
 		Message message = MessageFactory.createGameStartMessage(this);
 		observerLock.readLock();
@@ -168,6 +175,12 @@ public class Game {
 			advanceTurns();
 		} catch (IllegalMoveException e) {
 			//illegal move, we need to send game over error.
+			try {
+				getCurrentPlayer().getServer().getStateManager().updateGameWithMove(this, getCurrentPlayer(), loc, new Vector<BoardLocation>());
+			} catch (SQLException sqle) {
+				//unrecoverable, wrap and rethrow.
+				throw new RuntimeException(sqle);
+			}
 			doGameOverError(e);
 		}
 	}

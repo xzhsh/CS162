@@ -162,4 +162,8 @@ public class GoBoard {
         	return false;
         }
 	}
+
+	public boolean getBlackMove() {
+		return blackMove;
+	}
 }

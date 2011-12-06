@@ -28,25 +28,25 @@ public class AuthenticationManagerTest {
 
     @BeforeClass
     public static void setup(){
-        try{
+        try {
             db = new DatabaseConnection("authmanager-test.db");
-            //db.initializeDatabase();
+            db.initializeDatabase();
             am = new AuthenticationManager(db, "cs162project3istasty");
+        } catch (SQLException e) {
+            fail("SQL Exception in setup method.");
         }
-        catch (SQLException e) { fail("SQL Exception in setup method."); }
 
         kunal = MessageFactory.createMachinePlayerClientInfo("kunal");
         password = Security.computeHash("kunal");
     }
 
     @AfterClass
-    public static void teardown(){
+    public static void teardown() {
         db.wipeDatabase();
     }
 
     @Test /* Test that a client can successfully register, and cannot register twice. */
-    public void testRegisterClient(){
-
+    public void testRegisterClient() {
         // First registration should be successful
         assertTrue("Kunal's first registration should be successful.", am.registerClient(kunal, password));
 
@@ -55,38 +55,53 @@ public class AuthenticationManagerTest {
     }
 
     @Test /* Test that a registered client can successfully authenticate, but an unregistered client cannot. */
-    public void testAuthenticateClient(){
+    public void testAuthenticateClient() {
 
         ClientInfo jay = MessageFactory.createMachinePlayerClientInfo("jay");
         String password2 = Security.computeHash("jay");
 
         // Kunal should be able to authenticate
-        try { am.authenticateClient(kunal, password); }
-        catch (ServerAuthenticationException e) { fail("Kunal should have been able to authenticate."); }
+        try {
+            am.authenticateClient(kunal, password);
+        } catch (ServerAuthenticationException e) {
+            fail("Kunal should have been able to authenticate.");
+        }
 
         // Jay should NOT be able to authenticate
-        try { am.authenticateClient(jay, password2); fail("Jay should NOT have been able to authenticate.");}
-        catch (ServerAuthenticationException e) { /* Nothing... */ }
-
+        try {
+            am.authenticateClient(jay, password2);
+            fail("Jay should NOT have been able to authenticate.");
+        } catch (ServerAuthenticationException e) {
+            /* Nothing... */
+        }
     }
 
     @Test /* Test that the AuthenticationManager can correctly change passwords. */
-    public void testChangePassword(){
-
+    public void testChangePassword() {
         // Kunal should be able to authenticate
-        try { am.authenticateClient(kunal, password); }
-        catch (ServerAuthenticationException e) { fail("Kunal should have been able to authenticate."); }
+        try {
+            am.authenticateClient(kunal, password);
+        } catch (ServerAuthenticationException e) {
+            fail("Kunal should have been able to authenticate.");
+        }
 
-        String newpassword = Security.computeHash("kunal2");
-        am.changePassword(kunal, newpassword);
+        String newPwdHash = Security.computeHash("kunal2");
+        am.changePassword(kunal, newPwdHash);
 
         // Kunal should be able to authenticate with his new password
-        try { am.authenticateClient(kunal, newpassword); }
-        catch (ServerAuthenticationException e) { fail("Kunal should have been able to authenticate with his new password."); }
+        try {
+            am.authenticateClient(kunal, newPwdHash);
+        } catch (ServerAuthenticationException e) {
+            fail("Kunal should have been able to authenticate with his new password.");
+        }
 
         // Kunal should NOT be able to authenticate with his old password
-        try { am.authenticateClient(kunal, password); fail("Kunal should NOT have been able to authenticate with his old password");}
-        catch (ServerAuthenticationException e) { /* Nothing... */ }
+        try {
+            am.authenticateClient(kunal, password);
+            fail("Kunal should NOT have been able to authenticate with his old password");
+        } catch (ServerAuthenticationException e) {
+            /* Nothing... */
+        }
 
     }
 }
