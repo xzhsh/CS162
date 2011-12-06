@@ -69,6 +69,8 @@ public class GameServer {
 	private ServerStateManager stateManager;
 	private AuthenticationManager authManager;
 	private ReaderWriterLock unfinishedGameLock;
+	private boolean done;
+	private DatabaseConnection databaseConnection;
     
 	public GameServer(String databasePath, int clientLimit, int handshakeThreadPoolSize, PrintStream logStream) {
 		this(databasePath, handshakeThreadPoolSize, handshakeThreadPoolSize, logStream, null, null);
@@ -98,14 +100,14 @@ public class GameServer {
         clientsConnected = 0;
         
         try {
-        	DatabaseConnection connection = new DatabaseConnection(databasePath);
+        	databaseConnection = new DatabaseConnection(databasePath);
         	if (stateManager == null) {
-        		this.stateManager = new ServerStateManager(connection);
+        		this.stateManager = new ServerStateManager(databaseConnection);
         	} else {
         		this.stateManager = stateManager;
         	}
         	if (authManager == null) {
-        		this.authManager = new AuthenticationManager(connection, "cs162project3istasty");
+        		this.authManager = new AuthenticationManager(databaseConnection, "cs162project3istasty");
         	} else {
         		this.authManager = authManager;
         	}
@@ -145,7 +147,7 @@ public class GameServer {
             ServerSocket server = new ServerSocket(portNumber, clientLimit * 2, localIP);
             server.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
             ready = true;
-            while (true) {
+            while (!done) {
             	try {
             		Socket incomingConnection = server.accept();
                     incomingConnection.setSoTimeout(GLOBAL_TIMEOUT_IN_MS);
@@ -373,5 +375,15 @@ public class GameServer {
 		unfinishedGameLock.writeLock();
 		unfinishedGames.remove(unfinishedGame);
 		unfinishedGameLock.writeUnlock();
+	}
+
+	public void stop() {
+		done = true;
+		if (databaseConnection!=null) {
+			databaseConnection.close();
+		}
+		for (Worker worker : nameToWorkerMap.values()) {
+			worker.closeAndCleanup();
+		}
 	}
 }

@@ -110,6 +110,7 @@ public class MessageFactory {
             case MessageProtocol.OP_ERROR_INVALID_GAME:
             case MessageProtocol.OP_ERROR_REJECTED:
             case MessageProtocol.OP_ERROR_UNCONNECTED:
+            case MessageProtocol.OP_ERROR_BAD_AUTH:
                 return new OpCodeOnlyMessage(opCode);
             case MessageProtocol.OP_STATUS_RESUME:
                 container = new ResponseMessages.StatusResumeMessage();
