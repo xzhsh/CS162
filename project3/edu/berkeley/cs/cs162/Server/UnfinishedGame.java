@@ -27,6 +27,10 @@ public class UnfinishedGame {
 		TWO_CONNECTED
 	}
 	
+	public UnfinishedGame(String name, GoBoard board, ClientInfo blackPlayer, ClientInfo whitePlayer, int gameID) {
+		this(name, board, whitePlayer, whitePlayer, 60000, gameID);
+	}
+	
 	public UnfinishedGame(String name, GoBoard board, ClientInfo blackPlayer, ClientInfo whitePlayer, int reconnectionTimeout, int gameID) {
 		this.board = board;
 		this.blackPlayerInfo = blackPlayer;
