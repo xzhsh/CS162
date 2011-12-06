@@ -272,7 +272,10 @@ public class Game {
 		getCurrentPlayer().beginGame(this);
 	}
 
-	public int setGameID(int createGameEntry) {
+	public void setGameID(int gameID) {
+		this.gameID = gameID;
+	}
+	public int getGameID() {
 		return gameID;
 	}
 

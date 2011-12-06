@@ -126,13 +126,18 @@ public class PlayerWorkerSlave extends WorkerSlave{
 		    	} 
 		    	catch(TimeoutException e)
 		    	{
-		    		if (logic.terminateGame()) {
+		    		if (!unfinishedGame.isReconnected() && logic.terminateReconnect()) {
 		    			//game has been terminated. write the end game messages.
 			    		try {
 			        		StoneColor color = unfinishedGame.getColorForInfo(logic.makeClientInfo());
+			        		StoneColor otherColor = color.getOtherColor();
+			        		
 			        		double blackScore = color == StoneColor.BLACK ? 1 : 0;
-			        		double whiteScore = color == StoneColor.WHITE ? 0 : 1;
+			        		double whiteScore = color == StoneColor.BLACK ? 0 : 1;
 			    			getServer().getStateManager().finishGame(unfinishedGame.getGameID(), logic, blackScore, whiteScore, MessageProtocol.PLAYER_FORFEIT);
+			    			Message err = MessageFactory.createGameOverErrorMessage(unfinishedGame.makeGameInfo(), blackScore, whiteScore, 
+				    				logic.makeClientInfo(), MessageProtocol.PLAYER_FORFEIT, unfinishedGame.getInfoForColor(otherColor), unfinishedGame.getInfoForColor(otherColor) + " has forfeited");
+				    		handleSendMessage(err);
 			    		} catch (SQLException sqlE) {
 			    			//unrecoverable, wrap and rethrow.
 			    			throw new RuntimeException(sqlE);

@@ -22,9 +22,9 @@ import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
 
-public class ReconnectionServerTest {
+public class ReconnectionTimeoutTest {
 	private static final int TEST_PORT = 1234;
-	private static final int NUM_PLAYERS = 2;
+	private static final int NUM_PLAYERS_PAIRS = 1;
 
 	@Test
 	public void test() throws InterruptedException {
@@ -43,7 +43,7 @@ public class ReconnectionServerTest {
 		
 		sm.addUnfinishedGame(new UnfinishedGame("TestGameReconnect", board, 
 				MessageFactory.createClientInfo("TestPlayer0", MessageProtocol.TYPE_MACHINE), 
-				MessageFactory.createClientInfo("TestPlayer1", MessageProtocol.TYPE_MACHINE), 60, 0));
+				MessageFactory.createClientInfo("TestPlayer1", MessageProtocol.TYPE_MACHINE), 1000, 0));
 		
 		final GameServer server = new GameServer("edu.berkeley.cs.cs162.Test.one-game-server-test.db", 100, 5, new PrintStream(System.out), am, sm);
 		Thread t = new Thread() {
@@ -64,11 +64,18 @@ public class ReconnectionServerTest {
 		ReaderWriterLock lock = new ReaderWriterLock();
 		List<Thread> threads = new ArrayList<Thread>();
 		AtomicInteger sharedCount = new AtomicInteger(0);
-		for (int i = 0; i < NUM_PLAYERS; i++)
+		for (int i = 0; i < NUM_PLAYERS_PAIRS; i++)
 		{
-			List<Message> moves = Arrays.asList(MessageFactory.createGetMoveStatusOkMessage(MessageProtocol.MOVE_PASS, MessageFactory.createLocationInfo(0, 0)));
-			System.out.println(">>>> STARTING TestPlayer"+ i + ".");
-			threads.add(TestPlayer.runInstance("TestPlayer"+i, MessageProtocol.TYPE_MACHINE, moves, TEST_PORT, lock, sharedCount));
+			List<Message> moves1 = Arrays.asList(MessageFactory.createGetMoveStatusOkMessage(MessageProtocol.MOVE_PASS, MessageFactory.createLocationInfo(0, 0)));
+			System.out.println(">>>> STARTING TestPlayer"+ (i*2) + ".");
+			threads.add(TestPlayer.runInstance("TestPlayer"+(i*2), MessageProtocol.TYPE_MACHINE, moves1, TEST_PORT, lock, sharedCount));
+			Thread.sleep(2000);
+			List<Message> moves2 = Arrays.asList(MessageFactory.createGetMoveStatusOkMessage(MessageProtocol.MOVE_PASS, MessageFactory.createLocationInfo(0, 0)));
+			System.out.println(">>>> STARTING TestPlayer"+ (i*2+1) + ".");
+			threads.add(TestPlayer.runInstance("TestPlayer"+ (i*2+1), MessageProtocol.TYPE_MACHINE, moves2, TEST_PORT, lock, sharedCount));
+			List<Message> moves3 = Arrays.asList(MessageFactory.createGetMoveStatusOkMessage(MessageProtocol.MOVE_PASS, MessageFactory.createLocationInfo(0, 0)));
+			System.out.println(">>>> STARTING TestPlayer"+ (i*2) + ".");
+			threads.add(TestPlayer.runInstance("TestPlayer"+ (i*2), MessageProtocol.TYPE_MACHINE, moves3, TEST_PORT, lock, sharedCount));
 		}
 		
 		for (Thread thread : threads)
@@ -76,12 +83,13 @@ public class ReconnectionServerTest {
 			thread.join();
 		}
 		
-		assertEquals(sharedCount.get(), NUM_PLAYERS);
 		Thread.sleep(100);
 		System.out.println("Auth:");
 		System.out.println(am.baos.toString());
 		System.out.println("State:");
 		//String stateString = sm.baos.toString();
 		System.out.println(sm.baos.toString());
+		
+		assertEquals(sharedCount.get(), NUM_PLAYERS_PAIRS * 2);
 	}
 }

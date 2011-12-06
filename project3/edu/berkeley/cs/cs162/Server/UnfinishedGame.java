@@ -20,13 +20,14 @@ public class UnfinishedGame {
 	private Lock reconnectionLock;
 	private boolean reconnected;
 	private Semaphore reconnectionSemaphore;
+	private int reconnectionTimeout;
 	enum ReconnectionStatus {
 		NONE_CONNECTED,
 		ONE_CONNECTED,
 		TWO_CONNECTED
 	}
 	
-	public UnfinishedGame(String name, GoBoard board, ClientInfo blackPlayer, ClientInfo whitePlayer, int gameID) {
+	public UnfinishedGame(String name, GoBoard board, ClientInfo blackPlayer, ClientInfo whitePlayer, int reconnectionTimeout, int gameID) {
 		this.board = board;
 		this.blackPlayerInfo = blackPlayer;
 		this.whitePlayerInfo = whitePlayer;
@@ -37,30 +38,35 @@ public class UnfinishedGame {
 		this.reconnected = false;
 		this.reconnectionLock = new Lock();
 		this.reconnectionSemaphore = new Semaphore(0);
+		this.reconnectionTimeout = reconnectionTimeout;
 	}
 	
-	public Game reconnectGame() {
-		reconnectionLock.acquire();
-		try {
-			if (checkPlayerInvalid(blackPlayer) || checkPlayerInvalid(whitePlayer) || reconnected) {
-				return null;
-			} else {
-				reconnected = true;
-				return new Game(name, blackPlayer, whitePlayer, board, gameID);
-			}
-		} 
-		finally 
-		{
-			reconnectionLock.release();
+	public Game reconnectGame(PlayerLogic player) {
+		PlayerLogic otherPlayer;
+		if (player == blackPlayer) {
+			otherPlayer = whitePlayer;
+		} else if (player == whitePlayer) {
+			otherPlayer = blackPlayer;
+		} else {
+			otherPlayer = null;
+		}
+		
+		if (checkPlayerInvalid(otherPlayer) || reconnected) {
+			return null;
+		} else {
+			reconnected = true;
+			return new Game(name, blackPlayer, whitePlayer, board, gameID);
 		}
 	}
 	
 	public boolean matchesPlayer(PlayerLogic player) {
 		if (checkPlayerInvalid(blackPlayer) && blackPlayerInfo.equals(player.makeClientInfo())) {
+			reconnectionLock.acquire();
 			blackPlayer = player;
 			return true;
 		}
 		if (checkPlayerInvalid(whitePlayer) && whitePlayerInfo.equals(player.makeClientInfo())) {
+			reconnectionLock.acquire();
 			whitePlayer = player;
 			return true;
 		}
@@ -68,7 +74,7 @@ public class UnfinishedGame {
 	}
 	
 	private boolean checkPlayerInvalid(PlayerLogic logic) {
-		return logic == null || logic.isDisconnected();
+		return logic == null || !logic.isReconnecting();
 	}
 
 	public int getGameID() {
@@ -101,8 +107,32 @@ public class UnfinishedGame {
 	public void wakePlayer() {
 		reconnectionSemaphore.v();
 	}
+	
+	public boolean isReconnected() {
+		reconnectionLock.acquire();
+		try {
+			return reconnected;
+		} finally {
+			reconnectionLock.release();
+		}
+	}
 
 	public void waitForReconnect() throws TimeoutException {
-		reconnectionSemaphore.p(60000);
+		reconnectionSemaphore.p(reconnectionTimeout);
+	}
+
+	public ClientInfo getInfoForColor(StoneColor otherColor) {
+		switch(otherColor) {
+		case BLACK:
+			return blackPlayerInfo;
+		case WHITE:
+			return whitePlayerInfo;
+		default:
+			return null;
+		}
+	}
+
+	public void finishReconnection() {
+		reconnectionLock.release();
 	}
 }

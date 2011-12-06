@@ -37,6 +37,7 @@ public abstract class PlayerLogic extends ClientLogic {
     enum PlayerState {
     	CONNECTED,
     	WAITING,
+    	PENDING_RECONNECT,
     	RECONNECT,
     	PLAYING,
     	DISCONNECTED
@@ -62,11 +63,13 @@ public abstract class PlayerLogic extends ClientLogic {
 		if (state == PlayerState.CONNECTED) {
 			UnfinishedGame unfinishedGame = getServer().checkForUnfinishedGame(this);
 			if (unfinishedGame != null) {
-				Game reconnectedGame = unfinishedGame.reconnectGame();
+				state = PlayerState.PENDING_RECONNECT;
+				Game reconnectedGame = unfinishedGame.reconnectGame(this);
 				if (reconnectedGame != null) {
 					//other client has already reconnected. 
 					//just start the game again and return the reconnected board state.
 					state = PlayerState.PLAYING;
+					unfinishedGame.finishReconnection();
 					stateLock.release();
 					getServer().getLog().println(makeClientInfo() + " has resumed playing the game.");
 					unfinishedGame.wakePlayer();
@@ -77,6 +80,7 @@ public abstract class PlayerLogic extends ClientLogic {
 					//other client hasn't connected yet
 					//start waiting for the other game.
 					state = PlayerState.RECONNECT;
+					unfinishedGame.finishReconnection();
 					stateLock.release();
 					getServer().getLog().println(makeClientInfo() + " has is waiting to resume the game.");
 					slave.handleWaitForReconnect(unfinishedGame, this, 
@@ -138,6 +142,20 @@ public abstract class PlayerLogic extends ClientLogic {
 		return playerTimeoutInMs;
 	}
 
+	public boolean terminateReconnect() {
+		stateLock.acquire();
+		try {
+	    	if (state == PlayerState.RECONNECT)
+	    	{
+	        	//assert state == PlayerState.PLAYING : "Terminated game when not playing";
+	    		state = PlayerState.CONNECTED;
+	    		return true;
+	    	}
+	    	return false;
+		} finally {
+			stateLock.release();
+		}
+	}
 	public boolean terminateGame() {
 		stateLock.acquire();
 		try {
@@ -181,7 +199,15 @@ public abstract class PlayerLogic extends ClientLogic {
 	}
 
 	public boolean isDisconnected() {
-		// TODO Auto-generated method stub
+		stateLock.acquire();
+		try {
 		return state == PlayerState.DISCONNECTED;
+		} finally {
+			stateLock.release();
+		}
+	}
+
+	public boolean isReconnecting() {
+		return state == PlayerState.RECONNECT;
 	}
 }

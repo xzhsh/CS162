@@ -46,5 +46,19 @@ public enum StoneColor {
                 return NONE;
         }
     }
+
+	public StoneColor getOtherColor() {
+		switch (this) {
+        case BLACK:
+            return WHITE;
+        case WHITE:
+            return BLACK;
+        case NONE:
+            return NONE;
+        default:
+            assert false : "Unimplemented Stone Color";
+            return NONE;
+		}
+	}
 }
 
