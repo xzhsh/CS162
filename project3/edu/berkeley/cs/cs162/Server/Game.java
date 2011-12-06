@@ -105,16 +105,14 @@ public class Game {
 		return this.name;
 	}
 
-<<<<<<< HEAD
 	public GoBoard getBoard() {
 		return this.board;
 	}
-=======
+	
     public int getBoardSize(){
         return board.getSize();
     }
 
->>>>>>> f072ed04f3ac3a3bd0431b2743df2d43785c8d07
 	public void broadcastStartMessage() {
 		Message message = MessageFactory.createGameStartMessage(this);
 		observerLock.readLock();
