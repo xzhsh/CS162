@@ -32,7 +32,7 @@ public class DatabaseConnection {
 			System.err.println("Could not find sqlite JDBC class. Did you include the correct jar in the build path?");
 		}
 	    canonicalConnection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
-        //canonicalConnection.setAutoCommit(false);
+        canonicalConnection.setAutoCommit(false);
         dataLock = new ReaderWriterLock();
         initializeDatabase();
 	}
@@ -57,59 +57,35 @@ public class DatabaseConnection {
 	
 	/**
 	 * Starts a transaction. It will not be committed or be interrupted until finish transaction is called.
-	 * 
-	 * @return the connection to start the transaction.
 	 */
-	public Connection startTransaction() {
+	public void startTransaction() {
 		dataLock.writeLock();
-		try {
-			canonicalConnection.setAutoCommit(false);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return canonicalConnection;
 	}
 	
 	/**
 	 * Unlocks the write lock, and commits the transaction.
 	 */
 	public void finishTransaction() {
-		try {
-			canonicalConnection.commit();
-			canonicalConnection.setAutoCommit(true);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally {
-			dataLock.writeUnlock();
-		}
+		try { canonicalConnection.commit(); }
+        catch (SQLException e) { e.printStackTrace(); }
+		finally { dataLock.writeUnlock(); }
 	}
 
     /**
      * Aborts the current transaction. Used in the case of an SQLException while writing.
      */
     public void abortTransaction() {
-        try {
-            canonicalConnection.rollback();
-            canonicalConnection.setAutoCommit(true);
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        finally {
-            dataLock.writeUnlock();
-        }
+        try { canonicalConnection.rollback(); }
+        catch (SQLException e) { e.printStackTrace(); }
+        finally { dataLock.writeUnlock(); }
     }
 
 	/**
 	 * Executes a single read.
      * Remember to call closeReadQuery() on the result when you're done!
      *
-	 * @param query
-	 * @return
-	 * @throws SQLException
+	 * @param query - The query to execute
+	 * @return - A ResultSet corresponding to the query
 	 */
 	public ResultSet executeReadQuery(String query) {
 		dataLock.readLock();
@@ -174,16 +150,24 @@ public class DatabaseConnection {
     }
 
 	/**
-	 * Executes a single write
-	 * @param query
-	 * @throws SQLException
-     * @return true if the write operation was successful, false otherwise.
+	 * Executes a single write.
+     *
+	 * @param query - The query to execute.
+	 * @throws SQLException - In the case of a database connecton error. This will
+     * be caught upstream and used to abort the transaction.
+     * @return The key generated as a result of the write operation, -1 if none.
 	 */
-	public void executeWriteQuery(String query) throws SQLException {
+	public int executeWriteQuery(String query) throws SQLException{
+
 		Statement writeQuery = null;
+        int generatedKey = -1;
+
 		try {
 			writeQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		    writeQuery.execute(query);
+            ResultSet keys = writeQuery.getGeneratedKeys();
+            if(keys.next())
+                generatedKey = keys.getInt(0);
             writeQuery.close();
 		}
         catch (SQLException e) {
@@ -191,6 +175,8 @@ public class DatabaseConnection {
             if (writeQuery != null) writeQuery.close();
             throw e; // This needs to be caught upstream so that the transaction can be aborted.
         }
+
+        return generatedKey;
 	}
 
     /**
