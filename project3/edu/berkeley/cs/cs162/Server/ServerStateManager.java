@@ -149,7 +149,6 @@ public class ServerStateManager {
             //get game's moves
             ResultSet moves = connection.executeReadQuery("SELECT * FROM moves WHERE gameId=" + gameId + " ORDER BY moveNum ASCENDING");
 
-            //TODO create a list of the moves to be successively applied to board
             ArrayList<Hashtable<String, Integer>> moveList = new ArrayList<Hashtable<String, Integer>>();
 
             while (moves.next()) {
@@ -173,7 +172,8 @@ public class ServerStateManager {
 
                 BoardLocation loc = new BoardLocation(move.get("x"), move.get("y"));
                 //if move.get("moveType")
-                //board.makeMove(BoardLocation moveLoc, StoneColor activeColor)
+                //board.makeMove(loc, StoneColor)
+                //board.makePass(StoneColor)
             }
 
             UnfinishedGame unfinishedGame = new UnfinishedGame(gameName, board, blackPlayer, whitePlayer, gameId);
