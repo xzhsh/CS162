@@ -58,10 +58,12 @@ public class ServerStateManager {
 
         connection.startTransaction();
         try {
-            connection.executeWriteQuery("insert into moves (clientId, gameId, moveType, x, y, moveNum) values (" + playerID + ", " + gameID + ", " + moveType + ", " + x + ", " + y + ", " + moveNum + ")");
+            int mID = connection.executeWriteQuery("insert into moves (clientId, gameId, moveType, x, y, moveNum) values (" + playerID + ", " + gameID + ", " + moveType + ", " + x + ", " + y + ", " + moveNum + ")");
             connection.executeWriteQuery("update games set moveNum=" + moveNum + " where gameId=" + gameID);
             for(BoardLocation location : capturedStones){
                 // TODO Write the captured stones to the database
+            	String addCapDBQuery = "INSERT INTO captured_stones (moveID, x ,y) VALUES (" + mID + ", " + location.getX() + ", " + location.getY() + ") WHERE not exists (SELECT * FROM captured_stones WHERE moveID=" + mID + " AND x=" + location.getX() + " AND y=" + location.getY() + ")";
+            	connection.executeWriteQuery(addCapDBQuery);
             }
             connection.finishTransaction();
         }
