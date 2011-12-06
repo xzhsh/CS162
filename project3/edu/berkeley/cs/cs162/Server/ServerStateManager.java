@@ -31,8 +31,8 @@ public class ServerStateManager {
      * @throws SQLException if it fails at this point.
 	 */
 	public int createGameEntry (Game game) throws SQLException {
-        int whiteID = connection.getPlayerID(game.getWhitePlayer().getName());
-        int blackID = connection.getPlayerID(game.getBlackPlayer().getName());
+        int whiteID = game.getWhitePlayer().getID();
+        int blackID = game.getBlackPlayer().getID();
         int boardSize = game.getBoardSize();
 
         connection.startTransaction();
@@ -191,10 +191,6 @@ public class ServerStateManager {
             ResultSet whitePlayerResult = connection.executeReadQuery("SELECT name, type FROM clients WHERE clientId=" + whitePlayerId);
             ClientInfo whitePlayer = MessageFactory.createClientInfo(whitePlayerResult.getString("name"), (byte) whitePlayerResult.getInt("type"));
             connection.closeReadQuery(whitePlayerResult);
-
-            //get game's moves
-            ResultSet moves = connection.executeReadQuery("SELECT * FROM moves WHERE gameId=" + gameId + " ORDER BY moveNum ASCENDING");
-            
             class Move {
             	StoneColor color;
             	byte moveType;
@@ -207,6 +203,9 @@ public class ServerStateManager {
             		this.y = y;
             	}
             }
+            
+            //get game's moves
+            ResultSet moves = connection.executeReadQuery("SELECT * FROM moves WHERE gameId=" + gameId + " ORDER BY moveNum ASCENDING");
             
             ArrayList<Move> moveList = new ArrayList<Move>();
             

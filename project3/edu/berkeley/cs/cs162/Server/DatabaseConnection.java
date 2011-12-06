@@ -41,17 +41,22 @@ public class DatabaseConnection {
      * Initializes the database, creating the necessary tables
      */
     public void initializeDatabase(){
-        startTransaction();
+    	dataLock.writeLock();
         try{
-            executeWriteQuery("create table if not exists clients (clientId integer primary key autoincrement, name text unique not null, type int not null, passwordHash text not null)");
-            executeWriteQuery("create table if not exists games (gameId integer primary key autoincrement, blackPlayer int references clients (clientId) not null, whitePlayer int references clients (clientId) not null, boardSize int not null, blackScore real, whiteScore real, winner int references clients (clientId), moveNum int not null, reason int)");
-            executeWriteQuery("create table if not exists moves (moveId integer primary key autoincrement, clientId int references clients (clientId) not null, gameId int references games (gameId) not null, moveType int not null, x int, y int, moveNum int not null)");
-            executeWriteQuery("create table if not exists captured_stones (stoneId integer primary key autoincrement, moveId int references moves (moveId), x int, y int)");
-            finishTransaction();
+        	Statement writeQuery = canonicalConnection.createStatement();
+            writeQuery.execute("create table if not exists clients (clientId integer primary key autoincrement, name text unique not null, type int not null, passwordHash text not null)");
+            writeQuery.execute("create table if not exists games (gameId integer primary key autoincrement, blackPlayer int references clients (clientId) not null, whitePlayer int references clients (clientId) not null, boardSize int not null, blackScore real, whiteScore real, winner int references clients (clientId), moveNum int not null, reason int)");
+            writeQuery.execute("create table if not exists moves (moveId integer primary key autoincrement, clientId int references clients (clientId) not null, gameId int references games (gameId) not null, moveType int not null, x int, y int, moveNum int not null)");
+            writeQuery.execute("create table if not exists captured_stones (stoneId integer primary key autoincrement, moveId int references moves (moveId), x int, y int)");
+            writeQuery.close();
+            canonicalConnection.commit();
         }
         catch(SQLException e){
             e.printStackTrace();
             abortTransaction();
+        }
+        finally {
+        	dataLock.writeUnlock();
         }
     }
 	
@@ -99,7 +104,6 @@ public class DatabaseConnection {
         catch (SQLException e) {
 		    e.printStackTrace();
 		}
-
 		return rs;
 	}
 
@@ -120,30 +124,6 @@ public class DatabaseConnection {
     }
 
 
-    public int getPlayerID(String name) throws SQLException {
-        ResultSet result = executeReadQuery("select clientId from clients where name='" + name + "'");
-        result.next();
-        int id = result.getInt("clientId");
-        closeReadQuery(result);
-        return id;
-    }
-
-    public int getGameID(int black, int white) throws SQLException {
-        ResultSet result = executeReadQuery("select gameId from games where blackPlayer=" + black + ", whitePlayer=" + white);
-        result.next();
-        int id = result.getInt("gameId");
-        closeReadQuery(result);
-        return id;
-    }
-
-    public int getMoveNum(int gameID) throws SQLException {
-        ResultSet result = executeReadQuery("select moveNum from games where gameId=" + gameID);
-        result.next();
-        int moveNum = result.getInt("moveNum");
-        closeReadQuery(result);
-        return moveNum;
-    }
-
 	/**
 	 * Executes a single write.
      *
@@ -156,11 +136,11 @@ public class DatabaseConnection {
 
 		Statement writeQuery = null;
         int generatedKey = -1;
-
+        ResultSet keys = null;
 		try {
 			writeQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		    writeQuery.execute(query);
-            ResultSet keys = writeQuery.getGeneratedKeys();
+            keys = writeQuery.getGeneratedKeys();
             if(keys.next())
                 generatedKey = keys.getInt(1);
             writeQuery.close();
@@ -169,6 +149,10 @@ public class DatabaseConnection {
 		    e.printStackTrace();
             if (writeQuery != null) writeQuery.close();
             throw e; // This needs to be caught upstream so that the transaction can be aborted.
+        } finally {
+        	if (keys != null) {
+        		keys.close();	
+        	}
         }
         return generatedKey;
 	}
@@ -177,17 +161,30 @@ public class DatabaseConnection {
      * TESTING PURPOSES ONLY. This wipes the database clean; used by the AuthenticationManagerTest.
      */
     public void wipeDatabase(){
-        startTransaction();
+    	dataLock.writeLock();
         try{
-            executeWriteQuery("drop table if exists clients");
-            executeWriteQuery("drop table if exists games");
-            executeWriteQuery("drop table if exists moves");
-            executeWriteQuery("drop table if exists captured_stones");
-            finishTransaction();
+        	Statement writeQuery = canonicalConnection.createStatement();
+        	writeQuery.addBatch("drop table if exists clients");
+        	writeQuery.addBatch("drop table if exists captured_stones");
+        	writeQuery.addBatch("drop table if exists games");
+        	writeQuery.addBatch("drop table if exists moves");
+        	writeQuery.executeBatch();
+        	writeQuery.close();
+            canonicalConnection.commit();
         }
         catch(SQLException e){
-            e.printStackTrace();
-            abortTransaction();
+        	e.printStackTrace();
+            //abortTransaction();
+            throw new RuntimeException(e);
+        }finally {
+        	dataLock.writeUnlock();
         }
     }
+
+	public void close() {
+		try {
+			canonicalConnection.close();
+		} catch (SQLException e) {
+		}
+	}
 }

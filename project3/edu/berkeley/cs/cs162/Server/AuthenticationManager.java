@@ -53,20 +53,26 @@ public class AuthenticationManager {
         String clientName = cInfo.getName();
         byte clientType = cInfo.getPlayerType();
         String finalPass = Security.computeHashWithSalt(passwordHash, salt);
-
-        ResultSet results = connection.executeReadQuery("SELECT clientId FROM clients WHERE name='" + clientName + "'");
-
+        
+        ResultSet results = connection.executeReadQuery("SELECT name FROM clients WHERE name='" + clientName + "'");
+        
         try {
+        	boolean f = true;
             // If the ResultSet is not empty (i.e. the user already exists)
-            if(results.next()){
-                connection.closeReadQuery(results);
-                return false;
+            while(results.next()){
+            	System.out.println("Query " + cInfo.getName() + " found " + results.getString(1));
+                f = false;
+            }
+            if (!f) {
+            	return false;
             }
         }
-        catch (SQLException e) { /* Do nothing... */ }
+        catch (SQLException e) { e.printStackTrace();/* Do nothing... */ }
         catch (NullPointerException e) { /* Do nothing... */ }
-        connection.closeReadQuery(results);
-
+        finally {
+        	connection.closeReadQuery(results);
+        }
+        
         connection.startTransaction();
         try {
             connection.executeWriteQuery("INSERT INTO clients (name, type, passwordHash) VALUES (" + "'" + clientName + "', " + Byte.toString(clientType) + ", '" + finalPass + "'" + ")");
@@ -94,31 +100,32 @@ public class AuthenticationManager {
 	public int authenticateClient(ClientInfo cInfo, String passwordHash) throws ServerAuthenticationException {
         String clientName = cInfo.getName();
         String finalPass = Security.computeHashWithSalt(passwordHash, salt);
-
+        ResultSet results = null;
+        
         try {
-            ResultSet results = connection.executeReadQuery("SELECT passwordHash, clientId FROM clients WHERE name='" + clientName + "'");
+            results = connection.executeReadQuery("SELECT passwordHash, clientId FROM clients WHERE name='" + clientName + "'");
 
             if(results == null){
                 throw new ServerAuthenticationException();
             }
             else if (!results.next()) {
-                connection.closeReadQuery(results);
                 throw new ServerAuthenticationException();
             }
             else if (results.getString("passwordHash").equals(finalPass)) {
                 int cid = results.getInt("clientId");
                 assert cid != -1;
-                connection.closeReadQuery(results);
                 return cid;
             }
             else{
-                connection.closeReadQuery(results);
                 throw new ServerAuthenticationException();
             }
         }
         catch (SQLException e) {
             e.printStackTrace();
             throw new ServerAuthenticationException();
+        } finally {
+        	if (results != null)
+        		connection.closeReadQuery(results);
         }
 	}
 	
@@ -134,25 +141,29 @@ public class AuthenticationManager {
 	 */
 	public void changePassword(ClientInfo cInfo, String newPasswordHash) {
         String clientName = cInfo.getName();
-
+        ResultSet result = null;
+        String query = null;
         try {
             String cidQuery = "SELECT clientId FROM clients WHERE name='" + clientName + "'";
-            ResultSet result = connection.executeReadQuery(cidQuery);
+            result = connection.executeReadQuery(cidQuery);
 
             try { if(!result.next()) return; }
             catch (SQLException e) { /* Do nothing... */ }
             catch (NullPointerException e) { /* Do nothing... */ }
 
             int clientID = result.getInt("clientId");
-
-            connection.closeReadQuery(result);
-            String query = "UPDATE clients SET passwordHash='" + Security.computeHashWithSalt(newPasswordHash, salt) + "' WHERE clientId=" + Integer.toString(clientID);
-
-            connection.startTransaction();
-            connection.executeWriteQuery(query);
-            connection.finishTransaction();
+            query = "UPDATE clients SET passwordHash='" + Security.computeHashWithSalt(newPasswordHash, salt) + "' WHERE clientId=" + Integer.toString(clientID);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            connection.closeReadQuery(result);
+        } try {
+	        connection.startTransaction();
+	        connection.executeWriteQuery(query);
+        } catch (SQLException e) {
+        	throw new RuntimeException(e);
+        } finally {
+        	connection.finishTransaction();
         }
 	}
 }

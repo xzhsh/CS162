@@ -10,7 +10,6 @@ import java.net.UnknownHostException;
 
 import org.junit.Test;
 
-import edu.berkeley.cs.cs162.Client.ServerConnection;
 import edu.berkeley.cs.cs162.Server.GameServer;
 /**
  * Tests that the autograder integration tests' open and close socket works.
