@@ -179,10 +179,8 @@ public class DatabaseConnection {
 	 * @throws SQLException
      * @return true if the write operation was successful, false otherwise.
 	 */
-	public void executeWriteQuery(String query) throws SQLException{
-
+	public void executeWriteQuery(String query) throws SQLException {
 		Statement writeQuery = null;
-
 		try {
 			writeQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		    writeQuery.execute(query);

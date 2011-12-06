@@ -109,7 +109,7 @@ public class GameServer {
         	} else {
         		this.authManager = authManager;
         	}
-        	unfinishedGames = stateManager.loadUnfinishedGames();
+        	unfinishedGames = this.stateManager.loadUnfinishedGames();
 		} catch (SQLException e) {
 			// Invalid sql connection, unrecoverable.
 			// log the error and terminate.

@@ -43,6 +43,8 @@ public class TestPlayer extends Player {
 			public void run() {
 				TestPlayer player = new TestPlayer(name, type, moves, shared);
 		        if (player.connectTo("localhost", port)) {
+		        	lock.readLock();
+		        	lock.readUnlock();
 					try {
 						player.runExecutionLoop();
 					} catch (IOException e) {
