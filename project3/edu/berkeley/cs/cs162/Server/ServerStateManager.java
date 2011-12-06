@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Vector;
 
 public class ServerStateManager {
+	@SuppressWarnings("unused")
 	private DatabaseConnection connection;
 	
 	//Game id here. load these at the start and use them to populate updates/games.
@@ -105,7 +106,10 @@ public class ServerStateManager {
 	 * @throws SQLException
 	 */
 	public List<UnfinishedGame> loadUnfinishedGames() throws SQLException{
-		//TODO fill in
-		return new ArrayList<UnfinishedGame>();
+		ArrayList<UnfinishedGame> unfinishedGames = new ArrayList<UnfinishedGame>();
+
+        String getUnfinishedGamesQuery = "SELECT * FROM games WHERE winner IS NULL";
+
+        return unfinishedGames;
 	}
 }
