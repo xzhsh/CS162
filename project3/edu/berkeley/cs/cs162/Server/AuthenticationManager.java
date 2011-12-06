@@ -107,6 +107,7 @@ public class AuthenticationManager {
             }
             else if (results.getString("passwordHash").equals(finalPass)) {
                 int cid = results.getInt("clientId");
+                assert cid != -1;
                 connection.closeReadQuery(results);
                 return cid;
             }

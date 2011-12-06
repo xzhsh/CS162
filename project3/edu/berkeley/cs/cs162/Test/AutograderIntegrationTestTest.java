@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 
 import org.junit.Test;
 
+import edu.berkeley.cs.cs162.Client.ServerConnection;
 import edu.berkeley.cs.cs162.Server.GameServer;
 /**
  * Tests that the autograder integration tests' open and close socket works.
@@ -20,7 +21,7 @@ public class AutograderIntegrationTestTest {
 	private static final int TEST_PORT = 1234;
 
 	@Test(timeout=5000)
-	public void test() throws InterruptedException {
+	public void testUnhandledConnection() throws InterruptedException {
 		final GameServer server = new GameServer("server-stress-test.db", 100, 5, new PrintStream(System.out));
 		
 		Thread t = new Thread() {

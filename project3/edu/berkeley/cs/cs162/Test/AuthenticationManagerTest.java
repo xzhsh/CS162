@@ -7,9 +7,7 @@ import edu.berkeley.cs.cs162.Server.Security;
 import edu.berkeley.cs.cs162.Writable.ClientInfo;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.BeforeClass;
+import org.junit.*;
 
 import java.sql.SQLException;
 
@@ -35,14 +33,13 @@ public class AuthenticationManagerTest {
         } catch (SQLException e) {
             fail("SQL Exception in setup method.");
         }
-
         kunal = MessageFactory.createMachinePlayerClientInfo("kunal");
         password = Security.computeHash("kunal");
     }
 
-    @AfterClass
-    public static void teardown() {
-        db.wipeDatabase();
+    @Before
+    public void wipe() {
+    	db.wipeDatabase();
     }
 
     @Test /* Test that a client can successfully register, and cannot register twice. */
@@ -56,10 +53,12 @@ public class AuthenticationManagerTest {
 
     @Test /* Test that a registered client can successfully authenticate, but an unregistered client cannot. */
     public void testAuthenticateClient() {
-
+    	
         ClientInfo jay = MessageFactory.createMachinePlayerClientInfo("jay");
         String password2 = Security.computeHash("jay");
 
+        assertTrue("Kunal's first registration should be successful.", am.registerClient(kunal, password));
+        
         // Kunal should be able to authenticate
         try {
             am.authenticateClient(kunal, password);
@@ -78,6 +77,8 @@ public class AuthenticationManagerTest {
 
     @Test /* Test that the AuthenticationManager can correctly change passwords. */
     public void testChangePassword() {
+        assertTrue("Kunal's first registration should be successful.", am.registerClient(kunal, password));
+        
         // Kunal should be able to authenticate
         try {
             am.authenticateClient(kunal, password);
@@ -85,7 +86,7 @@ public class AuthenticationManagerTest {
             fail("Kunal should have been able to authenticate.");
         }
 
-        String newPwdHash = Security.computeHash("kunal2");
+        String newPwdHash = Security.computeHash("plainTextPassword");
         am.changePassword(kunal, newPwdHash);
 
         // Kunal should be able to authenticate with his new password
@@ -102,6 +103,5 @@ public class AuthenticationManagerTest {
         } catch (ServerAuthenticationException e) {
             /* Nothing... */
         }
-
     }
 }

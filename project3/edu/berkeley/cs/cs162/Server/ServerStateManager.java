@@ -38,6 +38,7 @@ public class ServerStateManager {
         connection.startTransaction();
         try {
             int gID = connection.executeWriteQuery("insert into games (blackPlayer, whitePlayer, boardSize, moveNum) values (" + blackID + ", " + whiteID + ", " + boardSize + ", 0)");
+            assert gID != -1;
             connection.finishTransaction();
             return gID;
         }
@@ -45,14 +46,31 @@ public class ServerStateManager {
             connection.abortTransaction();
             throw e;
         }
-
-       
 	}
 	
+	public void updateGameWithForfeitMove(Game game, ClientLogic client) throws SQLException {
+		int gameID = game.getGameID();
+        int playerID = client.getID();
+        int moveNum = game.getBoard().getNumberOfMoves();
+        int moveType = (int) MessageProtocol.MOVE_FORFEIT;
+        
+        connection.startTransaction();
+        try{
+            connection.executeWriteQuery("insert into moves (clientId, gameId, moveType, x, y, moveNum) values (" + playerID + ", " + gameID + ", " + moveType + ", -1, -1, " + moveNum + ")");
+            connection.executeWriteQuery("update games set moveNum=" + moveNum + " where gameId=" + gameID);
+            connection.finishTransaction();
+        }
+        catch (SQLException e){
+            connection.abortTransaction();
+            throw e;
+        }
+	}
+	    
+	
 	public void updateGameWithMove(Game game, ClientLogic client, BoardLocation loc, Vector<BoardLocation> capturedStones) throws SQLException {
-        int gameID = connection.getGameID(game);
-        int playerID = connection.getPlayerID(client.getName());
-        int moveNum = connection.getMoveNum(gameID) + 1;
+        int gameID = game.getGameID();
+        int playerID = client.getID();
+        int moveNum = game.getBoard().getNumberOfMoves();
         int moveType = (int) MessageProtocol.MOVE_STONE;
         int x = loc.getX();
         int y = loc.getY();
@@ -63,7 +81,10 @@ public class ServerStateManager {
             connection.executeWriteQuery("update games set moveNum=" + moveNum + " where gameId=" + gameID);
             for(BoardLocation location : capturedStones){
                 // TODO Write the captured stones to the database
-            	String addCapDBQuery = "IF NOT EXISTS (SELECT * FROM captured_stones WHERE moveID=" + mID + " AND x=" + location.getX() + " AND y=" + location.getY() + ") INSERT INTO captured_stones (moveID, x ,y) VALUES (" + mID + ", " + location.getX() + ", " + location.getY() + ")";
+            	String addCapDBQuery = "IF NOT EXISTS (SELECT * FROM captured_stones WHERE moveID=" + mID + 
+            			" AND x=" + location.getX() + " AND y=" + location.getY() + 
+            			") INSERT INTO captured_stones (moveID, x ,y) VALUES (" + mID + 
+            			", " + location.getX() + ", " + location.getY() + ")";
 
 //            	String addCapDBQuery = "INSERT INTO captured_stones (moveID, x ,y) VALUES (" + mID + ", " + location.getX() + ", " + location.getY() + ") WHERE not exists (SELECT * FROM captured_stones WHERE moveID=" + mID + " AND x=" + location.getX() + " AND y=" + location.getY() + ")";
             	connection.executeWriteQuery(addCapDBQuery);
@@ -77,14 +98,14 @@ public class ServerStateManager {
 	}
 	
 	public void updateGameWithPass(Game game, ClientLogic client) throws SQLException {
-		int gameID = connection.getGameID(game);
-        int playerID = connection.getPlayerID(client.getName());
-        int moveNum = connection.getMoveNum(gameID) + 1;
+		int gameID = game.getGameID();
+        int playerID = client.getID();
+        int moveNum = game.getBoard().getNumberOfMoves();
         int moveType = (int) MessageProtocol.MOVE_PASS;
 
         connection.startTransaction();
         try{
-            connection.executeWriteQuery("insert into moves (clientId, gameId, moveType, moveNum) values (" + playerID + ", " + gameID + ", " + moveType + ", " + moveNum + ")");
+            connection.executeWriteQuery("insert into moves (clientId, gameId, moveType, x, y, moveNum) values (" + playerID + ", " + gameID + ", " + moveType + ", -1, -1, " + moveNum + ")");
             connection.executeWriteQuery("update games set moveNum=" + moveNum + " where gameId=" + gameID);
             connection.finishTransaction();
         }
@@ -95,7 +116,7 @@ public class ServerStateManager {
 	}
 	
 	public void finishGame(int gameId, ClientLogic winner, double blackScore, double whiteScore, int reason) throws SQLException {
-		int winnerID = connection.getPlayerID(winner.getName());
+		int winnerID = winner.getID();
 
         connection.startTransaction();
         try{
