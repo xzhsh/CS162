@@ -188,7 +188,8 @@ public class DatabaseConnection {
 			writeQuery = canonicalConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		    writeQuery.execute(query);
             ResultSet keys = writeQuery.getGeneratedKeys();
-            generatedKey = keys.getInt(0);
+            if(keys.next())
+                generatedKey = keys.getInt(0);
             writeQuery.close();
 		}
         catch (SQLException e) {
@@ -197,7 +198,6 @@ public class DatabaseConnection {
             throw e; // This needs to be caught upstream so that the transaction can be aborted.
         }
 
-        assert generatedKey != -1;
         return generatedKey;
 	}
 
