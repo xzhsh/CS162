@@ -47,14 +47,6 @@ abstract public class BaseClient implements Client {
     }
 
     public boolean connectTo(String address, Integer port){
-        return connectTo(address, port, false);
-    }
-
-    public boolean reconnectTo(String address, Integer port){
-        return connectTo(address, port, true);
-    }
-
-    public boolean connectTo(String address, Integer port, boolean reconnect){
         try
         {
             // Attempt to connect to the GameServer via 3-way Handshake
@@ -62,17 +54,17 @@ abstract public class BaseClient implements Client {
             if (!connection.initiate3WayHandshake(address, port, rng.nextInt()))
             	return false;
 
-            if(!reconnect){
-                Message registerMessage = MessageFactory.createRegisterMessage(clientInfo, password);
-                Message registerResponse = connection.sendSyncToServer(registerMessage);
+            Message registerMessage = MessageFactory.createRegisterMessage(clientInfo, password);
+            Message registerResponse = connection.sendSyncToServer(registerMessage);
 
-                if(!registerResponse.isOK())
-                    return false;
+            if(!registerResponse.isOK())
+            {
+            	System.out.println("Registration failed.");
             }
 
             Message connectMessage = MessageFactory.createConnectMessage(clientInfo, password);
             Message connectResponse = connection.sendSyncToServer(connectMessage);
-
+            
             return (connectResponse.isOK());
         }
         catch(IOException e) {

@@ -28,7 +28,6 @@ public class AuthenticationManagerTest {
     public static void setup(){
         try {
             db = new DatabaseConnection("authmanager-test.db");
-            db.initializeDatabase();
             am = new AuthenticationManager(db, "cs162project3istasty");
         } catch (SQLException e) {
             fail("SQL Exception in setup method.");
@@ -38,8 +37,11 @@ public class AuthenticationManagerTest {
     }
 
     @Before
-    public void wipe() {
+    public void wipe() throws InterruptedException {
+    	Thread.sleep(10);
     	db.wipeDatabase();
+    	Thread.sleep(10);
+    	db.initializeDatabase();
     }
 
     @Test /* Test that a client can successfully register, and cannot register twice. */
