@@ -1,16 +1,14 @@
 package edu.berkeley.cs.cs162.Server;
 
-
-import java.sql.ResultSet;
 import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-import edu.berkeley.cs.cs162.Writable.*;
-
 
 public class ServerStateManager {
+	@SuppressWarnings("unused")
 	private DatabaseConnection connection;
 	
 	//Game id here. load these at the start and use them to populate updates/games.
@@ -29,40 +27,21 @@ public class ServerStateManager {
      * @throws SQLException if it fails at this point.
 	 */
 	public int createGameEntry (Game game) throws SQLException {
+        int whiteID = connection.getPlayerID(game.getWhitePlayer().getName());
+        int blackID = connection.getPlayerID(game.getBlackPlayer().getName());
+        int boardSize = game.getBoardSize();
 
-		
-		String bName = game.getBlackPlayer().getName();
-		String wName = game.getWhitePlayer().getName();
-		int bSize = game.getBoard().getSize();
-		int mNum = game.getBoard().getNumberOfMoves();
-		
-			String getBIDQuery = "SELECT clientID FROM clients WHERE name='" + bName + "'";
-			String getWIDQuery = "SELECT clientID FROM clients WHERE name='" + wName + "'";
-			ResultSet bPlayer = connection.executeReadQuery(getBIDQuery);
-			bPlayer.next();
-			int bPlayID = bPlayer.getInt("clientID");
-			connection.closeReadQuery(bPlayer);
-			ResultSet wPlayer = connection.executeReadQuery(getWIDQuery);
-			wPlayer.next();
-			int wPlayID = wPlayer.getInt("clientID");
-			connection.closeReadQuery(wPlayer);
-					
-			String addGameQuery = "INSERT INTO games(blackPlayer whitePlayer boardsize moveNum) VALUES(" + bPlayID + "" + wPlayID + "" + Integer.toString(bSize) + Integer.toString(mNum) + ")";
-			connection.startTransaction();
-			try {
-				connection.executeWriteQuery(addGameQuery);			
-				ResultSet recentGame = connection.executeReadQuery("SELECT max(gameID) FROM games");							
-				int gID =  recentGame.getInt(0);
-				connection.closeReadQuery(recentGame);
-				connection.finishTransaction();
-				return gID;
-			}
-			catch (SQLException e) {
-				connection.abortTransaction();
-				return -1;
-			}
-		
-		//throw new RuntimeException("Unimplemented Method");
+        connection.startTransaction();
+        try {
+            connection.executeWriteQuery("insert into games (blackPlayer, whitePlayer, boardSize, moveNum) values (" + blackID + ", " + whiteID + ", " + boardSize + ", 0)");
+            connection.finishTransaction();
+        }
+        catch(SQLException e){
+            connection.abortTransaction();
+            throw e;
+        }
+
+        return connection.getGameID(game);
 	}
 	
 	public void updateGameWithMove(Game game, ClientLogic client, BoardLocation loc, Vector<BoardLocation> capturedStones) throws SQLException {
@@ -118,7 +97,6 @@ public class ServerStateManager {
             connection.abortTransaction();
             throw e;
         }
-
 	}
 	
 	/**
@@ -128,13 +106,10 @@ public class ServerStateManager {
 	 * @throws SQLException
 	 */
 	public List<UnfinishedGame> loadUnfinishedGames() throws SQLException{
-		//TODO fill in
-		ArrayList<UnfinishedGame> unfinishGames = new ArrayList<UnfinishedGame>();
-		String getUnfinGames = "SELECT * FROM games WHERE winner is null";
-		ClientInfo bPlayer = null;
-		ClientInfo wPlayer = null;
-		// connection.startTransaction();	
-		
-		return unfinishGames;
+		ArrayList<UnfinishedGame> unfinishedGames = new ArrayList<UnfinishedGame>();
+
+        String getUnfinishedGamesQuery = "SELECT * FROM games WHERE winner IS NULL";
+
+        return unfinishedGames;
 	}
 }
