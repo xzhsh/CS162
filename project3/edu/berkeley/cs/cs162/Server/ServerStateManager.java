@@ -150,7 +150,18 @@ public class ServerStateManager {
             ResultSet moves = connection.executeReadQuery("SELECT * FROM moves WHERE gameId=" + gameId + " ORDER BY moveNum ASCENDING");
 
             //TODO create a list of the moves to be successively applied to board
+            ArrayList<Hashtable<String, Integer>> moveList = new ArrayList<Hashtable<String, Integer>>();
 
+            while (moves.next()) {
+                Hashtable<String, Integer> move = new Hashtable<String, Integer>();
+
+                move.put("clientId", moves.getInt("clientId"));
+                move.put("moveType", moves.getInt("moveType"));
+                move.put("x", moves.getInt("x"));
+                move.put("y", moves.getInt("y"));
+
+                moveList.add(move);
+            }
 
             connection.closeReadQuery(moves);
 
@@ -158,7 +169,12 @@ public class ServerStateManager {
             GoBoard board = new GoBoard(boardSize);
 
             //TODO make moves on board
+            for (Hashtable<String, Integer> move : moveList) {
 
+                BoardLocation loc = new BoardLocation(move.get("x"), move.get("y"));
+                //if move.get("moveType")
+                //board.makeMove(BoardLocation moveLoc, StoneColor activeColor)
+            }
 
             UnfinishedGame unfinishedGame = new UnfinishedGame(gameName, board, blackPlayer, whitePlayer, gameId);
             unfinishedGames.add(unfinishedGame);
