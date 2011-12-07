@@ -59,6 +59,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
     public void handleStartNewGame(final Game game)
     {
     	game.broadcastStartMessage();
+		checkAndSetGame(game);
     	try {
 			game.setGameID(getServer().getStateManager().createGameEntry(game));
 		} catch (SQLException e) {
@@ -78,11 +79,18 @@ public class PlayerWorkerSlave extends WorkerSlave{
     	getMessageQueue().add(new Runnable() {
 			@Override
 			public void run() {
+				checkAndSetGame(game);
 		    	doGetMove(game);
 			}
+
     	});
     }
-    
+
+	private void checkAndSetGame(Game game) {
+		if (this.game == null) {
+			this.game = game;
+		}
+	}
     /**
      * Gets a move from the player
      * 
@@ -101,6 +109,10 @@ public class PlayerWorkerSlave extends WorkerSlave{
 			if (reply != null && reply.isOK())
 			{
 				ResponseMessages.GetMoveStatusOkMessage moveMsg = (ResponseMessages.GetMoveStatusOkMessage)reply;
+				if (!game.isActive()) {
+					master.terminateGame();
+					return;
+				}
 				if (moveMsg.getMoveType() == MessageProtocol.MOVE_PASS)
 				{
 					getServer().getLog().println(master.makeClientInfo() + " has passed");

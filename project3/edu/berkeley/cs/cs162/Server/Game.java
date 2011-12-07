@@ -216,6 +216,7 @@ public class Game {
 	}
 
 	void doGameOverError(IllegalMoveException reason) {
+		active = false;
 		double blackScore = state == GameState.BLACK_MOVE ? 0 : 1;
 		double whiteScore = 1 - blackScore;
 		getBlackPlayer().getServer().getLog().println("Game over error for " + getBlackPlayer().makeClientInfo() + " and " + getWhitePlayer().makeClientInfo() + " with the error " + reason.getMessage());
@@ -227,7 +228,7 @@ public class Game {
 		}
 		Message err = MessageFactory.createGameOverErrorMessage(makeGameInfo(), blackScore, whiteScore, 
 				getInactivePlayer().makeClientInfo(), reason.getReasonByte(), getCurrentPlayer().makeClientInfo(), reason.getMessage());
-		active = false;
+		
 		broadcastMessage(err);
 		broadcastTerminate();
 	}
