@@ -113,6 +113,7 @@ public class Worker extends Thread {
 				else {
 		            //unexpected message, close and terminate.
 		        	connection.sendReplyToClient(MessageFactory.createErrorUnconnectedMessage());
+		        	return null;
 		        }
 			}
 		} catch (IOException e) {
