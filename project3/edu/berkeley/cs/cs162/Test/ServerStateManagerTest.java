@@ -122,8 +122,8 @@ public class ServerStateManagerTest {
                  fail("There was an exception in the query");
              else if(!cappedDB.next())
                  fail("The captured stone was not recorded in the database");
-             assertEquals(-1, cappedDB.getInt("x"));
-             assertEquals(-1, cappedDB.getInt("y"));
+             assertEquals(2, cappedDB.getInt("x"));
+             assertEquals(2, cappedDB.getInt("y"));
              db.closeReadQuery(cappedDB);
     	}
         catch(SQLException e){
