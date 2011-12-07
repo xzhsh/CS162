@@ -89,4 +89,29 @@ public class ServerStateManagerTest {
             if(results != null) db.closeReadQuery(results);
         }
     }
+
+    @Test /* Tests that finishing the game fills out the correct fields */
+    public void testFinishGame(){
+        ResultSet results = null;
+        try{
+            sm.finishGame(1, p1, 120.5, 10.0, MessageProtocol.PLAYER_KO_RULE);
+
+            results = db.executeReadQuery("select * from games where gameId=1");
+            if(!results.next())
+                fail("The game was not in the database.");
+
+            assertEquals(1, results.getInt("blackPlayer"));
+            assertEquals(1, results.getInt("winner"));
+            assertEquals(120.5, results.getDouble("blackScore"), 0.0);
+            assertEquals(10.0, results.getDouble("whiteScore"), 0.0);
+            assertEquals(22, results.getInt("reason"));
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            fail("There was an SQL Exception in testFinishGame");
+        }
+        finally{
+            if(results != null) db.closeReadQuery(results);
+        }
+    }
 }
