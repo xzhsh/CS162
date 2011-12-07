@@ -59,7 +59,7 @@ public abstract class ClientLogic {
                 return MessageFactory.createErrorRejectedMessage();
             }
         }
-        throw new AssertionError("Unimplemented Method");
+        return null;
     }
     
     public Message handleChangePassword(ClientMessages.ChangePasswordMessage message) {
