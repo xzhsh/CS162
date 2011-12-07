@@ -36,7 +36,7 @@ public class Worker extends Thread {
             }
 
             clientName = cInfo.getName();
-          //grab the client logic fo this type of worker.
+            //grab the client logic fo this type of worker.
             clientLogic = ClientLogic.getClientLogicForClientType(getServer(), getClientName(), cInfo.getPlayerType(), connection);
             clientLogic.setID(clientID);
             
@@ -47,17 +47,19 @@ public class Worker extends Thread {
                 if (returnMessage != null) {
                     //if it is a synchronous message, write the return message to output.
                     connection.sendReplyToClient(returnMessage);
+                } else {
+                	closeAndCleanup();
                 }
             }
         	connection.close();
         }
         catch (SocketTimeoutException e)
         {
-            server.getLog().println("Connection timed out.");
+            server.getLog().println(clientName + "C2S Connection timed out.");
             closeAndCleanup();
         }
         catch (IOException e) {
-            server.getLog().println("Connection closed unexpectedly." + e.getMessage());
+            server.getLog().println(clientName + ": Connection closed unexpectedly. " + e.getMessage());
             closeAndCleanup();
         }
     }

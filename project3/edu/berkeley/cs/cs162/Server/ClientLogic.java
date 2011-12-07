@@ -46,9 +46,6 @@ public abstract class ClientLogic {
             case MessageProtocol.OP_TYPE_WAITFORGAME: {
             	return handleWaitForGame();
             }
-            case MessageProtocol.OP_TYPE_DISCONNECT: {
-                return null;
-            }
             case MessageProtocol.OP_TYPE_CHANGEPW: {
             	return handleChangePassword((ChangePasswordMessage) message);
             }
@@ -57,6 +54,9 @@ public abstract class ClientLogic {
             }
             case MessageProtocol.OP_TYPE_CONNECT: {
                 return MessageFactory.createErrorRejectedMessage();
+            }
+            case MessageProtocol.OP_TYPE_DISCONNECT: {
+                return null;
             }
             default:
             	return null;
