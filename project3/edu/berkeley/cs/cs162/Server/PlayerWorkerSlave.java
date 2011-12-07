@@ -103,10 +103,12 @@ public class PlayerWorkerSlave extends WorkerSlave{
 				ResponseMessages.GetMoveStatusOkMessage moveMsg = (ResponseMessages.GetMoveStatusOkMessage)reply;
 				if (moveMsg.getMoveType() == MessageProtocol.MOVE_PASS)
 				{
+					getServer().getLog().println(master.makeClientInfo() + " has passed");
 					game.makePassMove();
 				}
 				else if (moveMsg.getMoveType() == MessageProtocol.MOVE_FORFEIT)
 				{
+					getServer().getLog().println(master.makeClientInfo() + " has forfeited");
 					try {
 						getServer().getStateManager().updateGameWithForfeitMove(game, master);
 					} catch (SQLException sqlE) {
@@ -117,6 +119,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
 				}
 				else if (moveMsg.getMoveType() == MessageProtocol.MOVE_STONE)
 				{
+					getServer().getLog().println(master.makeClientInfo() + " has made a move " + moveMsg.getLocation());
 					game.doMakeMove(moveMsg.getLocation().makeBoardLocation());
 				}
 			}
@@ -133,6 +136,7 @@ public class PlayerWorkerSlave extends WorkerSlave{
     			throw new RuntimeException(sqlE);
 			}
 			game.doGameOverError(new GoBoard.IllegalMoveException(master.makeClientInfo().getName() + " timed out.", MessageProtocol.PLAYER_FORFEIT));
+			master.cleanup();
 		}
     }
     
