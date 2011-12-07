@@ -174,7 +174,7 @@ public class ServerStateManager {
             }
             
             //get game's moves
-            ResultSet moves = connection.executeReadQuery("SELECT * FROM moves WHERE gameId=" + gameId + " ORDER BY moveNum ASCENDING");
+            ResultSet moves = connection.executeReadQuery("SELECT * FROM moves WHERE gameId=" + gameId + " ORDER BY moveNum ASC");
             
             ArrayList<Move> moveList = new ArrayList<Move>();
             

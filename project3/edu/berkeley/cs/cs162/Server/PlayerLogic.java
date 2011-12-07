@@ -6,7 +6,7 @@ import edu.berkeley.cs.cs162.Writable.Message;
 import edu.berkeley.cs.cs162.Writable.MessageFactory;
 
 public abstract class PlayerLogic extends ClientLogic {
-    
+	
 	private static final int HUMAN_PLAYER_TIMEOUT_IN_MS = 30000;
     private static final int MACHINE_PLAYER_TIMEOUT_IN_MS = 2000;
     private static final int PLAYER_RECONNECT_TIMEOUT_IN_MS = 60000;
@@ -53,8 +53,10 @@ public abstract class PlayerLogic extends ClientLogic {
         state = PlayerState.CONNECTED;
         stateLock = new Lock();
         this.playerTimeoutInMs = playerTimeoutInMs;
-        slave = new PlayerWorkerSlave(connection, this, getTimeout());
-        slave.start();
+        if (server != null) {
+	        slave = new PlayerWorkerSlave(connection, this, getTimeout());
+	        slave.start();
+        }
     }
     
     @Override
