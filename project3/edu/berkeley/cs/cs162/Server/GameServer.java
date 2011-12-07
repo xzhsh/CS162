@@ -269,7 +269,7 @@ public class GameServer {
     public boolean addWorker(String name, Worker worker) {
 		nameToWorkerMapLock.writeLock();
     	try {
-	        if (nameToWorkerMap.containsKey(name)) {
+	        if (!nameToWorkerMap.containsKey(name)) {
 	        	nameToWorkerMap.put(name, worker);
 	        	logStream.println("Client<" + name + "> connected");
 	           	return true;
