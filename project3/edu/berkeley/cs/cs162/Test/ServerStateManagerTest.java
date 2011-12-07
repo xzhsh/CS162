@@ -90,13 +90,55 @@ public class ServerStateManagerTest {
         }
     }
 
+    @Test /* Tests recording of a stone move in the DB */
+    public void testUpdateGameWithMove() {
+    	BoardLocation loca = new BoardLocation(3, 2);
+    	Vector<BoardLocation> capped = new Vector<BoardLocation>();
+    	capped.add(new BoardLocation(2, 2));
+    	ResultSet moveRes = null;
+    	ResultSet cappedDB = null;
+    	try {
+    		sm.updateGameWithMove(testGame, p1, loca, capped);
+    		moveRes = db.executeReadQuery("select * from moves where moveId=1");
+    		 if(moveRes == null)
+                 fail("There was an exception in the query");
+             else if(!moveRes.next())
+                 fail("The stone move was not recorded in the database");
+
+             assertEquals(1, moveRes.getInt("gameId"));
+             assertEquals(1, moveRes.getInt("clientId"));
+             assertEquals(3, moveRes.getInt("x"));
+             assertEquals(2, moveRes.getInt("y"));
+
+             /**
+              * This SHOULD be 1, but because we don't actually
+              * execute the move inside the Game object, it will
+              * be 0.
+              */
+             assertEquals(0, moveRes.getInt("moveNum"));
+             db.closeReadQuery(moveRes);
+             cappedDB = db.executeReadQuery("select * from captured_stones where moveID=1");
+             if(cappedDB == null)
+                 fail("There was an exception in the query");
+             else if(!cappedDB.next())
+                 fail("The captured stone was not recorded in the database");
+             assertEquals(-1, cappedDB.getInt("x"));
+             assertEquals(-1, cappedDB.getInt("y"));
+             db.closeReadQuery(cappedDB);
+    	}
+        catch(SQLException e){
+            e.printStackTrace();
+            fail("SQL Exception in testUpdateGameWithMove");
+        }
+    }
+    
     @Test /* Tests that the StateManager records a pass move in the database */
     public void testUpdateGameWithPass(){
         ResultSet results = null;
         try{
             sm.updateGameWithPass(testGame, p2);
 
-            results = db.executeReadQuery("select * from moves where moveId=1");
+            results = db.executeReadQuery("select * from moves where moveId=2");
 
             if(results == null)
                 fail("There was an exception in the query");
