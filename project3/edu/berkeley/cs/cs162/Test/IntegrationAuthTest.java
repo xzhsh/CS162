@@ -1,8 +1,6 @@
 package edu.berkeley.cs.cs162.Test;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
@@ -88,9 +86,11 @@ public class IntegrationAuthTest {
         Message cpResponse = connection.sendSyncToServer(cpMessage);
         assertTrue("The change should fail.", cpResponse.getMsgType() == MessageProtocol.OP_ERROR_UNCONNECTED);
         
+        assertTrue("Client should be able to connect", connection.initiate3WayHandshake("localhost", TEST_PORT, 43));
+        
         Message connectMessage2 = MessageFactory.createConnectMessage(cinfo, hash);
         Message connectResponse2 = connection.sendSyncToServer(connectMessage2);
-        assertTrue("The connection should go thorugh.", connectResponse2.getMsgType() == MessageProtocol.OP_STATUS_OK);
+        assertTrue("The connection should go through.", connectResponse2.getMsgType() == MessageProtocol.OP_STATUS_OK);
         
         Message cpResponse2 = connection.sendSyncToServer(MessageFactory.createChangePasswordMessage(cinfo_2, hash2));
         assertTrue("The change should fail.", cpResponse2.getMsgType() == MessageProtocol.OP_ERROR_REJECTED);
