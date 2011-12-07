@@ -1,7 +1,7 @@
 package edu.berkeley.cs.cs162.Test;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -11,14 +11,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
-import edu.berkeley.cs.cs162.Client.ServerConnection;
 import edu.berkeley.cs.cs162.Server.BoardLocation;
 import edu.berkeley.cs.cs162.Server.ClientLogic;
 import edu.berkeley.cs.cs162.Server.DatabaseConnection;
@@ -44,7 +42,7 @@ public class IntegrationReconnectionTest {
 	protected static final String database_name = "integration-reconnection-test.db";
 	
 	protected static final ClientInfo cinfo = MessageFactory.createClientInfo("TestPlayer", MessageProtocol.TYPE_MACHINE);
-	private static final int NUM_GAMES = 1;
+	private static final int NUM_GAMES = 50;
 	@Test
 	public void test() throws InterruptedException, IOException, SQLException, IllegalMoveException {
 		try {

@@ -73,7 +73,7 @@ public class GameServer {
 	private DatabaseConnection databaseConnection;
     
 	public GameServer(String databasePath, int clientLimit, int handshakeThreadPoolSize, PrintStream logStream) {
-		this(databasePath, handshakeThreadPoolSize, handshakeThreadPoolSize, logStream, null, null);
+		this(databasePath, clientLimit, handshakeThreadPoolSize, logStream, null, null);
 	}
 	
 	/**
@@ -246,6 +246,9 @@ public class GameServer {
         	clientsConnected++;
         	logStream.println("Client count: " + clientsConnected);
         	accepted = true;
+        } else {
+        	//too many clients
+        	logStream.println("Client rejected: " + clientsConnected);
         }
         clientsConnectedLock.writeUnlock();
         return accepted;
