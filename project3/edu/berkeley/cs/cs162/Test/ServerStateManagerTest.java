@@ -65,8 +65,8 @@ public class ServerStateManagerTest {
     public void testCreateGameEntry() throws SQLException {
         ResultSet results = null;
     	try {
-            int gid = sm.createGameEntry(testGame);
-            assertEquals(1, gid);
+            testGame.setGameID(sm.createGameEntry(testGame));
+            assertEquals(1, testGame.getGameID());
 
             results = db.executeReadQuery("select * from games where gameId=1");
             if(!results.next())
@@ -84,6 +84,65 @@ public class ServerStateManagerTest {
         catch(SQLException e) {
             e.printStackTrace();
             fail("There was an SQL Exception in testCreateGameEntry");
+        }
+        finally{
+            if(results != null) db.closeReadQuery(results);
+        }
+    }
+
+    @Test /* Tests that the StateManager records a pass move in the database */
+    public void testUpdateGameWithPass(){
+        ResultSet results = null;
+        try{
+            sm.updateGameWithPass(testGame, p2);
+
+            results = db.executeReadQuery("select * from moves where moveId=1");
+
+            if(results == null)
+                fail("There was an exception in the query");
+            else if(!results.next())
+                fail("The pass move was not recorded in the database");
+
+            assertEquals(1, results.getInt("gameId"));
+            assertEquals(2, results.getInt("clientId"));
+            assertEquals(-1, results.getInt("x"));
+            assertEquals(-1, results.getInt("y"));
+
+            /**
+             * This SHOULD be 1, but because we don't actually
+             * execute the move inside the Game object, it will
+             * be 0.
+             */
+            assertEquals(0, results.getInt("moveNum"));
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+            fail("SQL Exception in testUpdateGameWithPassMove");
+        }
+        finally{
+            if(results != null) db.closeReadQuery(results);
+        }
+    }
+
+    @Test /* Tests that finishing the game fills out the correct fields */
+    public void testFinishGame(){
+        ResultSet results = null;
+        try{
+            sm.finishGame(1, p1, 120.5, 10.0, MessageProtocol.PLAYER_KO_RULE);
+
+            results = db.executeReadQuery("select * from games where gameId=1");
+            if(!results.next())
+                fail("The game was not in the database.");
+
+            assertEquals(1, results.getInt("blackPlayer"));
+            assertEquals(1, results.getInt("winner"));
+            assertEquals(120.5, results.getDouble("blackScore"), 0.0);
+            assertEquals(10.0, results.getDouble("whiteScore"), 0.0);
+            assertEquals((int)MessageProtocol.PLAYER_KO_RULE, results.getInt("reason"));
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            fail("There was an SQL Exception in testFinishGame");
         }
         finally{
             if(results != null) db.closeReadQuery(results);
