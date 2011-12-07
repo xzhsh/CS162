@@ -61,6 +61,7 @@ abstract public class BaseClient implements Client {
             {
             	System.out.println("Registration failed.");
             }
+            
 
             Message connectMessage = MessageFactory.createConnectMessage(clientInfo, password);
             Message connectResponse = connection.sendSyncToServer(connectMessage);
@@ -103,7 +104,7 @@ abstract public class BaseClient implements Client {
     }
 
     protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
-        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
+    	getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
     protected void handleGetMove() throws IOException {

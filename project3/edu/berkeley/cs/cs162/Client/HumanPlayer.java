@@ -42,6 +42,7 @@ public class HumanPlayer extends Player {
             try {
                 player.runExecutionLoop();
             } catch (IOException e) {
+            	e.printStackTrace();
                 System.out.println("An error occurred... HumanPlayer " + player.getName() + " terminating.");
             }
         }

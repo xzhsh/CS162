@@ -1,11 +1,15 @@
 package edu.berkeley.cs.cs162.Client;
 
-import edu.berkeley.cs.cs162.Server.BoardLocation;
-import edu.berkeley.cs.cs162.Server.GoBoard;
-import edu.berkeley.cs.cs162.Server.StoneColor;
-import edu.berkeley.cs.cs162.Writable.*;
-
 import java.io.IOException;
+
+import edu.berkeley.cs.cs162.Server.GoBoard;
+import edu.berkeley.cs.cs162.Server.GoBoard.IllegalMoveException;
+import edu.berkeley.cs.cs162.Server.StoneColor;
+import edu.berkeley.cs.cs162.Writable.Message;
+import edu.berkeley.cs.cs162.Writable.MessageFactory;
+import edu.berkeley.cs.cs162.Writable.MessageProtocol;
+import edu.berkeley.cs.cs162.Writable.ResponseMessages;
+import edu.berkeley.cs.cs162.Writable.ServerMessages;
 
 abstract public class Player extends BaseClient {
 
@@ -132,6 +136,19 @@ abstract public class Player extends BaseClient {
         }
     }
 
+
+    protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
+		try {
+			if (m.getMoveType() == MessageProtocol.MOVE_STONE) {
+				board.makeMove(m.getLocation().makeBoardLocation(), m.getPlayer().equals(clientInfo) ? currentColor : opponentColor);
+			} else if (m.getMoveType() == MessageProtocol.MOVE_PASS) {
+				board.makePassMove(m.getPlayer().equals(clientInfo) ? currentColor : opponentColor);
+			}
+		} catch (IllegalMoveException e) {
+			e.printStackTrace();
+		}
+		super.handleMakeMove(m);
+    }
 	public boolean isSentWFGMessage() {
 		return sentWFGMessage;
 	}
