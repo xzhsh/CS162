@@ -36,11 +36,10 @@ public class Worker extends Thread {
             }
 
             clientName = cInfo.getName();
-
-            //grab the client logic fo this type of worker.
+          //grab the client logic fo this type of worker.
             clientLogic = ClientLogic.getClientLogicForClientType(getServer(), getClientName(), cInfo.getPlayerType(), connection);
             clientLogic.setID(clientID);
-            server.addWorker(clientName, this);
+            
             server.getLog().println("Client connected! " + cInfo);
             while (!done) {
                 //just read messages from input and let the client logic handle stuff.
@@ -80,9 +79,15 @@ public class Worker extends Thread {
 					try {
 						clientID = getServer().getAuthenticationManager().authenticateClient(
 							connectMsg.getClientInfo(), connectMsg.getPasswordHash());
-						//authenticated, connected.
-						connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
-				        return connectMsg.getClientInfo();
+						
+						if (getServer().addWorker(connectMsg.getClientInfo().getName(), this)) {
+							//authenticated, connected.
+							connection.sendReplyToClient(MessageFactory.createStatusOkMessage());
+					        return connectMsg.getClientInfo();
+						} else {
+							connection.sendReplyToClient(MessageFactory.createErrorRejectedMessage());
+					        
+						}
 					}
 					catch (ServerAuthenticationException e) {
 						//authentication failed. Can retry.

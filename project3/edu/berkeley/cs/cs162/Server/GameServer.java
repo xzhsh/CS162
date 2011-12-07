@@ -266,11 +266,21 @@ public class GameServer {
      * @param worker
      * @return true if this succeeds, false if it fails.
      */
-    public void addWorker(String name, Worker worker) {
-        nameToWorkerMapLock.writeLock();
-        nameToWorkerMap.put(name, worker);
-        logStream.println("Client<" + name + "> connected");
-        nameToWorkerMapLock.writeUnlock();
+    public boolean addWorker(String name, Worker worker) {
+		nameToWorkerMapLock.writeLock();
+    	try {
+	        if (nameToWorkerMap.containsKey(name)) {
+	        	nameToWorkerMap.put(name, worker);
+	        	logStream.println("Client<" + name + "> connected");
+	           	return true;
+	        } else {
+	        	logStream.println("Client<" + name + "> is already connected");
+	        	return false;
+	        }
+    	}
+        finally {
+        	nameToWorkerMapLock.writeUnlock();
+        }
     }
 
     public static void main(String args[]) {
