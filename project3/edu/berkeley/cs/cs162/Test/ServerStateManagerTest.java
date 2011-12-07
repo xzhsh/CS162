@@ -6,6 +6,8 @@ import static org.junit.Assert.fail;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.Vector;
+
 import edu.berkeley.cs.cs162.Server.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
