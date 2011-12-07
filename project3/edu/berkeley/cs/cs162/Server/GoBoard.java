@@ -83,7 +83,7 @@ public class GoBoard {
         Board tempBoard = board.copy();
         Vector<BoardLocation> captured = testMove(moveLoc, activeColor, tempBoard);
 
-        assert (activeColor == StoneColor.BLACK && blackMove) || (activeColor != StoneColor.BLACK && !blackMove) : "Moved out of turn";
+        //assert (activeColor == StoneColor.BLACK && blackMove) || (activeColor != StoneColor.BLACK && !blackMove) : "Moved out of turn";
         blackMove = !blackMove;
         moveCount++;
     	lastPassed = false;
