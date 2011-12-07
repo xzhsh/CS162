@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import edu.berkeley.cs.cs162.Synchronization.ThreadSafeQueue;
 import edu.berkeley.cs.cs162.Writable.Message;
@@ -29,7 +30,7 @@ class WorkerSlave extends Thread {
 		return returnMessage;
 	}
 	
-	protected Message sendSynchronousMessage (Message message, int timeout) {
+	protected Message sendSynchronousMessage (Message message, int timeout) throws SocketTimeoutException{
 		Message returnMessage = null;
 		try {
             connection.sendToClient(message);
@@ -38,8 +39,11 @@ class WorkerSlave extends Thread {
             if (returnMessage.getMsgType() != MessageProtocol.OP_STATUS_OK) {
             	connection.invalidate(new IOException("Illegal return message"));
             }
+        } catch (SocketTimeoutException e) {
+            throw e;
         } catch (IOException e) {
             connection.invalidate(e);
+            connection.close();
         }
 		return returnMessage;
 	}

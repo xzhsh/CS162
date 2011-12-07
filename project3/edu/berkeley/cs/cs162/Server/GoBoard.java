@@ -58,7 +58,7 @@ public class GoBoard {
         prevBoard = goBoard.prevBoard.copy();
         blackMove= goBoard.blackMove;
         lastPassed = goBoard.lastPassed;
-        moveCount = 0;
+        moveCount = goBoard.moveCount;
     }
 
     public GoBoard(Board initialBoard) {

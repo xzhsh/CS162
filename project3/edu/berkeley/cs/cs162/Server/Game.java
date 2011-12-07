@@ -126,6 +126,7 @@ public class Game {
 	}
 
 	public void makePassMove() {
+		boolean gameOver = board.makePassMove(getActiveColor());
 		try {
 			getCurrentPlayer().getServer().getStateManager().updateGameWithPass(this, getCurrentPlayer());
 		} catch (SQLException e) {
@@ -137,7 +138,7 @@ public class Game {
 		
 		broadcastMessage(message);
 		
-		if(board.makePassMove(getActiveColor()))
+		if(gameOver)
 		{
 			doGameOver();
 		}

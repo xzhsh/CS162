@@ -20,8 +20,10 @@ public class MatchMakingWorker implements Runnable {
         			player2 = getNextAvailablePlayer();
         		}
         	}
+        	
         	assert player1 != player2 : "Cannot play against yourself wtf";
-            Game game = new Game(player1.getName() + "VS" + player2.getName(), player1, player2, new GoBoard(10));
+            server.getLog().println("Starterd a game with " +player1.getName() + "VS" + player2.getName());
+        	Game game = new Game(player1.getName() + "VS" + player2.getName(), player1, player2, new GoBoard(10));
             game.begin();
             server.addGame(game);
         }

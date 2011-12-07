@@ -1,6 +1,7 @@
 package edu.berkeley.cs.cs162.Server;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.sql.SQLException;
 import java.util.concurrent.TimeoutException;
 
@@ -94,31 +95,43 @@ public class PlayerWorkerSlave extends WorkerSlave{
     {
     	Message getMoveMsg = MessageFactory.createGetMoveMessage();
     	
-    	Message reply = sendSynchronousMessage(getMoveMsg, moveTimeout);
-		if (reply != null && reply.isOK())
-		{
-			ResponseMessages.GetMoveStatusOkMessage moveMsg = (ResponseMessages.GetMoveStatusOkMessage)reply;
-			if (moveMsg.getMoveType() == MessageProtocol.MOVE_PASS)
+    	Message reply;
+		try {
+			reply = sendSynchronousMessage(getMoveMsg, moveTimeout);
+			if (reply != null && reply.isOK())
 			{
-				game.makePassMove();
-			}
-			else if (moveMsg.getMoveType() == MessageProtocol.MOVE_FORFEIT)
-			{
-				try {
-					getServer().getStateManager().updateGameWithForfeitMove(game, master);
-				} catch (SQLException sqlE) {
-	    			//unrecoverable, wrap and rethrow.
-	    			throw new RuntimeException(sqlE);
+				ResponseMessages.GetMoveStatusOkMessage moveMsg = (ResponseMessages.GetMoveStatusOkMessage)reply;
+				if (moveMsg.getMoveType() == MessageProtocol.MOVE_PASS)
+				{
+					game.makePassMove();
 				}
+				else if (moveMsg.getMoveType() == MessageProtocol.MOVE_FORFEIT)
+				{
+					try {
+						getServer().getStateManager().updateGameWithForfeitMove(game, master);
+					} catch (SQLException sqlE) {
+		    			//unrecoverable, wrap and rethrow.
+		    			throw new RuntimeException(sqlE);
+					}
+					game.doGameOverError(new GoBoard.IllegalMoveException(master.makeClientInfo().getName() + " timed out.", MessageProtocol.PLAYER_FORFEIT));
+				}
+				else if (moveMsg.getMoveType() == MessageProtocol.MOVE_STONE)
+				{
+					game.doMakeMove(moveMsg.getLocation().makeBoardLocation());
+				}
+			}
+			else 
+			{
 				game.doGameOverError(new GoBoard.IllegalMoveException(master.makeClientInfo().getName() + " timed out.", MessageProtocol.PLAYER_FORFEIT));
 			}
-			else if (moveMsg.getMoveType() == MessageProtocol.MOVE_STONE)
-			{
-				game.doMakeMove(moveMsg.getLocation().makeBoardLocation());
+		} catch (SocketTimeoutException e) {
+			getServer().getLog().println("Player " + master.getName() +" Timed out");
+			try {
+				getServer().getStateManager().updateGameWithForfeitMove(game, master);
+			} catch (SQLException sqlE) {
+    			//unrecoverable, wrap and rethrow.
+    			throw new RuntimeException(sqlE);
 			}
-		}
-		else 
-		{
 			game.doGameOverError(new GoBoard.IllegalMoveException(master.makeClientInfo().getName() + " timed out.", MessageProtocol.PLAYER_FORFEIT));
 		}
     }
