@@ -118,37 +118,6 @@ abstract public class Player extends BaseClient {
         getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
     }
 
-    protected void handleMakeMove(ServerMessages.MakeMoveMessage m) throws IOException {
-        String playerName = m.getPlayer().getName();
-        byte type = m.getMoveType();
-        BoardLocation loc = m.getLocation().makeBoardLocation();
-
-        if (playerName.equals(name)) {
-            if (type == MessageProtocol.MOVE_PASS) {
-                //uhh
-            } else {
-                try {
-                    board.makeMove(loc, currentColor);
-                } catch (GoBoard.IllegalMoveException e) {
-
-                }
-
-            }
-        } else {
-            if (type == MessageProtocol.MOVE_PASS) {
-                //uhh
-            } else {
-                try {
-                    board.makeMove(loc, opponentColor);
-                } catch (GoBoard.IllegalMoveException e) {
-
-                }
-            }
-        }
-
-        getConnection().sendReplyToServer(MessageFactory.createStatusOkMessage());
-    }
-
     private void loadStateFromResumedGame(ResponseMessages.StatusResumeMessage m){
         gameName = m.getGameInfo().getName();
         board = m.getBoardInfo().getBoard();

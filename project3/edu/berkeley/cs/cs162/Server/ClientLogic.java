@@ -55,6 +55,9 @@ public abstract class ClientLogic {
             case MessageProtocol.OP_TYPE_REGISTER: {
             	return MessageFactory.createErrorRejectedMessage();
             }
+            case MessageProtocol.OP_TYPE_CONNECT: {
+                return MessageFactory.createErrorRejectedMessage();
+            }
             default:
             	return null;
         }
