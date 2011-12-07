@@ -13,6 +13,13 @@ public class MatchMakingWorker implements Runnable {
         while (true) {
         	PlayerLogic player1 = getNextAvailablePlayer();
         	PlayerLogic player2 = getNextAvailablePlayer();
+        	while (player1.isDisconnected() || player2.isDisconnected()) {
+        		if (player1.isDisconnected()) {
+        			player1 = getNextAvailablePlayer();
+        		} if (player2.isDisconnected()) {
+        			player2 = getNextAvailablePlayer();
+        		}
+        	}
             Game game = new Game(player1.getName() + "VS" + player2.getName(), player1, player2, new GoBoard(10));
             game.begin();
             server.addGame(game);
